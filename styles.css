@@ -1134,3 +1134,64 @@ svg .donut-progress {
   font-weight: 600;
   backdrop-filter: blur(8px);
 }
+/* ============================================
+   LOADING SCREEN
+============================================ */
+.app-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: linear-gradient(135deg, #0e1320 0%, #1a2332 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+.app-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader-content {
+  text-align: center;
+  color: white;
+}
+
+.loader-spinner {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 30px;
+}
+
+.loader-circle {
+  width: 80px;
+  height: 80px;
+  border: 4px solid rgba(94, 167, 255, 0.2);
+  border-top: 4px solid #79f5dc;
+  border-right: 4px solid #5ea7ff;
+  border-radius: 50%;
+  animation: loaderSpin 1.2s linear infinite;
+}
+
+@keyframes loaderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #79f5dc, #5ea7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.loader-subtitle {
+  font-size: 0.9rem;
+  color: #aab3c6;
+  font-weight: 500;
+}
