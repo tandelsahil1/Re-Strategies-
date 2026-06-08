@@ -251,7 +251,17 @@
     }
   }
   </script>
-
+<script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const loader = document.getElementById('appLoader');
+      if (loader) {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 600);
+      }
+    }, 1200);
+  });
+</script>
   <script type="module" src="app.js"></script>
 </body>
 </html>
