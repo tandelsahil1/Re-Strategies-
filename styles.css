@@ -1195,3 +1195,70 @@ svg .donut-progress {
   color: #aab3c6;
   font-weight: 500;
 }
+/* ============================================
+   PROFESSIONAL FOOTER
+============================================ */
+.app-footer {
+  position: fixed;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 6px 16px;
+  background: rgba(10, 12, 16, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 0.72rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.footer-brand {
+  background: linear-gradient(135deg, #79f5dc, #5ea7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.footer-text {
+  color: var(--muted);
+}
+
+.footer-divider {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.footer-link {
+  color: var(--accent-2);
+  text-decoration: none;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+}
+
+.footer-link:hover {
+  background: rgba(121, 245, 220, 0.15);
+  color: white;
+}
+
+/* Hide footer in scenario mode */
+.mode-scenarios .app-footer {
+  display: none;
+}
+
+/* Hide on small screens */
+@media (max-width: 768px) {
+  .app-footer {
+    display: none;
+  }
+}
