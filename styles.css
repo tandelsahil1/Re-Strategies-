@@ -1421,3 +1421,60 @@ svg .donut-progress {
     grid-template-columns: 1fr;
   }
 }
+/* ============================================
+   MOBILE OPTIMIZATIONS
+============================================ */
+@media (max-width: 768px) {
+  /* Larger touch targets on mobile */
+  .btn, button {
+    min-height: 38px;
+    font-size: 0.9rem;
+  }
+  
+  /* Better spacing for small screens */
+  .card {
+    padding: 12px;
+  }
+  
+  /* Bigger inputs on mobile (prevents iOS zoom) */
+  input, select {
+    font-size: 16px !important;
+  }
+  
+  /* Stack components vertically on small screens */
+  .field-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Hide complex elements on mobile */
+  .top-pill.subtle,
+  .building-view-hint {
+    display: none;
+  }
+}
+
+/* Prevent text selection on UI elements */
+.btn, button, .comp-toggle, .ring-item, .room-item {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+/* Better scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(94, 167, 255, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(94, 167, 255, 0.5);
+}
