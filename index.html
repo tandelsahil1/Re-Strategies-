@@ -51,7 +51,36 @@
         <h1>Re-Strategies on Building Level</h1>
         <p>CO₂ savings potential</p>
       </div>
-
+<!-- Welcome Banner (shown to first-time visitors) -->
+<div id="welcomeBanner" class="welcome-banner" style="display: none;">
+  <div class="welcome-content">
+    <button class="welcome-close" id="welcomeCloseBtn" title="Close">✕</button>
+    <div class="welcome-icon">🏢</div>
+    <h2 class="welcome-title">Welcome to Lindner LCA Tool</h2>
+    <p class="welcome-text">
+      Calculate <strong>CO₂ savings</strong> for your building projects using Lindner products and Re-Strategies.
+    </p>
+    <div class="welcome-steps">
+      <div class="welcome-step">
+        <div class="welcome-step-num">1</div>
+        <div class="welcome-step-text">Set room dimensions</div>
+      </div>
+      <div class="welcome-step">
+        <div class="welcome-step-num">2</div>
+        <div class="welcome-step-text">Select components</div>
+      </div>
+      <div class="welcome-step">
+        <div class="welcome-step-num">3</div>
+        <div class="welcome-step-text">Choose RE-Strategies</div>
+      </div>
+      <div class="welcome-step">
+        <div class="welcome-step-num">4</div>
+        <div class="welcome-step-text">See CO₂ savings</div>
+      </div>
+    </div>
+    <button class="welcome-cta" id="welcomeStartBtn">Get Started →</button>
+  </div>
+</div>
         <!-- ===== BUILDING NAVIGATOR ===== -->
   <section class="card building-nav-card">
     <div class="card-title">Building Navigator</div>
@@ -281,5 +310,32 @@
     </a>
   </div>
 </footer>
+  <script>
+  // Show welcome banner for first-time visitors
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const hasVisited = localStorage.getItem('lindner-lca-visited');
+      const welcomeBanner = document.getElementById('welcomeBanner');
+      const welcomeCloseBtn = document.getElementById('welcomeCloseBtn');
+      const welcomeStartBtn = document.getElementById('welcomeStartBtn');
+      
+      if (!hasVisited && welcomeBanner) {
+        welcomeBanner.style.display = 'flex';
+        setTimeout(() => welcomeBanner.classList.add('show'), 100);
+      }
+      
+      function closeWelcome() {
+        if (welcomeBanner) {
+          welcomeBanner.classList.remove('show');
+          setTimeout(() => welcomeBanner.style.display = 'none', 400);
+          localStorage.setItem('lindner-lca-visited', 'true');
+        }
+      }
+      
+      if (welcomeCloseBtn) welcomeCloseBtn.addEventListener('click', closeWelcome);
+      if (welcomeStartBtn) welcomeStartBtn.addEventListener('click', closeWelcome);
+    }, 1800);
+  });
+</script>
 </body>
 </html>
