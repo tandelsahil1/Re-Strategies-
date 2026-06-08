@@ -185,9 +185,24 @@
 
     <main id="viewerShell" class="viewer-shell">
       <div class="viewer-topbar">
-        <div id="viewerRoomTitle" class="top-pill">My Room</div>
-        <div class="top-pill subtle">CO₂ savings potential • Multi-select Components</div>
+  <div id="viewerRoomTitle" class="top-pill">My Room</div>
+  <div class="top-pill subtle">CO₂ savings potential • Multi-select Components</div>
+  <div style="position:relative;margin-left:auto;">
+    <button id="authUserBtn" class="auth-user-btn top-pill">🔐 Sign In</button>
+    <div id="authDropdown" class="auth-dropdown">
+      <div class="auth-dropdown-user">
+        <div class="auth-dropdown-name" id="dropdownName">—</div>
+        <div class="auth-dropdown-email" id="dropdownEmail">—</div>
       </div>
+      <button class="auth-dropdown-item" id="dropdownSaveBtn">💾 Save Project</button>
+      <button class="auth-dropdown-item" id="dropdownProjectsBtn">📂 My Projects</button>
+      <div class="auth-dropdown-divider"></div>
+      <button class="auth-dropdown-item" id="dropdownProfileBtn">👤 Profile Settings</button>
+      <div class="auth-dropdown-divider"></div>
+      <button class="auth-dropdown-item danger" id="dropdownSignOutBtn">🚪 Sign Out</button>
+    </div>
+  </div>
+</div>
 
       <div id="viewer3d"></div>
 
@@ -336,6 +351,146 @@
       if (welcomeStartBtn) welcomeStartBtn.addEventListener('click', closeWelcome);
     }, 1800);
   });
+</script>
+  <!-- Auth Button in Viewer Topbar -->
+<!-- Find your viewer-topbar div and add this inside it -->
+
+<script type="module">
+  import { initAuth, showAuthModal, isLoggedIn } from './auth.js';
+  import { signOut } from './supabase.js';
+
+  window.addEventListener('load', async () => {
+    try {
+      await initAuth();
+      setupDropdownEvents();
+      checkAndLoadLastProject();
+    } catch(e) {
+      console.warn('Auth load error:', e.message);
+    }
+  });
+
+  async function checkAndLoadLastProject() {
+    const projectToLoad = localStorage.getItem('lindner-load-project');
+    if (!projectToLoad) return;
+    localStorage.removeItem('lindner-load-project');
+    try {
+      const data = JSON.parse(projectToLoad);
+      if (data && data.floors) {
+        if (window.loadProjectData) {
+          window.loadProjectData(data);
+        } else {
+          setTimeout(() => {
+            if (window.loadProjectData) window.loadProjectData(data);
+          }, 1000);
+        }
+      }
+    } catch(e) {
+      console.warn('Failed to restore project:', e);
+    }
+  }
+
+  function setupDropdownEvents() {
+    const authBtn = document.getElementById('authUserBtn');
+    const dropdown = document.getElementById('authDropdown');
+    let dropdownOpen = false;
+
+    // Open dropdown or show login modal
+    authBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!isLoggedIn()) {
+        showAuthModal();
+        return;
+      }
+      dropdownOpen = !dropdownOpen;
+      dropdown?.classList.toggle('open', dropdownOpen);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', () => {
+      dropdownOpen = false;
+      dropdown?.classList.remove('open');
+    });
+
+    // ═══ SAVE PROJECT ═══
+    document.getElementById('dropdownSaveBtn')?.addEventListener('click', async () => {
+      if (!window.state) return;
+      dropdown?.classList.remove('open');
+      dropdownOpen = false;
+
+      const btn = document.getElementById('dropdownSaveBtn');
+      const original = btn.textContent;
+      btn.textContent = '⏳ Saving...';
+      btn.disabled = true;
+
+      try {
+        const { saveProject } = await import('./supabase.js');
+        const storedId = localStorage.getItem('lindner-current-project-id');
+        const { data, error } = await saveProject(window.state.building, storedId || null);
+
+        if (data) {
+          localStorage.setItem('lindner-current-project-id', data.id);
+          btn.textContent = '✅ Saved!';
+        } else {
+          btn.textContent = '❌ Failed';
+          console.warn('Save error:', error);
+        }
+      } catch(err) {
+        btn.textContent = '❌ Error';
+        console.warn('Save exception:', err);
+      }
+
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.disabled = false;
+      }, 2500);
+    });
+
+    // ═══ MY PROJECTS ═══
+    document.getElementById('dropdownProjectsBtn')?.addEventListener('click', async () => {
+      dropdown?.classList.remove('open');
+      dropdownOpen = false;
+      try {
+        const { showProjectsModal } = await import('./projectManager.js');
+        await showProjectsModal();
+      } catch(e) {
+        console.warn('Projects modal error:', e);
+      }
+    });
+
+    // ═══ PROFILE SETTINGS ═══
+    document.getElementById('dropdownProfileBtn')?.addEventListener('click', async () => {
+      dropdown?.classList.remove('open');
+      dropdownOpen = false;
+      try {
+        const { showProfileModal } = await import('./profile.js');
+        await showProfileModal();
+      } catch(e) {
+        console.warn('Profile modal error:', e);
+      }
+    });
+
+    // ═══ SIGN OUT ═══
+    document.getElementById('dropdownSignOutBtn')?.addEventListener('click', async () => {
+      dropdown?.classList.remove('open');
+      dropdownOpen = false;
+      try {
+        await signOut();
+        localStorage.removeItem('lindner-current-project-id');
+
+        const btn = document.getElementById('authUserBtn');
+        if (btn) {
+          btn.innerHTML = '🔐 Sign In';
+          btn.classList.remove('logged-in');
+        }
+        const dropdownName = document.getElementById('dropdownName');
+        const dropdownEmail = document.getElementById('dropdownEmail');
+        if (dropdownName) dropdownName.textContent = '—';
+        if (dropdownEmail) dropdownEmail.textContent = '—';
+      } catch(e) {
+        console.warn('Sign out error:', e);
+      }
+    });
+  }
 </script>
 </body>
 </html>
