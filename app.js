@@ -1289,15 +1289,7 @@ function hideBuildingPerformanceNotice() {
 }
 
 function showBuildingViewInstructions() {
-  let hint = document.getElementById("buildingViewHint");
-  if (!hint) {
-    hint = document.createElement("div");
-    hint.id = "buildingViewHint";
-    hint.className = "building-view-hint";
-    viewerEl.parentElement.appendChild(hint);
-  }
-  hint.innerHTML = `💡 <b>Click</b> any room to edit its components`;
-  hint.style.display = state.viewMode === "building" ? "block" : "none";
+  // Hint hidden - info shown in UI instead
 }
 
 function exportProject() {
