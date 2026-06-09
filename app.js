@@ -3506,9 +3506,18 @@ async function initCloudSync() {
       const { loadProject } = await import('./supabase.js');
       const { data } = await loadProject(lastProjectId);
       if (data?.building_data?.floors?.length) {
-        window.loadProjectData(data.building_data);
-        console.log('✅ Last project restored:', data.name);
-      }
+  const bd = data.building_data;
+  // Restore selected Sets before loading
+  bd.floors.forEach(floor => {
+    floor.rooms.forEach(room => {
+      room.selected = Array.isArray(room.selected) 
+        ? new Set(room.selected) 
+        : new Set();
+    });
+  });
+  window.loadProjectData(bd);
+  console.log('✅ Last project restored:', data.name);
+}
     }
   } catch(e) {
     console.warn('Cloud sync init failed (offline mode):', e);
