@@ -178,21 +178,14 @@ export async function showProjectsModal() {
       const projectData = await loadProjectById(id);
       if (projectData) {
         // Try window.loadProjectData with retries
-        const tryLoad = (attempts = 0) => {
-          if (window.loadProjectData) {
-            window.loadProjectData(projectData);
-            console.log('✅ Project loaded successfully');
-          } else if (attempts < 10) {
-            console.log(`⏳ Waiting for app... attempt ${attempts + 1}`);
-            setTimeout(() => tryLoad(attempts + 1), 300);
-          } else {
-            // Final fallback: store and reload page
-            console.log('↩️ Falling back to page reload');
-            localStorage.setItem('lindner-load-project', JSON.stringify(projectData));
-            window.location.reload();
-          }
-        };
-        tryLoad();
+        // Load once - no retries needed
+if (window.loadProjectData) {
+  window.loadProjectData(projectData);
+  console.log('✅ Project loaded successfully');
+} else {
+  localStorage.setItem('lindner-load-project', JSON.stringify(projectData));
+  window.location.reload();
+}
       } else {
         btn.textContent = 'Open →';
         btn.disabled = false;
