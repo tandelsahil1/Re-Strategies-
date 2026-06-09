@@ -374,10 +374,12 @@ function setupBuildingNav() {
   buildingNameInput.value = state.building.name;
   buildingLocationInput.value = state.building.location || "";
   buildingTypeSelect.value = state.building.projectType || "office";
-  buildingNameInput.addEventListener("input", () => {
-    state.building.name = buildingNameInput.value.trim() || "Untitled Building";
-    saveToLocalStorage();
-  });
+  buildingNameInput.addEventListener('input', () => {
+  state.building.name = buildingNameInput.value.trim();
+  saveToLocalStorage();
+  // Update project name in cloud too
+  if (window._autoSave) window._autoSave(state.building);
+});
   buildingLocationInput.addEventListener("input", () => {
     state.building.location = buildingLocationInput.value.trim();
     saveToLocalStorage();
@@ -1370,7 +1372,9 @@ function saveToLocalStorage() {
       viewMode: state.viewMode,
     };
     localStorage.setItem("lindner-project", JSON.stringify(payload));
-    window.state = state; // Keep window.state in sync
+window.state = state;
+// Trigger cloud auto-save if logged in
+if (window._autoSave) window._autoSave(state.building);
   } catch (e) { console.warn("Failed to save to localStorage:", e); }
 }
 
@@ -1399,6 +1403,42 @@ function loadFromLocalStorage() {
     return false;
   }
 }
+
+// Load project data from cloud (called when user opens a saved project)
+window.loadProjectData = function(buildingData) {
+  try {
+    if (!buildingData?.floors?.length) return false;
+    // Same processing as loadFromLocalStorage
+    buildingData.floors.forEach(floor => {
+      floor.rooms.forEach(room => {
+        room.selected = new Set(room.selected || []);
+        room.scenario = room.scenario || {};
+        room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
+        room.scenario.initialByComponent = room.scenario.initialByComponent || {};
+        room.scenario.stepByComponent = room.scenario.stepByComponent || {};
+      });
+    });
+    state.building = buildingData;
+    state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
+    state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
+    state.viewMode = 'room';
+    window.state = state;
+    // Refresh UI
+    refreshCurrentRoom();
+    renderBuildingTree();
+    saveToLocalStorage();
+    // Update building name input if it exists
+    const nameInput = document.getElementById('buildingName');
+    if (nameInput) nameInput.value = buildingData.name || '';
+    const locationInput = document.getElementById('buildingLocation');
+    if (locationInput) locationInput.value = buildingData.location || '';
+    console.log('✅ Project loaded:', buildingData.name);
+    return true;
+  } catch(e) {
+    console.warn('Failed to load project data:', e);
+    return false;
+  }
+};
 
 function setupUI() {
   const currentRoom = getCurrentRoom();
@@ -3384,3 +3424,71 @@ function hexToRgba(hex, a) {
   const b = Math.round(c.b * 255);
   return `rgba(${r},${g},${b},${a})`;
 }
+
+// ============================================================
+// CLOUD SYNC - Auto-save and Auto-load
+// ============================================================
+async function initCloudSync() {
+  try {
+    const { getCurrentUser } = await import('./supabase.js');
+    const { triggerAutoSave } = await import('./projectManager.js');
+
+    // Expose auto-save globally
+    window._autoSave = function(buildingData) {
+      triggerAutoSave(buildingData);
+    };
+
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    // Auto-load last project on sign in
+    const lastProjectId = localStorage.getItem('lindner-current-project-id');
+    if (lastProjectId) {
+      console.log('🔄 Loading last project...');
+      const { loadProject } = await import('./supabase.js');
+      const { data } = await loadProject(lastProjectId);
+      if (data?.building_data?.floors?.length) {
+        window.loadProjectData(data.building_data);
+        console.log('✅ Last project restored:', data.name);
+      }
+    }
+  } catch(e) {
+    console.warn('Cloud sync init failed (offline mode):', e);
+  }
+}
+
+// Load project data from cloud into app state
+window.loadProjectData = function(buildingData) {
+  try {
+    if (!buildingData?.floors?.length) return false;
+    buildingData.floors.forEach(floor => {
+      floor.rooms.forEach(room => {
+        room.selected = new Set(room.selected || []);
+        room.scenario = room.scenario || {};
+        room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
+        room.scenario.initialByComponent = room.scenario.initialByComponent || {};
+        room.scenario.stepByComponent = room.scenario.stepByComponent || {};
+      });
+    });
+    state.building = buildingData;
+    state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
+    state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
+    state.viewMode = 'room';
+    window.state = state;
+    refreshCurrentRoom();
+    renderBuildingTree();
+    saveToLocalStorage();
+    const nameInput = document.getElementById('buildingName');
+    if (nameInput) nameInput.value = buildingData.name || '';
+    const locationInput = document.getElementById('buildingLocation');
+    if (locationInput) locationInput.value = buildingData.location || '';
+    console.log('✅ Project loaded:', buildingData.name);
+    return true;
+  } catch(e) {
+    console.warn('Failed to load project data:', e);
+    return false;
+  }
+};
+
+// Start cloud sync after app loads
+setTimeout(initCloudSync, 1500);
