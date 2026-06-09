@@ -130,6 +130,9 @@ const state = {
   },
 };
 window.state = state;
+// Expose functions globally for cloud sync
+window.refreshCurrentRoom = refreshCurrentRoom;
+window.renderBuildingTree = renderBuildingTree;
 
 function getCurrentRoom() {
   const floor = getCurrentFloor();
@@ -481,6 +484,12 @@ function renderBuildingTree() {
   }
 }
 
+// After refreshCurrentRoom closing }
+window.refreshCurrentRoom = refreshCurrentRoom;
+
+// After renderBuildingTree closing }
+window.renderBuildingTree = renderBuildingTree;
+
 function addNewFloor() {
   const id = `floor-${Date.now()}`;
   const floorIndex = state.building.floors.length;
@@ -607,6 +616,11 @@ function refreshCurrentRoom() {
   updateScenarioButtonState();
   buildRoom();
 }
+// After refreshCurrentRoom closing }
+window.refreshCurrentRoom = refreshCurrentRoom;
+
+// After renderBuildingTree closing }
+window.renderBuildingTree = renderBuildingTree;
 
 function refreshCurrentRoomUIOnly() {
   const room = getCurrentRoom();
@@ -1407,32 +1421,65 @@ function loadFromLocalStorage() {
 // Load project data from cloud (called when user opens a saved project)
 window.loadProjectData = function(buildingData) {
   try {
-    if (!buildingData?.floors?.length) return false;
-    // Same processing as loadFromLocalStorage
-    buildingData.floors.forEach(floor => {
+    if (!buildingData?.floors?.length) {
+      console.warn('No floors in project data');
+      return false;
+    }
+
+    // Deep clone to avoid reference issues
+    const cloned = JSON.parse(JSON.stringify(buildingData));
+
+    // Safely restore all room data
+    cloned.floors.forEach(floor => {
       floor.rooms.forEach(room => {
-        room.selected = new Set(room.selected || []);
+        // Fix selected - handle any format safely
+        try {
+          if (room.selected instanceof Set) {
+            room.selected = room.selected;
+          } else if (Array.isArray(room.selected)) {
+            room.selected = new Set(room.selected);
+          } else if (room.selected && typeof room.selected === 'object') {
+            // Handle plain object from JSON
+            room.selected = new Set(Object.values(room.selected));
+          } else {
+            room.selected = new Set();
+          }
+        } catch(e) {
+          room.selected = new Set();
+        }
+
+        // Restore scenario data
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
         room.scenario.stepByComponent = room.scenario.stepByComponent || {};
       });
     });
-    state.building = buildingData;
-    state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
-    state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
+
+    // Apply to state
+    state.building = cloned;
+    state.currentFloorId = cloned.floors[0]?.id || 'floor-1';
+    state.currentRoomId = cloned.floors[0]?.rooms[0]?.id || 'room-1';
     state.viewMode = 'room';
     window.state = state;
-    // Refresh UI
-    refreshCurrentRoom();
-    renderBuildingTree();
+
+    // Refresh UI using exposed functions
+    if (typeof refreshCurrentRoom === 'function') refreshCurrentRoom();
+    if (typeof renderBuildingTree === 'function') renderBuildingTree();
+    
+    // Also try window versions as fallback
+    if (window.refreshCurrentRoom) window.refreshCurrentRoom();
+    if (window.renderBuildingTree) window.renderBuildingTree();
+
     saveToLocalStorage();
-    // Update building name input if it exists
+
+    // Update building name inputs
     const nameInput = document.getElementById('buildingName');
-    if (nameInput) nameInput.value = buildingData.name || '';
+    if (nameInput) nameInput.value = cloned.name || '';
     const locationInput = document.getElementById('buildingLocation');
-    if (locationInput) locationInput.value = buildingData.location || '';
-    console.log('✅ Project loaded:', buildingData.name);
+    if (locationInput) locationInput.value = cloned.location || '';
+
+    console.log('✅ Project loaded:', cloned.name);
     return true;
   } catch(e) {
     console.warn('Failed to load project data:', e);
