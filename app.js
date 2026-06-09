@@ -1480,7 +1480,7 @@ window.loadProjectData = function(buildingData) {
     state.building = cloned;
     state.currentFloorId = cloned.floors[0]?.id || 'floor-1';
     state.currentRoomId = cloned.floors[0]?.rooms[0]?.id || 'room-1';
-    state.viewMode = 'room';
+    state.viewMode = 'building';
     window.state = state;
 
           // Refresh UI
@@ -1493,8 +1493,8 @@ state.viewMode = 'room';
 window.state = state;
 const roomBtn = document.getElementById('viewModeRoomBtn');
 const buildingBtn = document.getElementById('viewModeBuildingBtn');
-if (roomBtn) roomBtn.classList.add('active');
-if (buildingBtn) buildingBtn.classList.remove('active');
+if (roomBtn) roomBtn.classList.remove('active');
+if (buildingBtn) buildingBtn.classList.add('active');
 
 // Step 2: update inputs after short delay
 setTimeout(() => {
@@ -1519,7 +1519,7 @@ setTimeout(() => {
     state.viewMode = 'room';
     window.state = state;
     if (typeof setViewMode === 'function') {
-      setViewMode('room');
+  setViewMode('building');
       console.log('✅ 3D rebuilt via setViewMode');
     } else if (window.buildRoom) {
       window.buildRoom();
