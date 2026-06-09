@@ -19,37 +19,26 @@
       height:52px;
       background:rgba(13,16,24,0.98);
       border-bottom:1px solid rgba(255,255,255,0.08);
-      display:flex;
-      align-items:center;
-      padding:0 20px;
-      gap:14px;
-      flex-shrink:0;
-      z-index:100;
+      display:flex; align-items:center;
+      padding:0 20px; gap:14px;
+      flex-shrink:0; z-index:100;
     }
     .brand {
-      font-size:0.95rem;
-      font-weight:900;
+      font-size:0.95rem; font-weight:900;
       background:linear-gradient(135deg,#79f5dc,#5ea7ff);
-      -webkit-background-clip:text;
-      background-clip:text;
+      -webkit-background-clip:text; background-clip:text;
       -webkit-text-fill-color:transparent;
     }
     .divider { width:1px; height:20px; background:rgba(255,255,255,0.1); }
     .top-title { font-size:0.82rem; color:#aab3c6; font-weight:600; }
     .top-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
     .btn {
-      padding:7px 14px;
-      border-radius:8px;
+      padding:7px 14px; border-radius:8px;
       border:1px solid rgba(255,255,255,0.12);
       background:rgba(255,255,255,0.05);
-      color:#eaf0ff;
-      font-size:0.8rem;
-      font-weight:700;
-      cursor:pointer;
-      transition:all 0.15s;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
+      color:#eaf0ff; font-size:0.8rem; font-weight:700;
+      cursor:pointer; transition:all 0.15s;
+      display:inline-flex; align-items:center; gap:6px;
       text-decoration:none;
     }
     .btn:hover { background:rgba(94,167,255,0.15); border-color:rgba(94,167,255,0.4); }
@@ -57,37 +46,23 @@
       background:linear-gradient(135deg,rgba(94,167,255,0.25),rgba(121,245,220,0.18));
       border-color:rgba(94,167,255,0.45);
     }
-    .btn-success {
-      background:linear-gradient(135deg,rgba(121,245,220,0.2),rgba(94,167,255,0.15));
-      border-color:rgba(121,245,220,0.4);
-    }
     .back { color:#aab3c6; text-decoration:none; font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:5px; }
     .back:hover { color:#eaf0ff; }
     .main { flex:1; display:flex; overflow:hidden; }
     .sidebar {
-      width:270px;
-      background:rgba(13,16,24,0.98);
+      width:270px; background:rgba(13,16,24,0.98);
       border-right:1px solid rgba(255,255,255,0.06);
-      display:flex;
-      flex-direction:column;
-      flex-shrink:0;
+      display:flex; flex-direction:column; flex-shrink:0;
     }
     .sb-section { padding:14px; border-bottom:1px solid rgba(255,255,255,0.06); }
     .sb-title {
-      font-size:0.7rem;
-      font-weight:800;
-      color:#aab3c6;
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-      margin-bottom:10px;
+      font-size:0.7rem; font-weight:800; color:#aab3c6;
+      text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px;
     }
     .upload-zone {
       border:2px dashed rgba(94,167,255,0.3);
-      border-radius:10px;
-      padding:20px;
-      text-align:center;
-      cursor:pointer;
-      transition:all 0.2s;
+      border-radius:10px; padding:20px;
+      text-align:center; cursor:pointer; transition:all 0.2s;
     }
     .upload-zone:hover { border-color:rgba(94,167,255,0.6); background:rgba(94,167,255,0.05); }
     .upload-zone.drag { border-color:#79f5dc; background:rgba(121,245,220,0.08); }
@@ -98,9 +73,7 @@
       display:none;
       background:rgba(121,245,220,0.08);
       border:1px solid rgba(121,245,220,0.25);
-      border-radius:8px;
-      padding:10px 12px;
-      font-size:0.78rem;
+      border-radius:8px; padding:10px 12px; font-size:0.78rem;
     }
     .file-pill.show { display:block; }
     .file-pill .fn { font-weight:700; color:#79f5dc; margin-bottom:2px; }
@@ -109,57 +82,41 @@
     .sb-empty { text-align:center; color:#aab3c6; font-size:0.78rem; padding:20px 0; }
     .import-wrap { padding:12px 14px; border-top:1px solid rgba(255,255,255,0.06); }
     .import-btn {
-      display:none;
-      width:100%;
-      padding:10px;
+      display:none; width:100%; padding:10px;
       background:linear-gradient(135deg,rgba(121,245,220,0.2),rgba(94,167,255,0.15));
       border:1px solid rgba(121,245,220,0.4);
-      border-radius:10px;
-      color:#eaf0ff;
-      font-weight:800;
-      font-size:0.85rem;
-      cursor:pointer;
-      transition:all 0.2s;
+      border-radius:10px; color:#eaf0ff;
+      font-weight:800; font-size:0.85rem;
+      cursor:pointer; transition:all 0.2s;
     }
     .import-btn.show { display:block; }
     .import-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(121,245,220,0.2); }
     .room-item {
-      padding:8px 10px;
-      border-radius:8px;
+      padding:8px 10px; border-radius:8px;
       border:1px solid rgba(255,255,255,0.06);
-      margin-bottom:4px;
-      cursor:pointer;
-      font-size:0.78rem;
-      transition:all 0.15s;
-      display:flex;
-      align-items:center;
-      gap:8px;
+      margin-bottom:4px; cursor:pointer;
+      font-size:0.78rem; transition:all 0.15s;
+      display:flex; align-items:center; gap:8px;
     }
     .room-item:hover { background:rgba(94,167,255,0.08); border-color:rgba(94,167,255,0.25); }
     .room-item.sel { background:rgba(121,245,220,0.1); border-color:rgba(121,245,220,0.4); }
     .room-name { font-weight:700; color:#eaf0ff; }
     .room-meta { color:#aab3c6; font-size:0.7rem; margin-top:1px; }
     .floor-label {
-      font-weight:800;
-      font-size:0.78rem;
-      color:#5ea7ff;
-      margin:10px 0 6px;
-      padding-bottom:4px;
-      border-bottom:1px solid rgba(94,167,255,0.2);
+      font-weight:800; font-size:0.78rem;
+      color:#5ea7ff; margin:10px 0 6px;
+      padding-bottom:4px; border-bottom:1px solid rgba(94,167,255,0.2);
     }
     .prop-row {
-      display:flex;
-      justify-content:space-between;
-      padding:4px 0;
-      border-bottom:1px solid rgba(255,255,255,0.04);
-      font-size:0.76rem;
-      gap:8px;
+      display:flex; justify-content:space-between;
+      padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:0.76rem; gap:8px;
     }
     .pk { color:#aab3c6; flex-shrink:0; }
     .pv { color:#eaf0ff; font-weight:600; text-align:right; word-break:break-word; }
     .sec-head { font-weight:800; font-size:0.82rem; color:#79f5dc; margin:10px 0 6px; }
     .viewer-wrap { flex:1; position:relative; overflow:hidden; }
-    #xeo-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
+    #three-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
     .empty {
       position:absolute; inset:0;
       display:flex; flex-direction:column;
@@ -175,14 +132,13 @@
       background:rgba(6,8,13,0.92);
       display:flex; flex-direction:column;
       align-items:center; justify-content:center;
-      gap:14px; backdrop-filter:blur(8px);
+      gap:14px; backdrop-filter:blur(8px); z-index:50;
     }
     .loading.hide { display:none; }
     .spin {
       width:40px; height:40px;
       border:3px solid rgba(94,167,255,0.2);
-      border-top-color:#5ea7ff;
-      border-radius:50%;
+      border-top-color:#5ea7ff; border-radius:50%;
       animation:spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform:rotate(360deg); } }
@@ -204,8 +160,7 @@
     .tool:hover { background:rgba(94,167,255,0.2); border-color:rgba(94,167,255,0.4); }
     .tool.active { background:rgba(121,245,220,0.2); border-color:rgba(121,245,220,0.4); }
     .statusbar {
-      height:26px;
-      background:rgba(13,16,24,0.98);
+      height:26px; background:rgba(13,16,24,0.98);
       border-top:1px solid rgba(255,255,255,0.06);
       display:flex; align-items:center;
       padding:0 16px; gap:10px;
@@ -264,13 +219,11 @@
       </div>
     </div>
     <div class="import-wrap">
-      <button class="import-btn" id="importBtn">
-        🚀 Import Rooms to LCA Tool
-      </button>
+      <button class="import-btn" id="importBtn">🚀 Import Rooms to LCA Tool</button>
     </div>
   </div>
   <div class="viewer-wrap">
-    <canvas id="xeo-canvas"></canvas>
+    <canvas id="three-canvas"></canvas>
     <div class="empty" id="emptyEl">
       <div class="empty-icon">🏗️</div>
       <div class="empty-title">No IFC File Loaded</div>
@@ -282,30 +235,44 @@
       <div class="load-sub" id="loadSub">Please wait...</div>
     </div>
     <div class="tools">
-      <button class="tool" id="tTop"    title="Top view">⬆</button>
-      <button class="tool" id="tFront"  title="Front view">⬛</button>
-      <button class="tool" id="tRight"  title="Right view">▶</button>
-      <button class="tool" id="t3D"     title="3D view">🔷</button>
-      <button class="tool" id="tSect"   title="Section">✂️</button>
+      <button class="tool" id="tTop"   title="Top view">⬆</button>
+      <button class="tool" id="tFront" title="Front view">⬛</button>
+      <button class="tool" id="tRight" title="Right view">▶</button>
+      <button class="tool" id="t3D"    title="3D view">🔷</button>
     </div>
   </div>
 </div>
 <div class="statusbar">
   <div class="dot" id="sDot"></div>
   <span id="sTxt">Ready — Open an IFC file</span>
-  <span style="margin-left:auto">xeokit-sdk • WebIFC</span>
+  <span style="margin-left:auto">three.js • web-ifc</span>
 </div>
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import {
-  Viewer,
-  WebIFCLoaderPlugin,
-  NavCubePlugin,
-  SectionPlanesPlugin
-} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
-import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/web-ifc-api.js";
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
+    "three/examples/jsm/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js",
+    "web-ifc-three/IFCLoader.js": "https://cdn.jsdelivr.net/npm/web-ifc-three@0.0.125/IFCLoader.js",
+    "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/web-ifc-api.js"
+  }
+}
+</script>
 
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { IFCLoader } from "web-ifc-three/IFCLoader.js";
+import {
+  IFCBUILDINGSTOREY,
+  IFCSPACE,
+  IFCWALL,
+  IFCWALLSTANDARDCASE,
+  IFCSLAB
+} from "web-ifc";
+
+// ── DOM ──────────────────────────────────────────────────────
 const topTitle  = document.getElementById('topTitle');
 const uploadZone= document.getElementById('uploadZone');
 const filePill  = document.getElementById('filePill');
@@ -319,17 +286,20 @@ const importBtn = document.getElementById('importBtn');
 const sDot      = document.getElementById('sDot');
 const sTxt      = document.getElementById('sTxt');
 const toast     = document.getElementById('toast');
+const canvas    = document.getElementById('three-canvas');
 
-let viewer       = null;
-let loaderPlugin = null;
-let model        = null;
-let sectionPlanes= null;
-let currentFile  = null;
-let ifcData      = { floors:[], spaces:[], walls:[], slabs:[] };
-let selectedRooms= new Set();
-let isWireframe  = false;
-let isXray       = false;
+// ── State ─────────────────────────────────────────────────────
+let scene, camera, renderer, controls, ifcLoader;
+let ifcModel = null;
+let modelID  = null;
+let currentFile = null;
+let ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
+let selectedRooms = new Set();
+let isWireframe = false;
+let isXray = false;
+let originalMaterials = new Map();
 
+// ── Helpers ───────────────────────────────────────────────────
 const setStatus = (dot, txt) => {
   sDot.className = 'dot' + (dot ? ` ${dot}` : '');
   sTxt.textContent = txt;
@@ -347,178 +317,230 @@ const showToast = msg => {
   setTimeout(() => toast.style.display='none', 3000);
 };
 
-// ── Init xeokit Viewer (now async) ────────────────────────────
-async function initViewer() {
-  viewer = new Viewer({
-    canvasId: "xeo-canvas",
-    transparent: true,
-    dtxEnabled: true,
-    pbrEnabled: true,
-  });
-  viewer.scene.canvas.canvas.style.background =
-    "linear-gradient(180deg, #0d1018 0%, #0a0e1a 100%)";
+// ── Init Three.js Scene ───────────────────────────────────────
+function initScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0e1a);
 
-  viewer.camera.eye  = [10, 10, 10];
-  viewer.camera.look = [0, 0, 0];
-  viewer.camera.up   = [0, 1, 0];
+  const rect = canvas.getBoundingClientRect();
+  camera = new THREE.PerspectiveCamera(60, rect.width / rect.height, 0.1, 5000);
+  camera.position.set(15, 15, 15);
 
-  new NavCubePlugin(viewer, {
-    canvasId: "xeo-canvas",
-    visible: true,
-    size: 100,
-    alignment: "bottomRight",
-    bottomMargin: 30,
-    rightMargin: 10,
-  });
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(rect.width, rect.height, false);
+  renderer.shadowMap.enabled = true;
 
-  sectionPlanes = new SectionPlanesPlugin(viewer, {
-    overviewVisible: false,
-  });
+  controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.target.set(0, 0, 0);
 
-  // Init WebIFC API
-  const ifcApi = new WebIFC.IfcAPI();
-  ifcApi.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/");
-  await ifcApi.Init();
+  // Lights
+  const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+  scene.add(ambient);
 
-  loaderPlugin = new WebIFCLoaderPlugin(viewer, {
-    WebIFC,
-    IfcAPI: ifcApi,
-  });
+  const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+  dir.position.set(10, 20, 10);
+  dir.castShadow = true;
+  scene.add(dir);
 
-  viewer.scene.input.on("mouseclicked", coords => {
-    const hit = viewer.scene.pick({ canvasPos: coords });
-    if (hit?.entity) {
-      viewer.scene.setObjectsHighlighted(
-        viewer.scene.highlightedObjectIds, false
-      );
-      hit.entity.highlighted = true;
-      const meta = viewer.metaScene.metaObjects[hit.entity.id];
-      if (meta) showProps(meta);
-    } else {
-      viewer.scene.setObjectsHighlighted(
-        viewer.scene.highlightedObjectIds, false
-      );
-    }
-  });
+  const dir2 = new THREE.DirectionalLight(0x6090ff, 0.35);
+  dir2.position.set(-10, 10, -10);
+  scene.add(dir2);
 
+  // Grid
+  const grid = new THREE.GridHelper(50, 50, 0x224466, 0x112233);
+  scene.add(grid);
+
+  // Axes
+  const axes = new THREE.AxesHelper(3);
+  scene.add(axes);
+
+  // IFC Loader
+  ifcLoader = new IFCLoader();
+  ifcLoader.ifcManager.setWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/");
+
+  // Resize
+  window.addEventListener('resize', onResize);
+  onResize();
+
+  animate();
   setStatus('g', 'Viewer ready — Open an IFC file');
 }
 
-async function loadIFC(file) {
-  if (!viewer || !loaderPlugin) {
-    setStatus('y', 'Initializing viewer...');
-    await initViewer();
-  }
-  if (model) { model.destroy(); model = null; }
-  currentFile = file;
+function onResize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  camera.aspect = rect.width / rect.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(rect.width, rect.height, false);
+}
 
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// ── Load IFC ──────────────────────────────────────────────────
+async function loadIFC(file) {
+  if (!scene) initScene();
+  if (ifcModel) {
+    scene.remove(ifcModel);
+    ifcModel.traverse(obj => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        else obj.material.dispose();
+      }
+    });
+    ifcModel = null;
+    originalMaterials.clear();
+  }
+
+  currentFile = file;
   showLoad(true, 'Parsing IFC geometry...');
   emptyEl.classList.add('hide');
   setStatus('y', `Loading ${file.name}...`);
 
   try {
     const url = URL.createObjectURL(file);
+    ifcModel = await ifcLoader.loadAsync(url, prog => {
+      if (prog.total) {
+        const pct = ((prog.loaded / prog.total) * 100).toFixed(0);
+        showLoad(true, `Loading geometry... ${pct}%`);
+      }
+    });
+    URL.revokeObjectURL(url);
 
-    model = loaderPlugin.load({
-      id:   "ifcModel",
-      src:   url,
-      excludeUnclassifiedObjects: false,
-      objectDefaults: {
-        IfcSpace: { visible: false },
+    modelID = ifcModel.modelID;
+    scene.add(ifcModel);
+
+    // Save original materials for x-ray toggling
+    ifcModel.traverse(obj => {
+      if (obj.isMesh) {
+        originalMaterials.set(obj.uuid, obj.material);
       }
     });
 
-    model.on("loaded", () => {
-      URL.revokeObjectURL(url);
-      showLoad(false);
-      viewer.cameraFlight.flyTo(model, { duration: 1 });
+    fitCameraToObject(ifcModel);
 
-      fName.textContent = file.name;
-      fSize.textContent = fmt(file.size);
-      filePill.classList.add('show');
-      uploadZone.style.display = 'none';
-      topTitle.textContent = file.name;
-      setStatus('g', `✅ ${file.name} loaded`);
+    fName.textContent = file.name;
+    fSize.textContent = fmt(file.size);
+    filePill.classList.add('show');
+    uploadZone.style.display = 'none';
+    topTitle.textContent = file.name;
 
-      extractIFCData();
-      renderSidebar();
-      importBtn.classList.add('show');
-    });
+    showLoad(true, 'Extracting spatial structure...');
+    await extractIFCData();
+    renderSidebar();
+    importBtn.classList.add('show');
+    showLoad(false);
 
-    model.on("error", err => {
-      URL.revokeObjectURL(url);
-      showLoad(false);
-      setStatus('r', `❌ ${err}`);
-      console.error('Model error:', err);
-    });
-  } catch(err) {
+    setStatus('g',
+      `✅ ${file.name} — ` +
+      `${ifcData.floors.length} floors, ` +
+      `${ifcData.spaces.length} spaces, ` +
+      `${ifcData.walls.length} walls`
+    );
+  } catch (err) {
     showLoad(false);
     setStatus('r', `❌ ${err.message}`);
     console.error(err);
   }
 }
 
-function extractIFCData() {
-  ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
-  const metaObjects = viewer.metaScene.metaObjects;
+function fitCameraToObject(obj) {
+  const box = new THREE.Box3().setFromObject(obj);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
 
-  for (const id in metaObjects) {
-    const obj = metaObjects[id];
-    const type = obj.type;
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const fov = camera.fov * (Math.PI / 180);
+  const distance = (maxDim / 2) / Math.tan(fov / 2) * 1.6;
 
-    if (type === 'IfcBuildingStorey') {
-      ifcData.floors.push({
-        id: obj.id,
-        name: obj.name || 'Floor',
-        children: obj.children || []
-      });
-    }
-    if (type === 'IfcSpace') {
-      ifcData.spaces.push({
-        id: obj.id,
-        name: obj.name || 'Space',
-        parent: obj.parent?.name || ''
-      });
-    }
-    if (type === 'IfcWall' || type === 'IfcWallStandardCase') {
-      ifcData.walls.push({ id: obj.id, name: obj.name || 'Wall' });
-    }
-    if (type === 'IfcSlab') {
-      ifcData.slabs.push({ id: obj.id, name: obj.name || 'Slab' });
-    }
-  }
-
-  setStatus('g',
-    `✅ ${currentFile?.name || 'Model'} — ` +
-    `${ifcData.floors.length} floors, ` +
-    `${ifcData.spaces.length} spaces, ` +
-    `${ifcData.walls.length} walls`
+  camera.position.set(
+    center.x + distance * 0.7,
+    center.y + distance * 0.6,
+    center.z + distance * 0.7
   );
+  controls.target.copy(center);
+  camera.lookAt(center);
+  controls.update();
 }
 
-function showProps(meta) {
-  let html = `<div class="sec-head">📦 ${meta.name || 'Element'}</div>`;
-  html += `<div class="prop-row"><span class="pk">Type</span><span class="pv">${meta.type||'—'}</span></div>`;
-  html += `<div class="prop-row"><span class="pk">ID</span><span class="pv">${meta.id||'—'}</span></div>`;
-  if (meta.parent) {
-    html += `<div class="prop-row"><span class="pk">Parent</span><span class="pv">${meta.parent.name||'—'}</span></div>`;
+// ── Extract IFC Metadata via web-ifc-three ────────────────────
+async function extractIFCData() {
+  ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
+  const mgr = ifcLoader.ifcManager;
+
+  // Floors
+  const storeyIDs = await mgr.getAllItemsOfType(modelID, IFCBUILDINGSTOREY, false);
+  for (const id of storeyIDs) {
+    const props = await mgr.getItemProperties(modelID, id);
+    ifcData.floors.push({
+      id,
+      name: props.Name?.value || props.LongName?.value || `Storey ${id}`,
+      elevation: props.Elevation?.value ?? 0
+    });
   }
-  if (meta.propertySets?.length) {
-    for (const pset of meta.propertySets) {
-      if (pset.properties?.length) {
-        html += `<div class="sec-head" style="margin-top:10px;">${pset.name||'Properties'}</div>`;
-        for (const p of pset.properties) {
-          html += `<div class="prop-row">
-            <span class="pk">${p.name}</span>
-            <span class="pv">${p.value??'—'}</span>
-          </div>`;
-        }
-      }
+
+  // Spaces
+  const spaceIDs = await mgr.getAllItemsOfType(modelID, IFCSPACE, false);
+  for (const id of spaceIDs) {
+    const props = await mgr.getItemProperties(modelID, id);
+    // Try to find parent storey via spatial structure
+    let parentName = '';
+    try {
+      const tree = await mgr.getSpatialStructure(modelID, false);
+      parentName = findParentStorey(tree, id) || '';
+    } catch(e) { /* ignore */ }
+
+    ifcData.spaces.push({
+      id,
+      name: props.Name?.value || props.LongName?.value || `Space ${id}`,
+      parent: parentName
+    });
+  }
+
+  // Walls
+  const wallIDs = await mgr.getAllItemsOfType(modelID, IFCWALL, false);
+  const wallStdIDs = await mgr.getAllItemsOfType(modelID, IFCWALLSTANDARDCASE, false);
+  for (const id of [...wallIDs, ...wallStdIDs]) {
+    const props = await mgr.getItemProperties(modelID, id);
+    ifcData.walls.push({
+      id,
+      name: props.Name?.value || `Wall ${id}`
+    });
+  }
+
+  // Slabs
+  const slabIDs = await mgr.getAllItemsOfType(modelID, IFCSLAB, false);
+  for (const id of slabIDs) {
+    const props = await mgr.getItemProperties(modelID, id);
+    ifcData.slabs.push({
+      id,
+      name: props.Name?.value || `Slab ${id}`
+    });
+  }
+}
+
+function findParentStorey(node, targetID, currentStoreyName = '') {
+  if (!node) return null;
+  if (node.type === 'IFCBUILDINGSTOREY') {
+    currentStoreyName = node.Name?.value || node.LongName?.value || '';
+  }
+  if (node.expressID === targetID) return currentStoreyName;
+  if (node.children) {
+    for (const child of node.children) {
+      const r = findParentStorey(child, targetID, currentStoreyName);
+      if (r) return r;
     }
   }
-  sbScroll.innerHTML = html;
+  return null;
 }
 
+// ── Sidebar ───────────────────────────────────────────────────
 function renderSidebar() {
   const { floors, spaces, walls, slabs } = ifcData;
   let html = '';
@@ -538,24 +560,40 @@ function renderSidebar() {
     if (floors.length > 0) {
       for (const floor of floors) {
         html += `<div class="floor-label">📐 ${floor.name}</div>`;
-        const floorSpaces = spaces.filter(s =>
-          s.parent === floor.name || spaces.length <= 5
-        );
-        if (floorSpaces.length > 0) {
-          for (const sp of floorSpaces) {
+        const floorSpaces = spaces.filter(s => s.parent === floor.name);
+        const list = floorSpaces.length > 0 ? floorSpaces : [];
+        if (list.length > 0) {
+          for (const sp of list) {
             const sel = selectedRooms.has(sp.id);
             html += `
               <div class="room-item ${sel?'sel':''}"
-                   onclick="window.toggleRoom('${sp.id}')">
+                   onclick="window.toggleRoom(${sp.id})">
                 <span style="font-size:1rem;">${sel?'✅':'⬜'}</span>
                 <div>
                   <div class="room-name">${sp.name}</div>
-                  <div class="room-meta">IfcSpace</div>
+                  <div class="room-meta">IfcSpace #${sp.id}</div>
                 </div>
               </div>`;
           }
         } else {
           html += `<div style="color:#aab3c6;font-size:0.75rem;padding:4px 8px;">No spaces on this floor</div>`;
+        }
+      }
+      // Orphan spaces (no parent match)
+      const orphans = spaces.filter(s => !floors.some(f => f.name === s.parent));
+      if (orphans.length > 0) {
+        html += `<div class="floor-label">📐 Other Spaces</div>`;
+        for (const sp of orphans) {
+          const sel = selectedRooms.has(sp.id);
+          html += `
+            <div class="room-item ${sel?'sel':''}"
+                 onclick="window.toggleRoom(${sp.id})">
+              <span style="font-size:1rem;">${sel?'✅':'⬜'}</span>
+              <div>
+                <div class="room-name">${sp.name}</div>
+                <div class="room-meta">IfcSpace #${sp.id}</div>
+              </div>
+            </div>`;
         }
       }
     } else if (spaces.length > 0) {
@@ -564,11 +602,11 @@ function renderSidebar() {
         const sel = selectedRooms.has(sp.id);
         html += `
           <div class="room-item ${sel?'sel':''}"
-               onclick="window.toggleRoom('${sp.id}')">
+               onclick="window.toggleRoom(${sp.id})">
             <span style="font-size:1rem;">${sel?'✅':'⬜'}</span>
             <div>
               <div class="room-name">${sp.name}</div>
-              <div class="room-meta">IfcSpace</div>
+              <div class="room-meta">IfcSpace #${sp.id}</div>
             </div>
           </div>`;
       }
@@ -594,25 +632,19 @@ function row(k, v) {
 }
 
 window.toggleRoom = id => {
-  if (selectedRooms.has(id)) {
-    selectedRooms.delete(id);
-    viewer.scene.setObjectsSelected([id], false);
-  } else {
-    selectedRooms.add(id);
-    viewer.scene.setObjectsSelected([id], true);
-  }
+  if (selectedRooms.has(id)) selectedRooms.delete(id);
+  else selectedRooms.add(id);
   renderSidebar();
 };
 
 function updateImportBtn() {
   const n = selectedRooms.size;
-  if (n > 0) {
-    importBtn.textContent = `🚀 Import ${n} Room${n>1?'s':''} to LCA Tool`;
-  } else {
-    importBtn.textContent = `🚀 Import All Rooms to LCA Tool`;
-  }
+  importBtn.textContent = n > 0
+    ? `🚀 Import ${n} Room${n>1?'s':''} to LCA Tool`
+    : `🚀 Import All Rooms to LCA Tool`;
 }
 
+// ── Import to LCA Tool ────────────────────────────────────────
 importBtn.addEventListener('click', () => {
   const spaces = selectedRooms.size > 0
     ? ifcData.spaces.filter(s => selectedRooms.has(s.id))
@@ -635,9 +667,7 @@ importBtn.addEventListener('click', () => {
       location: '',
       projectType: 'office',
       floors: floors.map((floor, fi) => {
-        const floorSpaces = spaces.filter(s =>
-          s.parent === floor.name || spaces.length <= 5
-        );
+        const floorSpaces = spaces.filter(s => s.parent === floor.name);
         const roomsToImport = floorSpaces.length > 0 ? floorSpaces : spaces;
         return {
           id: `floor-ifc-${fi}`,
@@ -647,7 +677,7 @@ importBtn.addEventListener('click', () => {
             name: sp.name,
             dims: { length: 5, width: 5, height: 2.7 },
             fromIFC: true,
-            ifcId: sp.id,
+            ifcId: sp.id
           }))
         };
       })
@@ -661,58 +691,72 @@ importBtn.addEventListener('click', () => {
   }, 1200);
 });
 
+// ── Toolbar ───────────────────────────────────────────────────
 document.getElementById('btnFit').onclick = () => {
-  if (model) viewer.cameraFlight.flyTo(model);
-};
-document.getElementById('btnWire').onclick = function() {
-  if (!viewer) return;
-  isWireframe = !isWireframe;
-  viewer.scene.setObjectsWireframe(viewer.scene.objectIds, isWireframe);
-  this.classList.toggle('active', isWireframe);
-};
-document.getElementById('btnXray').onclick = function() {
-  if (!viewer) return;
-  isXray = !isXray;
-  viewer.scene.setObjectsXRayed(viewer.scene.objectIds, isXray);
-  this.classList.toggle('active', isXray);
-};
-document.getElementById('tTop').onclick = () => {
-  if (!viewer) return;
-  viewer.cameraFlight.flyTo({
-    eye:[0,30,0], look:[0,0,0], up:[0,0,-1], duration:0.8
-  });
-};
-document.getElementById('tFront').onclick = () => {
-  if (!viewer) return;
-  viewer.cameraFlight.flyTo({
-    eye:[0,5,30], look:[0,5,0], up:[0,1,0], duration:0.8
-  });
-};
-document.getElementById('tRight').onclick = () => {
-  if (!viewer) return;
-  viewer.cameraFlight.flyTo({
-    eye:[30,5,0], look:[0,5,0], up:[0,1,0], duration:0.8
-  });
-};
-document.getElementById('t3D').onclick = () => {
-  if (model) viewer.cameraFlight.flyTo(model, { duration:0.8 });
-};
-document.getElementById('tSect').onclick = function() {
-  if (!sectionPlanes) return;
-  this.classList.toggle('active');
-  if (this.classList.contains('active')) {
-    sectionPlanes.createSectionPlane({
-      id: "sp1",
-      pos: [0, 5, 0],
-      dir: [0, -1, 0],
-      active: true
-    });
-    sectionPlanes.showControl("sp1");
-  } else {
-    sectionPlanes.destroySectionPlane("sp1");
-  }
+  if (ifcModel) fitCameraToObject(ifcModel);
 };
 
+document.getElementById('btnWire').onclick = function() {
+  if (!ifcModel) return;
+  isWireframe = !isWireframe;
+  ifcModel.traverse(obj => {
+    if (obj.isMesh) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach(m => m.wireframe = isWireframe);
+      } else {
+        obj.material.wireframe = isWireframe;
+      }
+    }
+  });
+  this.classList.toggle('active', isWireframe);
+};
+
+document.getElementById('btnXray').onclick = function() {
+  if (!ifcModel) return;
+  isXray = !isXray;
+  ifcModel.traverse(obj => {
+    if (obj.isMesh) {
+      const apply = m => {
+        m.transparent = isXray;
+        m.opacity = isXray ? 0.3 : 1;
+        m.depthWrite = !isXray;
+      };
+      if (Array.isArray(obj.material)) obj.material.forEach(apply);
+      else apply(obj.material);
+    }
+  });
+  this.classList.toggle('active', isXray);
+};
+
+document.getElementById('tTop').onclick = () => {
+  if (!ifcModel) return;
+  const box = new THREE.Box3().setFromObject(ifcModel);
+  const c = box.getCenter(new THREE.Vector3());
+  const s = box.getSize(new THREE.Vector3());
+  camera.position.set(c.x, c.y + Math.max(s.x, s.z) * 1.8, c.z);
+  controls.target.copy(c);
+};
+document.getElementById('tFront').onclick = () => {
+  if (!ifcModel) return;
+  const box = new THREE.Box3().setFromObject(ifcModel);
+  const c = box.getCenter(new THREE.Vector3());
+  const s = box.getSize(new THREE.Vector3());
+  camera.position.set(c.x, c.y, c.z + Math.max(s.x, s.y) * 1.8);
+  controls.target.copy(c);
+};
+document.getElementById('tRight').onclick = () => {
+  if (!ifcModel) return;
+  const box = new THREE.Box3().setFromObject(ifcModel);
+  const c = box.getCenter(new THREE.Vector3());
+  const s = box.getSize(new THREE.Vector3());
+  camera.position.set(c.x + Math.max(s.y, s.z) * 1.8, c.y, c.z);
+  controls.target.copy(c);
+};
+document.getElementById('t3D').onclick = () => {
+  if (ifcModel) fitCameraToObject(ifcModel);
+};
+
+// ── File Input ────────────────────────────────────────────────
 document.getElementById('ifcIn').onchange = e => {
   if (e.target.files[0]) loadIFC(e.target.files[0]);
 };
@@ -726,11 +770,8 @@ uploadZone.ondrop = e => {
   if (f?.name.toLowerCase().endsWith('.ifc')) loadIFC(f);
 };
 
-// Init viewer asynchronously
-initViewer().catch(err => {
-  console.error('Viewer init failed:', err);
-  setStatus('r', `❌ Init failed: ${err.message}`);
-});
+// ── Init ──────────────────────────────────────────────────────
+initScene();
 </script>
 </body>
 </html>
