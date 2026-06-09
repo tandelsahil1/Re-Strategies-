@@ -1933,3 +1933,37 @@ svg .donut-progress {
   border-color: rgba(94,167,255,0.4);
   color: #eaf0ff;
 }
+
+
+/* ============================================
+   FIX OVERLAPPING BOTTOM ELEMENTS
+============================================ */
+
+/* Building view hint - position above footer */
+.building-view-hint {
+  position: absolute !important;
+  bottom: 60px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+}
+
+/* Building performance notice */
+.building-perf-notice {
+  position: absolute !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 10 !important;
+}
+
+/* Fix the scenario/tip bar at bottom */
+.viewer-bottom-bar {
+  z-index: 20 !important;
+}
+
+/* Ensure 3D viewer container clips overflow */
+#viewerShell {
+  overflow: hidden !important;
+}
