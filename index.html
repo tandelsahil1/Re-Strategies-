@@ -428,7 +428,11 @@
       try {
         const { saveProject } = await import('./supabase.js');
         const storedId = localStorage.getItem('lindner-current-project-id');
-        const { data, error } = await saveProject(window.state.building, storedId || null);
+        const freshData = JSON.parse(JSON.stringify(window.state.building, (k, v) => {
+  if (v instanceof Set) return Array.from(v);
+  return v;
+}));
+const { data, error } = await saveProject(freshData, storedId || null);
 
         if (data) {
           localStorage.setItem('lindner-current-project-id', data.id);
