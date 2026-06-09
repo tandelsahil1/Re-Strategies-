@@ -1510,27 +1510,22 @@ setTimeout(() => {
   } catch(e) {}
 }, 200);
 
-// Step 3: build room after everything is ready
+// Step 3: build room using setViewMode
 setTimeout(() => {
   try {
-    if (window.buildRoom) {
+    state.viewMode = 'room';
+    window.state = state;
+    if (typeof setViewMode === 'function') {
+      setViewMode('room');
+      console.log('✅ 3D rebuilt via setViewMode');
+    } else if (window.buildRoom) {
       window.buildRoom();
-      console.log('✅ 3D rebuilt - step 3');
+      console.log('✅ 3D rebuilt via buildRoom');
     }
   } catch(e) {
     console.warn('Step 3 error:', e.message);
   }
-}, 800);
-
-// Step 4: backup attempt
-setTimeout(() => {
-  try {
-    if (window.buildRoom) {
-      window.buildRoom();
-      console.log('✅ 3D rebuilt - step 4 backup');
-    }
-  } catch(e) {}
-}, 1500);
+}, 600);
     
     // Update inputs
     const nameInput = document.getElementById('buildingName');
