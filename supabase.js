@@ -1,6 +1,6 @@
 // supabase.js - Supabase client initialization
 const SUPABASE_URL = 'https://wigxrzsyzjlkkoymkhwe.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_jM6XrlGJt2PqfkD9KR0Oeg_6U4zlXZk'; // ← Replace this!
+const SUPABASE_ANON_KEY = 'sb_publishable_jM6XrlGJt2PqfkD9KR0Oeg_6U4zlXZk';
 
 let supabaseClient = null;
 
@@ -100,11 +100,17 @@ export async function saveProject(projectData, projectId = null) {
     const user = await getCurrentUser();
     if (!user) return { data: null, error: { message: 'Not logged in' } };
 
+    // Serialize building data - convert Sets to Arrays for JSON storage
+    const serialized = JSON.parse(JSON.stringify(projectData, (key, value) => {
+      if (value instanceof Set) return Array.from(value);
+      return value;
+    }));
+
     const payload = {
       user_id: user.id,
-      name: projectData?.name || 'Untitled Project',
-      description: `${projectData?.projectType || ''} - ${projectData?.location || ''}`.trim(),
-      building_data: projectData,
+      name: serialized?.name || 'Untitled Project',
+      description: `${serialized?.projectType || ''} - ${serialized?.location || ''}`.trim(),
+      building_data: serialized,
       updated_at: new Date().toISOString(),
     };
 
