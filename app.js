@@ -130,9 +130,10 @@ const state = {
   },
 };
 window.state = state;
-// Expose functions globally for cloud sync
 window.refreshCurrentRoom = refreshCurrentRoom;
 window.renderBuildingTree = renderBuildingTree;
+window.buildRoom = buildRoom;
+window.buildBuildingView = buildBuildingView;
 
 function getCurrentRoom() {
   const floor = getCurrentFloor();
@@ -915,6 +916,7 @@ function buildBuildingView() {
   flyToBuildingOverview();
   setupBuildingClickHandler();
 }
+window.buildBuildingView = buildBuildingView;
 
 function buildDetailedRoomAtPosition(room, offsetX, offsetY, offsetZ) {
   const group = new THREE.Group();
@@ -1460,24 +1462,21 @@ window.loadProjectData = function(buildingData) {
     state.viewMode = 'room';
     window.state = state;
 
-       // Refresh UI
+          // Refresh UI
     try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
     try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
     saveToLocalStorage();
     // Rebuild 3D model with correct view mode
     setTimeout(() => {
       try {
-        if (state.viewMode === 'building') {
-          buildBuildingView();
-        } else {
-          state.viewMode = 'room';
-          window.state = state;
-          const roomBtn = document.getElementById('viewModeRoomBtn');
-          const buildingBtn = document.getElementById('viewModeBuildingBtn');
-          if (roomBtn) roomBtn.classList.add('active');
-          if (buildingBtn) buildingBtn.classList.remove('active');
-          buildRoom();
-        }
+        state.viewMode = 'room';
+        window.state = state;
+        const roomBtn = document.getElementById('viewModeRoomBtn');
+        const buildingBtn = document.getElementById('viewModeBuildingBtn');
+        if (roomBtn) roomBtn.classList.add('active');
+        if (buildingBtn) buildingBtn.classList.remove('active');
+        if (window.buildRoom) window.buildRoom();
+        else if (typeof buildRoom === 'function') buildRoom();
         console.log('✅ 3D model rebuilt after load');
       } catch(e) {
         console.warn('3D rebuild error:', e.message);
@@ -1905,6 +1904,7 @@ function buildRoom() {
   }
   updateScenarioButtonState();
 }
+window.buildRoom = buildRoom;
 
 function computeDoorPlacements() {
   const m = state.metrics;
