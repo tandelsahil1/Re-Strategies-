@@ -200,7 +200,7 @@ function animateCameraTo(newPos, newTarget, duration = 1000) {
 
 async function loadTextFile(path) {
   const res = await fetch(path, { cache: "no-store" });
-  if (!res.ok) {
+    if (!res.ok) {
     throw new Error(`Failed to load ${path}: ${res.status} ${res.statusText}`);
   }
   return await res.text();
@@ -2552,8 +2552,8 @@ function drawBrushedMetal(ctx, size) {
 function flyToOutsideView() {
   const m = state.metrics;
   if (!m.length) return;
-  const tPos = new THREE.Vector3(m.length * 0.95, m.floorTopY + m.height * 0.8, m.width * 1.05);
-  const tLook = new THREE.Vector3(0, m.floorTopY + m.height * 0.45, 0);
+  const tPos = new THREE.Vector3(0, m.floorTopY + m.height * 0.55, m.width * 0.2);
+const tLook = new THREE.Vector3(0, m.floorTopY + m.height * 0.52, -m.width * 0.25);
   animateCameraTo(tPos, tLook, 900);
   controls.minDistance = 1.4;
   controls.maxDistance = 80;
