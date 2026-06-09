@@ -1704,14 +1704,23 @@ function updateScenarioButtonState() {
 }
 
 function setupEvents() {
-  window.addEventListener("resize", onResize);
-  let resizeTicking = false;
-  const resizeObserver = new ResizeObserver(() => {
-    if (!resizeTicking) {
-      requestAnimationFrame(() => { onResize(); resizeTicking = false; });
-      resizeTicking = true;
-    }
-  });
+  window.addEventListener('load', async () => {
+  try {
+    await initAuth();
+  } catch(e) {
+    console.warn('Auth load error:', e.message);
+  }
+  try {
+    setupDropdownEvents();
+  } catch(e) {
+    console.warn('Dropdown setup error:', e.message);
+  }
+  try {
+    await checkAndLoadLastProject();
+  } catch(e) {
+    console.warn('Project load error:', e.message);
+  }
+});
   resizeObserver.observe(viewerShell);
   buildBtn.addEventListener("click", () => {
     if (state.viewMode === "building") buildBuildingView();
