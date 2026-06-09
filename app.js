@@ -200,7 +200,7 @@ function animateCameraTo(newPos, newTarget, duration = 1000) {
 
 async function loadTextFile(path) {
   const res = await fetch(path, { cache: "no-store" });
-    if (!res.ok) {
+  if (!res.ok) {
     throw new Error(`Failed to load ${path}: ${res.status} ${res.statusText}`);
   }
   return await res.text();
@@ -1418,8 +1418,61 @@ function loadFromLocalStorage() {
   }
 }
 
+// Load project data from cloud (called when user opens a saved project)
+window.loadProjectData = function(buildingData) {
+  try {
+    if (!buildingData?.floors?.length) {
+      console.warn('No floors in project data');
+      return false;
+    }
 
+    // Deep clone
+    const cloned = JSON.parse(JSON.stringify(buildingData));
 
+    // Fix all rooms before passing to state
+    cloned.floors.forEach(floor => {
+      floor.rooms.forEach(room => {
+        // Fix selected - force to empty Set always
+        // (selections don't need to be saved anyway)
+        room.selected = new Set();
+
+        // Fix scenario
+        room.scenario = room.scenario || {};
+        room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
+        room.scenario.initialByComponent = room.scenario.initialByComponent || {};
+        room.scenario.stepByComponent = room.scenario.stepByComponent || {};
+
+        // Fix components array
+        room.components = room.components || [];
+      });
+    });
+
+    // Apply to state
+    state.building = cloned;
+    state.currentFloorId = cloned.floors[0]?.id || 'floor-1';
+    state.currentRoomId = cloned.floors[0]?.rooms[0]?.id || 'room-1';
+    state.viewMode = 'room';
+    window.state = state;
+
+    // Refresh UI
+    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e); }
+    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e); }
+
+    saveToLocalStorage();
+
+    // Update inputs
+    const nameInput = document.getElementById('buildingName');
+    if (nameInput) nameInput.value = cloned.name || '';
+    const locationInput = document.getElementById('buildingLocation');
+    if (locationInput) locationInput.value = cloned.location || '';
+
+    console.log('✅ Project loaded:', cloned.name);
+    return true;
+  } catch(e) {
+    console.warn('Failed to load project data:', e);
+    return false;
+  }
+};
 
 function setupUI() {
   const currentRoom = getCurrentRoom();
@@ -1621,23 +1674,14 @@ function updateScenarioButtonState() {
 }
 
 function setupEvents() {
-  window.addEventListener('load', async () => {
-  try {
-    await initAuth();
-  } catch(e) {
-    console.warn('Auth load error:', e.message);
-  }
-  try {
-    setupDropdownEvents();
-  } catch(e) {
-    console.warn('Dropdown setup error:', e.message);
-  }
-  try {
-    await checkAndLoadLastProject();
-  } catch(e) {
-    console.warn('Project load error:', e.message);
-  }
-});
+  window.addEventListener("resize", onResize);
+  let resizeTicking = false;
+  const resizeObserver = new ResizeObserver(() => {
+    if (!resizeTicking) {
+      requestAnimationFrame(() => { onResize(); resizeTicking = false; });
+      resizeTicking = true;
+    }
+  });
   resizeObserver.observe(viewerShell);
   buildBtn.addEventListener("click", () => {
     if (state.viewMode === "building") buildBuildingView();
@@ -2552,8 +2596,8 @@ function drawBrushedMetal(ctx, size) {
 function flyToOutsideView() {
   const m = state.metrics;
   if (!m.length) return;
-  const tPos = new THREE.Vector3(0, m.floorTopY + m.height * 0.55, m.width * 0.2);
-const tLook = new THREE.Vector3(0, m.floorTopY + m.height * 0.52, -m.width * 0.25);
+  const tPos = new THREE.Vector3(m.length * 0.95, m.floorTopY + m.height * 0.8, m.width * 1.05);
+  const tLook = new THREE.Vector3(0, m.floorTopY + m.height * 0.45, 0);
   animateCameraTo(tPos, tLook, 900);
   controls.minDistance = 1.4;
   controls.maxDistance = 80;
@@ -3451,51 +3495,31 @@ async function initCloudSync() {
 window.loadProjectData = function(buildingData) {
   try {
     if (!buildingData?.floors?.length) return false;
-
-    // Fix all rooms safely before touching state
     buildingData.floors.forEach(floor => {
       floor.rooms.forEach(room => {
-        // Force selected to empty Set regardless of stored format
-        room.selected = new Set();
+        room.selected = new Set(room.selected || []);
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
         room.scenario.stepByComponent = room.scenario.stepByComponent || {};
-        room.components = room.components || [];
       });
     });
-
     state.building = buildingData;
     state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
     state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
     state.viewMode = 'room';
     window.state = state;
-
-       try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
-    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
+    refreshCurrentRoom();
+    renderBuildingTree();
     saveToLocalStorage();
-
-    const nameInput = document.getElementById('buildingNameInput');
+    const nameInput = document.getElementById('buildingName');
     if (nameInput) nameInput.value = buildingData.name || '';
-    const locationInput = document.getElementById('buildingLocationInput');
+    const locationInput = document.getElementById('buildingLocation');
     if (locationInput) locationInput.value = buildingData.location || '';
-
-    // Rebuild 3D model
-    setTimeout(() => {
-      try {
-        state.viewMode = 'room';
-        window.state = state;
-        buildRoom();
-        console.log('✅ 3D room rebuilt');
-      } catch(e) {
-        console.warn('buildRoom error:', e.message);
-      }
-    }, 300);
-
     console.log('✅ Project loaded:', buildingData.name);
     return true;
   } catch(e) {
-    console.warn('Failed to load project data:', e.message);
+    console.warn('Failed to load project data:', e);
     return false;
   }
 };
