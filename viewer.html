@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lindner BIM Viewer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #06080d;
+      color: #eaf0ff;
+      font-family: "Inter", system-ui, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Top Bar ── */
+    .topbar {
+      height: 52px;
+      background: rgba(13,16,24,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .topbar-brand {
+      font-size: 0.95rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #79f5dc, #5ea7ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .topbar-divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(255,255,255,0.1);
+    }
+    .topbar-title {
+      font-size: 0.85rem;
+      color: var(--muted, #aab3c6);
+      font-weight: 600;
+    }
+    .topbar-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: #eaf0ff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: rgba(94,167,255,0.15);
+      border-color: rgba(94,167,255,0.4);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(94,167,255,0.25), rgba(121,245,220,0.18));
+      border-color: rgba(94,167,255,0.45);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, rgba(94,167,255,0.38), rgba(121,245,220,0.28));
+    }
+
+    /* ── Main Layout ── */
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 280px;
+      background: rgba(13,16,24,0.95);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .sidebar-section {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #aab3c6;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .upload-area {
+      border: 2px dashed rgba(94,167,255,0.3);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(94,167,255,0.03);
+    }
+    .upload-area:hover {
+      border-color: rgba(94,167,255,0.6);
+      background: rgba(94,167,255,0.08);
+    }
+    .upload-area.dragover {
+      border-color: #79f5dc;
+      background: rgba(121,245,220,0.08);
+    }
+    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-text {
+      font-size: 0.82rem;
+      color: #aab3c6;
+      line-height: 1.4;
+    }
+    .upload-text strong { color: #5ea7ff; }
+    .file-info {
+      display: none;
+      background: rgba(121,245,220,0.08);
+      border: 1px solid rgba(121,245,220,0.25);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 0.82rem;
+    }
+    .file-info.visible { display: block; }
+    .file-name {
+      font-weight: 700;
+      color: #79f5dc;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+    .file-size { color: #aab3c6; font-size: 0.75rem; }
+
+    /* Properties panel */
+    .props-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .props-empty {
+      text-align: center;
+      color: #aab3c6;
+      font-size: 0.82rem;
+      padding: 24px 0;
+    }
+    .props-empty-icon { font-size: 2rem; margin-bottom: 8px; }
+    .prop-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.8rem;
+      gap: 8px;
+    }
+    .prop-key { color: #aab3c6; flex-shrink: 0; }
+    .prop-val {
+      color: #eaf0ff;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+    }
+    .selected-title {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #79f5dc;
+      margin-bottom: 12px;
+    }
+
+    /* ── Viewer ── */
+    .viewer-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    #xeokit-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #0a0e1a;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(6,8,13,0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+    }
+    .loading-overlay.hidden { display: none; }
+    .loader {
+      width: 44px; height: 44px;
+      border: 3px solid rgba(94,167,255,0.2);
+      border-top-color: #5ea7ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #eaf0ff;
+    }
+    .loading-sub {
+      font-size: 0.78rem;
+      color: #aab3c6;
+    }
+
+    /* Empty state */
+    .empty-state {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .empty-state.hidden { display: none; }
+    .empty-icon { font-size: 4rem; opacity: 0.3; }
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #eaf0ff;
+      opacity: 0.5;
+    }
+    .empty-sub {
+      font-size: 0.82rem;
+      color: #aab3c6;
+      opacity: 0.5;
+      text-align: center;
+      max-width: 280px;
+    }
+
+    /* Toolbar */
+    .viewer-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+    .tool-btn {
+      width: 36px; height: 36px;
+      background: rgba(13,16,24,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #eaf0ff;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      backdrop-filter: blur(8px);
+    }
+    .tool-btn:hover {
+      background: rgba(94,167,255,0.2);
+      border-color: rgba(94,167,255,0.4);
+    }
+
+    /* Status bar */
+    .statusbar {
+      height: 28px;
+      background: rgba(13,16,24,0.95);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 16px;
+      font-size: 0.72rem;
+      color: #aab3c6;
+      flex-shrink: 0;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #aab3c6;
+    }
+    .status-dot.green { background: #79f5dc; }
+    .status-dot.yellow { background: #ffd080; }
+
+    /* Back link */
+    .back-link {
+      color: #aab3c6;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: #eaf0ff; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <a href="./index.html" class="back-link">← Back</a>
+  <div class="topbar-divider"></div>
+  <div class="topbar-brand">🏢 Lindner LCA Tool</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-title" id="viewerTitle">BIM Viewer — No file loaded</div>
+  <div class="topbar-actions">
+    <button class="btn" id="btnFitView" title="Fit to view">⊡ Fit View</button>
+    <button class="btn" id="btnReset" title="Reset view">↺ Reset</button>
+    <label class="btn btn-primary" for="ifcFileInput">
+      📂 Open IFC
+    </label>
+    <input type="file" id="ifcFileInput" accept=".ifc,.IFC" style="display:none">
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">📁 IFC File</div>
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">🏗️</div>
+        <div class="upload-text">
+          <strong>Drop IFC file here</strong><br>
+          or click to browse
+        </div>
+      </div>
+      <div class="file-info" id="fileInfo">
+        <div class="file-name" id="fileName">—</div>
+        <div class="file-size" id="fileSize">—</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1; overflow:auto;">
+      <div class="sidebar-title">🔍 Selected Element</div>
+      <div class="props-panel" id="propsPanel">
+        <div class="props-empty">
+          <div class="props-empty-icon">🖱️</div>
+          <div>Click any element<br>to see its properties</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D Viewer -->
+  <div class="viewer-wrap">
+    <canvas id="xeokit-canvas"></canvas>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🏗️</div>
+      <div class="empty-title">No IFC File Loaded</div>
+      <div class="empty-sub">
+        Open an IFC file to visualize your building model in 3D
+      </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+      <div class="loader"></div>
+      <div class="loading-text">Loading IFC Model...</div>
+      <div class="loading-sub" id="loadingStatus">Parsing geometry...</div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="viewer-toolbar">
+      <button class="tool-btn" id="btnPerspective" title="Perspective view">📐</button>
+      <button class="tool-btn" id="btnTop" title="Top view">⬆️</button>
+      <button class="tool-btn" id="btnFront" title="Front view">⬛</button>
+      <button class="tool-btn" id="btnWireframe" title="Wireframe">🔲</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="statusbar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">Ready — Open an IFC file to begin</span>
+  <span style="margin-left:auto">xeokit-sdk v2 • WebGL</span>
+</div>
+
+<script type="module">
+// ─────────────────────────────────────────────
+// xeokit BIM Viewer
+// ─────────────────────────────────────────────
+import {
+  Viewer,
+  WebIFCLoaderPlugin,
+  XKTLoaderPlugin,
+  NavCubePlugin,
+  TreeViewPlugin,
+  ContextMenu
+} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
+
+// ── State ──────────────────────────────────
+let viewer = null;
+let currentModel = null;
+let isWireframe = false;
+
+// ── DOM refs ───────────────────────────────
+const canvas         = document.getElementById('xeokit-canvas');
+const emptyState     = document.getElementById('emptyState');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingStatus  = document.getElementById('loadingStatus');
+const fileInfo       = document.getElementById('fileInfo');
+const fileName       = document.getElementById('fileName');
+const fileSize       = document.getElementById('fileSize');
+const propsPanel     = document.getElementById('propsPanel');
+const viewerTitle    = document.getElementById('viewerTitle');
+const statusDot      = document.getElementById('statusDot');
+const statusText     = document.getElementById('statusText');
+
+// ── Init Viewer ────────────────────────────
+function initViewer() {
+  viewer = new Viewer({
+    canvasId: "xeokit-canvas",
+    transparent: true,
+    dtxEnabled: true,
+  });
+
+  // Nice background
+  viewer.scene.canvas.canvas.style.background = "linear-gradient(180deg, #0d1018 0%, #0a0e1a 100%)";
+
+  // Camera defaults
+  viewer.camera.eye  = [-3.93, 2.85, 27.01];
+  viewer.camera.look = [4.40, 3.72, 8.89];
+  viewer.camera.up   = [0, 1, 0];
+
+  // Nav cube
+  new NavCubePlugin(viewer, {
+    canvasId: "xeokit-canvas",
+    visible: true,
+    size: 120,
+    alignment: "bottomRight",
+    bottomMargin: 40,
+    rightMargin: 10,
+  });
+
+  // Click to select
+  viewer.scene.input.on("mouseclicked", (coords) => {
+    const hit = viewer.scene.pick({ canvasPos: coords });
+    if (hit && hit.entity) {
+      selectEntity(hit.entity);
+    } else {
+      clearSelection();
+    }
+  });
+
+  setStatus('green', 'Viewer ready — Open an IFC file');
+  return viewer;
+}
+
+// ── Load IFC ───────────────────────────────
+async function loadIFC(file) {
+  if (!viewer) initViewer();
+
+  // Clear previous
+  if (currentModel) {
+    currentModel.destroy();
+    currentModel = null;
+  }
+
+  showLoading(true, 'Initializing WebIFC...');
+  emptyState.classList.add('hidden');
+  setStatus('yellow', `Loading ${file.name}...`);
+
+  try {
+    const loader = new WebIFCLoaderPlugin(viewer, {
+      wasmPath: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/",
+    });
+
+    const arrayBuffer = await readFileAsArrayBuffer(file);
+    showLoading(true, 'Parsing IFC geometry...');
+
+    currentModel = loader.load({
+      id: "model",
+      src: URL.createObjectURL(new Blob([arrayBuffer])),
+      excludeUnclassifiedObjects: false,
+    });
+
+    currentModel.on("loaded", () => {
+      showLoading(false);
+      viewer.cameraFlight.flyTo(currentModel);
+      viewerTitle.textContent = `BIM Viewer — ${file.name}`;
+      setStatus('green', `✅ Loaded: ${file.name} (${formatSize(file.size)})`);
+      showFileInfo(file);
+    });
+
+    currentModel.on("error", (err) => {
+      showLoading(false);
+      setStatus('', `❌ Error loading model: ${err}`);
+      console.error(err);
+    });
+
+  } catch(err) {
+    showLoading(false);
+    setStatus('', `❌ ${err.message}`);
+    console.error(err);
+  }
+}
+
+// ── Select entity ──────────────────────────
+function selectEntity(entity) {
+  // Deselect all
+  viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
+  // Select this
+  entity.selected = true;
+
+  // Show properties
+  const metaObject = viewer.metaScene.metaObjects[entity.id];
+  if (metaObject) {
+    showProperties(metaObject);
+  } else {
+    showProperties({ name: entity.id, type: 'Unknown', id: entity.id });
+  }
+}
+
+function clearSelection() {
+  viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
+  propsPanel.innerHTML = `
+    <div class="props-empty">
+      <div class="props-empty-icon">🖱️</div>
+      <div>Click any element<br>to see its properties</div>
+    </div>
+  `;
+}
+
+function showProperties(meta) {
+  const props = [
+    ['Name', meta.name || '—'],
+    ['Type', meta.type || '—'],
+    ['ID', meta.id || '—'],
+    ['Parent', meta.parent?.name || '—'],
+  ];
+
+  // Add psets if available
+  if (meta.propertySets) {
+    for (const pset of meta.propertySets) {
+      for (const [k, v] of Object.entries(pset.properties || {})) {
+        props.push([k, String(v)]);
+      }
+    }
+  }
+
+  propsPanel.innerHTML = `
+    <div class="selected-title">📦 ${meta.name || 'Element'}</div>
+    ${props.map(([k,v]) => `
+      <div class="prop-item">
+        <span class="prop-key">${k}</span>
+        <span class="prop-val">${v}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ── Helpers ────────────────────────────────
+function readFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function showLoading(show, msg = '') {
+  loadingOverlay.classList.toggle('hidden', !show);
+  if (msg) loadingStatus.textContent = msg;
+}
+
+function showFileInfo(file) {
+  fileName.textContent = file.name;
+  fileSize.textContent = formatSize(file.size);
+  fileInfo.classList.add('visible');
+  document.getElementById('uploadArea').style.display = 'none';
+}
+
+function setStatus(dot, text) {
+  statusDot.className = 'status-dot' + (dot ? ` ${dot}` : '');
+  statusText.textContent = text;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+// ── File input ─────────────────────────────
+document.getElementById('ifcFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (file) loadIFC(file);
+});
+
+// Drag & drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('click', () => document.getElementById('ifcFileInput').click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file?.name.toLowerCase().endsWith('.ifc')) loadIFC(file);
+});
+
+// ── Toolbar buttons ────────────────────────
+document.getElementById('btnFitView').addEventListener('click', () => {
+  if (currentModel) viewer.cameraFlight.flyTo(currentModel);
+  else viewer.cameraFlight.flyTo(viewer.scene);
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  viewer.camera.eye  = [-3.93, 2.85, 27.01];
+  viewer.camera.look = [4.40, 3.72, 8.89];
+  viewer.camera.up   = [0, 1, 0];
+});
+
+document.getElementById('btnTop').addEventListener('click', () => {
+  viewer.cameraFlight.flyTo({
+    eye: [0, 50, 0], look: [0, 0, 0], up: [0, 0, -1], duration: 0.8
+  });
+});
+
+document.getElementById('btnFront').addEventListener('click', () => {
+  viewer.cameraFlight.flyTo({
+    eye: [0, 0, 50], look: [0, 0, 0], up: [0, 1, 0], duration: 0.8
+  });
+});
+
+document.getElementById('btnWireframe').addEventListener('click', () => {
+  isWireframe = !isWireframe;
+  viewer.scene.setObjectsWireframe(viewer.scene.objectIds, isWireframe);
+});
+
+document.getElementById('btnPerspective').addEventListener('click', () => {
+  viewer.camera.projection = viewer.camera.projection === 'perspective' ? 'ortho' : 'perspective';
+});
+
+// ── Init ───────────────────────────────────
+initViewer();
+</script>
+</body>
+</html>
