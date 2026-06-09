@@ -1967,3 +1967,14 @@ svg .donut-progress {
 #viewerShell {
   overflow: hidden !important;
 }
+
+/* Hide building view hint overlay */
+.building-view-hint {
+  display: none !important;
+}
+
+/* Hide feedback in footer */
+.app-footer a[href*="feedback"],
+.app-footer .feedback-link {
+  display: none !important;
+}
