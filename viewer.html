@@ -416,187 +416,23 @@
 </div>
 
 <script type="module">
-// ─────────────────────────────────────────────
-// xeokit BIM Viewer
-// ─────────────────────────────────────────────
-import {
-  Viewer,
-  WebIFCLoaderPlugin,
-  XKTLoaderPlugin,
-  NavCubePlugin,
-  TreeViewPlugin,
-  ContextMenu
-} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
+import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
 
-// ── State ──────────────────────────────────
-let viewer = null;
-let currentModel = null;
-let isWireframe = false;
-
-// ── DOM refs ───────────────────────────────
-const canvas         = document.getElementById('xeokit-canvas');
-const emptyState     = document.getElementById('emptyState');
+const statusText     = document.getElementById('statusText');
+const statusDot      = document.getElementById('statusDot');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const loadingStatus  = document.getElementById('loadingStatus');
-const fileInfo       = document.getElementById('fileInfo');
-const fileName       = document.getElementById('fileName');
-const fileSize       = document.getElementById('fileSize');
+const emptyState     = document.getElementById('emptyState');
 const propsPanel     = document.getElementById('propsPanel');
 const viewerTitle    = document.getElementById('viewerTitle');
-const statusDot      = document.getElementById('statusDot');
-const statusText     = document.getElementById('statusText');
+const fileName       = document.getElementById('fileName');
+const fileSize       = document.getElementById('fileSize');
+const fileInfo       = document.getElementById('fileInfo');
+const uploadArea     = document.getElementById('uploadArea');
 
-// ── Init Viewer ────────────────────────────
-function initViewer() {
-  viewer = new Viewer({
-    canvasId: "xeokit-canvas",
-    transparent: true,
-    dtxEnabled: true,
-  });
-
-  // Nice background
-  viewer.scene.canvas.canvas.style.background = "linear-gradient(180deg, #0d1018 0%, #0a0e1a 100%)";
-
-  // Camera defaults
-  viewer.camera.eye  = [-3.93, 2.85, 27.01];
-  viewer.camera.look = [4.40, 3.72, 8.89];
-  viewer.camera.up   = [0, 1, 0];
-
-  // Nav cube
-  new NavCubePlugin(viewer, {
-    canvasId: "xeokit-canvas",
-    visible: true,
-    size: 120,
-    alignment: "bottomRight",
-    bottomMargin: 40,
-    rightMargin: 10,
-  });
-
-  // Click to select
-  viewer.scene.input.on("mouseclicked", (coords) => {
-    const hit = viewer.scene.pick({ canvasPos: coords });
-    if (hit && hit.entity) {
-      selectEntity(hit.entity);
-    } else {
-      clearSelection();
-    }
-  });
-
-  setStatus('green', 'Viewer ready — Open an IFC file');
-  return viewer;
-}
-
-// ── Load IFC ───────────────────────────────
-async function loadIFC(file) {
-  if (!viewer) initViewer();
-
-  // Clear previous
-  if (currentModel) {
-    currentModel.destroy();
-    currentModel = null;
-  }
-
-  showLoading(true, 'Initializing WebIFC...');
-  emptyState.classList.add('hidden');
-  setStatus('yellow', `Loading ${file.name}...`);
-
-  try {
-    const loader = new WebIFCLoaderPlugin(viewer, {
-      wasmPath: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/",
-    });
-
-    const arrayBuffer = await readFileAsArrayBuffer(file);
-    showLoading(true, 'Parsing IFC geometry...');
-
-    currentModel = loader.load({
-      id: "model",
-      src: URL.createObjectURL(new Blob([arrayBuffer])),
-      excludeUnclassifiedObjects: false,
-    });
-
-    currentModel.on("loaded", () => {
-      showLoading(false);
-      viewer.cameraFlight.flyTo(currentModel);
-      viewerTitle.textContent = `BIM Viewer — ${file.name}`;
-      setStatus('green', `✅ Loaded: ${file.name} (${formatSize(file.size)})`);
-      showFileInfo(file);
-    });
-
-    currentModel.on("error", (err) => {
-      showLoading(false);
-      setStatus('', `❌ Error loading model: ${err}`);
-      console.error(err);
-    });
-
-  } catch(err) {
-    showLoading(false);
-    setStatus('', `❌ ${err.message}`);
-    console.error(err);
-  }
-}
-
-// ── Select entity ──────────────────────────
-function selectEntity(entity) {
-  // Deselect all
-  viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
-  // Select this
-  entity.selected = true;
-
-  // Show properties
-  const metaObject = viewer.metaScene.metaObjects[entity.id];
-  if (metaObject) {
-    showProperties(metaObject);
-  } else {
-    showProperties({ name: entity.id, type: 'Unknown', id: entity.id });
-  }
-}
-
-function clearSelection() {
-  viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
-  propsPanel.innerHTML = `
-    <div class="props-empty">
-      <div class="props-empty-icon">🖱️</div>
-      <div>Click any element<br>to see its properties</div>
-    </div>
-  `;
-}
-
-function showProperties(meta) {
-  const props = [
-    ['Name', meta.name || '—'],
-    ['Type', meta.type || '—'],
-    ['ID', meta.id || '—'],
-    ['Parent', meta.parent?.name || '—'],
-  ];
-
-  // Add psets if available
-  if (meta.propertySets) {
-    for (const pset of meta.propertySets) {
-      for (const [k, v] of Object.entries(pset.properties || {})) {
-        props.push([k, String(v)]);
-      }
-    }
-  }
-
-  propsPanel.innerHTML = `
-    <div class="selected-title">📦 ${meta.name || 'Element'}</div>
-    ${props.map(([k,v]) => `
-      <div class="prop-item">
-        <span class="prop-key">${k}</span>
-        <span class="prop-val">${v}</span>
-      </div>
-    `).join('')}
-  `;
-}
-
-// ── Helpers ────────────────────────────────
-function readFileAsArrayBuffer(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
-  });
+function setStatus(dot, text) {
+  statusDot.className = 'status-dot' + (dot ? ` ${dot}` : '');
+  statusText.textContent = text;
 }
 
 function showLoading(show, msg = '') {
@@ -604,32 +440,228 @@ function showLoading(show, msg = '') {
   if (msg) loadingStatus.textContent = msg;
 }
 
-function showFileInfo(file) {
-  fileName.textContent = file.name;
-  fileSize.textContent = formatSize(file.size);
-  fileInfo.classList.add('visible');
-  document.getElementById('uploadArea').style.display = 'none';
-}
-
-function setStatus(dot, text) {
-  statusDot.className = 'status-dot' + (dot ? ` ${dot}` : '');
-  statusText.textContent = text;
-}
-
 function formatSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/1024/1024).toFixed(1) + ' MB';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
 }
 
-// ── File input ─────────────────────────────
+async function loadIFC(file) {
+  showLoading(true, 'Initializing IFC parser...');
+  emptyState.classList.add('hidden');
+  setStatus('yellow', `Loading ${file.name}...`);
+
+  try {
+    const ifcApi = new WebIFC.IfcAPI();
+    ifcApi.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+
+    showLoading(true, 'Loading WASM module...');
+    await ifcApi.Init();
+
+    showLoading(true, 'Reading IFC file...');
+    const buffer = await file.arrayBuffer();
+    const data = new Uint8Array(buffer);
+
+    showLoading(true, 'Parsing IFC model...');
+    const modelID = ifcApi.OpenModel(data);
+
+    showLoading(true, 'Extracting elements...');
+
+    // Use numeric type IDs directly
+    const typeMap = {
+      23: 'Wall',
+      25: 'Wall',
+      31: 'Beam',
+      40: 'Column',
+      44: 'Door',
+      90: 'Slab',
+      128: 'Stair',
+      137: 'Window',
+      182: 'Roof',
+      211: 'Furniture',
+    };
+
+    // Get all lines and count by type
+    const allLines = ifcApi.GetAllLines(modelID);
+    const counts = {};
+    const elementsList = [];
+
+    for (let i = 0; i < allLines.size(); i++) {
+      try {
+        const expressID = allLines.get(i);
+        const props = ifcApi.GetLine(modelID, expressID);
+        if (props && props.type) {
+          const typeName = WebIFC[
+            Object.keys(WebIFC).find(k => WebIFC[k] === props.type)
+          ] ? Object.keys(WebIFC).find(k => WebIFC[k] === props.type) : null;
+
+          if (props.Name && props.Name.value) {
+            elementsList.push({
+              id: expressID,
+              name: props.Name.value,
+              type: typeName || `Type_${props.type}`,
+              rawType: props.type
+            });
+          }
+        }
+      } catch(e) {}
+    }
+
+    // Better approach - just get named elements
+    const namedElements = elementsList.filter(e =>
+      e.name && e.name !== '' && !e.name.startsWith('$')
+    );
+
+    // Count types
+    for (const el of namedElements) {
+      counts[el.type] = (counts[el.type] || 0) + 1;
+    }
+
+    showLoading(false);
+
+    // Show file info
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    fileInfo.classList.add('visible');
+    uploadArea.style.display = 'none';
+    viewerTitle.textContent = `BIM Viewer — ${file.name}`;
+    setStatus('green', `✅ Loaded: ${file.name} — ${namedElements.length} elements found`);
+
+    showModelSummary(ifcApi, modelID, file.name, namedElements, counts);
+
+    window._ifcApi = ifcApi;
+    window._modelID = modelID;
+    window._elements = namedElements;
+
+  } catch (err) {
+    showLoading(false);
+    setStatus('', `❌ Error: ${err.message}`);
+    console.error('IFC load error:', err);
+  }
+}
+
+function showModelSummary(ifcApi, modelID, fname, elements, counts) {
+  // Get project info
+  let projectName = 'Unknown';
+  let projectDesc = '';
+  try {
+    const projects = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCPROJECT);
+    if (projects.size() > 0) {
+      const proj = ifcApi.GetLine(modelID, projects.get(0));
+      if (proj.Name) projectName = proj.Name.value || projectName;
+      if (proj.Description) projectDesc = proj.Description.value || '';
+    }
+  } catch(e) {}
+
+  const countHTML = Object.entries(counts).length > 0
+    ? Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([name, count]) => `
+          <div class="prop-item" style="cursor:pointer;"
+               onclick="window.showElements('${name}')">
+            <span class="prop-key">${name.replace('IFC','').replace(/([A-Z])/g, ' $1').trim()}</span>
+            <span class="prop-val" style="color:#79f5dc;">${count}</span>
+          </div>
+        `).join('')
+    : `<div style="color:#aab3c6;font-size:0.8rem;">No named elements found</div>`;
+
+  propsPanel.innerHTML = `
+    <div class="selected-title">📊 Model Summary</div>
+    <div class="prop-item">
+      <span class="prop-key">Project</span>
+      <span class="prop-val">${projectName}</span>
+    </div>
+    <div class="prop-item">
+      <span class="prop-key">File</span>
+      <span class="prop-val" style="font-size:0.72rem;">${fname}</span>
+    </div>
+    <div class="prop-item">
+      <span class="prop-key">Elements</span>
+      <span class="prop-val">${elements.length}</span>
+    </div>
+    ${projectDesc ? `<div class="prop-item"><span class="prop-key">Description</span><span class="prop-val" style="font-size:0.72rem;">${projectDesc}</span></div>` : ''}
+    <br>
+    <div class="selected-title">🏗️ Element Types</div>
+    ${countHTML}
+    <br>
+    <div style="font-size:0.75rem;color:#aab3c6;text-align:center;padding:8px 0;">
+      Click a type to see elements
+    </div>
+  `;
+}
+
+// Show elements of a type
+window.showElements = function(typeName) {
+  const elements = window._elements?.filter(e => e.type === typeName) || [];
+
+  propsPanel.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <button onclick="window.location.reload()" 
+              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                     border-radius:6px;color:#eaf0ff;padding:4px 10px;cursor:pointer;font-size:0.75rem;">
+        ← Back
+      </button>
+      <div class="selected-title" style="margin:0;">${typeName.replace('IFC','').replace(/([A-Z])/g,' $1').trim()} (${elements.length})</div>
+    </div>
+    ${elements.slice(0, 50).map(el => `
+      <div class="prop-item" style="cursor:pointer;padding:8px 4px;"
+           onclick="window.showElementDetail(${el.id})">
+        <span class="prop-key" style="font-size:0.75rem;">#${el.id}</span>
+        <span class="prop-val" style="color:#5ea7ff;">${el.name || '—'}</span>
+      </div>
+    `).join('')}
+    ${elements.length > 50 ? `<div style="color:#aab3c6;font-size:0.75rem;text-align:center;padding:8px;">+${elements.length - 50} more...</div>` : ''}
+  `;
+};
+
+// Show element detail
+window.showElementDetail = function(expressID) {
+  try {
+    const ifcApi = window._ifcApi;
+    const modelID = window._modelID;
+    const props = ifcApi.GetLine(modelID, expressID, true);
+
+    const rows = [];
+    for (const [key, val] of Object.entries(props)) {
+      if (val === null || val === undefined) continue;
+      let display = '';
+      if (typeof val === 'object' && val.value !== undefined) {
+        display = String(val.value);
+      } else if (typeof val !== 'object') {
+        display = String(val);
+      }
+      if (display && display !== 'null' && key !== 'type') {
+        rows.push([key, display]);
+      }
+    }
+
+    propsPanel.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <button onclick="history.back()" 
+                style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                       border-radius:6px;color:#eaf0ff;padding:4px 10px;cursor:pointer;font-size:0.75rem;">
+          ← Back
+        </button>
+        <div class="selected-title" style="margin:0;">Element #${expressID}</div>
+      </div>
+      ${rows.map(([k, v]) => `
+        <div class="prop-item">
+          <span class="prop-key">${k}</span>
+          <span class="prop-val">${v}</span>
+        </div>
+      `).join('')}
+    `;
+  } catch(e) {
+    console.warn('Error getting element detail:', e);
+  }
+};
+
+// File input
 document.getElementById('ifcFileInput').addEventListener('change', e => {
   const file = e.target.files[0];
   if (file) loadIFC(file);
 });
 
 // Drag & drop
-const uploadArea = document.getElementById('uploadArea');
 uploadArea.addEventListener('click', () => document.getElementById('ifcFileInput').click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
@@ -640,41 +672,15 @@ uploadArea.addEventListener('drop', e => {
   if (file?.name.toLowerCase().endsWith('.ifc')) loadIFC(file);
 });
 
-// ── Toolbar buttons ────────────────────────
-document.getElementById('btnFitView').addEventListener('click', () => {
-  if (currentModel) viewer.cameraFlight.flyTo(currentModel);
-  else viewer.cameraFlight.flyTo(viewer.scene);
-});
+// Toolbar buttons (no 3D yet)
+document.getElementById('btnFitView').addEventListener('click', () => {});
+document.getElementById('btnReset').addEventListener('click', () => {});
+document.getElementById('btnTop').addEventListener('click', () => {});
+document.getElementById('btnFront').addEventListener('click', () => {});
+document.getElementById('btnWireframe').addEventListener('click', () => {});
+document.getElementById('btnPerspective').addEventListener('click', () => {});
 
-document.getElementById('btnReset').addEventListener('click', () => {
-  viewer.camera.eye  = [-3.93, 2.85, 27.01];
-  viewer.camera.look = [4.40, 3.72, 8.89];
-  viewer.camera.up   = [0, 1, 0];
-});
-
-document.getElementById('btnTop').addEventListener('click', () => {
-  viewer.cameraFlight.flyTo({
-    eye: [0, 50, 0], look: [0, 0, 0], up: [0, 0, -1], duration: 0.8
-  });
-});
-
-document.getElementById('btnFront').addEventListener('click', () => {
-  viewer.cameraFlight.flyTo({
-    eye: [0, 0, 50], look: [0, 0, 0], up: [0, 1, 0], duration: 0.8
-  });
-});
-
-document.getElementById('btnWireframe').addEventListener('click', () => {
-  isWireframe = !isWireframe;
-  viewer.scene.setObjectsWireframe(viewer.scene.objectIds, isWireframe);
-});
-
-document.getElementById('btnPerspective').addEventListener('click', () => {
-  viewer.camera.projection = viewer.camera.projection === 'perspective' ? 'ortho' : 'perspective';
-});
-
-// ── Init ───────────────────────────────────
-initViewer();
+setStatus('green', 'Ready — Open an IFC file to begin');
 </script>
 </body>
 </html>
