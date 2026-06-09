@@ -15,8 +15,6 @@
       flex-direction: column;
       overflow: hidden;
     }
-
-    /* ── Top Bar ── */
     .topbar {
       height: 52px;
       background: rgba(13,16,24,0.95);
@@ -26,7 +24,6 @@
       padding: 0 20px;
       gap: 16px;
       flex-shrink: 0;
-      z-index: 100;
     }
     .topbar-brand {
       font-size: 0.95rem;
@@ -36,22 +33,12 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .topbar-divider {
-      width: 1px;
-      height: 20px;
-      background: rgba(255,255,255,0.1);
-    }
     .topbar-title {
       font-size: 0.85rem;
-      color: var(--muted, #aab3c6);
+      color: #aab3c6;
       font-weight: 600;
     }
-    .topbar-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .topbar-actions { margin-left: auto; display: flex; gap: 8px; }
     .btn {
       padding: 7px 14px;
       border-radius: 8px;
@@ -67,26 +54,16 @@
       align-items: center;
       gap: 6px;
     }
-    .btn:hover {
-      background: rgba(94,167,255,0.15);
-      border-color: rgba(94,167,255,0.4);
-    }
+    .btn:hover { background: rgba(94,167,255,0.15); border-color: rgba(94,167,255,0.4); }
     .btn-primary {
       background: linear-gradient(135deg, rgba(94,167,255,0.25), rgba(121,245,220,0.18));
       border-color: rgba(94,167,255,0.45);
     }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, rgba(94,167,255,0.38), rgba(121,245,220,0.28));
+    .btn-success {
+      background: linear-gradient(135deg, rgba(121,245,220,0.25), rgba(94,167,255,0.18));
+      border-color: rgba(121,245,220,0.45);
     }
-
-    /* ── Main Layout ── */
-    .main {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    /* ── Sidebar ── */
+    .main { flex: 1; display: flex; overflow: hidden; }
     .sidebar {
       width: 280px;
       background: rgba(13,16,24,0.95);
@@ -94,10 +71,9 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      flex-shrink: 0;
     }
     .sidebar-section {
-      padding: 16px;
+      padding: 14px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .sidebar-title {
@@ -106,579 +82,804 @@
       color: #aab3c6;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .upload-area {
       border: 2px dashed rgba(94,167,255,0.3);
       border-radius: 12px;
-      padding: 24px 16px;
+      padding: 20px 16px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      background: rgba(94,167,255,0.03);
     }
-    .upload-area:hover {
-      border-color: rgba(94,167,255,0.6);
-      background: rgba(94,167,255,0.08);
-    }
-    .upload-area.dragover {
-      border-color: #79f5dc;
-      background: rgba(121,245,220,0.08);
-    }
-    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
-    .upload-text {
-      font-size: 0.82rem;
-      color: #aab3c6;
-      line-height: 1.4;
-    }
+    .upload-area:hover { border-color: rgba(94,167,255,0.6); background: rgba(94,167,255,0.05); }
+    .upload-area.dragover { border-color: #79f5dc; background: rgba(121,245,220,0.08); }
+    .upload-text { font-size: 0.82rem; color: #aab3c6; line-height: 1.5; }
     .upload-text strong { color: #5ea7ff; }
-    .file-info {
+    .file-badge {
       display: none;
       background: rgba(121,245,220,0.08);
       border: 1px solid rgba(121,245,220,0.25);
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 0.82rem;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.78rem;
     }
-    .file-info.visible { display: block; }
-    .file-name {
-      font-weight: 700;
-      color: #79f5dc;
-      margin-bottom: 4px;
-      word-break: break-all;
-    }
-    .file-size { color: #aab3c6; font-size: 0.75rem; }
-
-    /* Properties panel */
-    .props-panel {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-    }
-    .props-empty {
-      text-align: center;
-      color: #aab3c6;
-      font-size: 0.82rem;
-      padding: 24px 0;
-    }
-    .props-empty-icon { font-size: 2rem; margin-bottom: 8px; }
-    .prop-item {
+    .file-badge.show { display: block; }
+    .file-badge .name { font-weight: 700; color: #79f5dc; }
+    .file-badge .size { color: #aab3c6; margin-top: 2px; }
+    .props-scroll { flex: 1; overflow-y: auto; padding: 14px; }
+    .prop-row {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
+      padding: 5px 0;
       border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       gap: 8px;
     }
-    .prop-key { color: #aab3c6; flex-shrink: 0; }
-    .prop-val {
-      color: #eaf0ff;
-      font-weight: 600;
-      text-align: right;
-      word-break: break-word;
-    }
-    .selected-title {
+    .prop-k { color: #aab3c6; flex-shrink: 0; }
+    .prop-v { color: #eaf0ff; font-weight: 600; text-align: right; word-break: break-word; }
+    .section-head {
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #79f5dc;
-      margin-bottom: 12px;
+      margin: 10px 0 6px;
     }
-
-    /* ── Viewer ── */
-    .viewer-wrap {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
+    .element-item {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.15s ease;
     }
-    #xeokit-canvas {
+    .element-item:hover { background: rgba(94,167,255,0.1); border-color: rgba(94,167,255,0.3); }
+    .element-item.selected { background: rgba(121,245,220,0.1); border-color: rgba(121,245,220,0.4); }
+    .element-name { font-weight: 700; color: #eaf0ff; }
+    .element-meta { color: #aab3c6; margin-top: 2px; font-size: 0.72rem; }
+    .import-btn-wrap {
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .import-btn {
       width: 100%;
-      height: 100%;
-      display: block;
-      background: #0a0e1a;
+      padding: 10px;
+      background: linear-gradient(135deg, rgba(121,245,220,0.2), rgba(94,167,255,0.15));
+      border: 1px solid rgba(121,245,220,0.4);
+      border-radius: 10px;
+      color: #eaf0ff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
     }
-
-    /* Loading overlay */
-    .loading-overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(6,8,13,0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      z-index: 50;
+    .import-btn.show { display: block; }
+    .import-btn:hover {
+      background: linear-gradient(135deg, rgba(121,245,220,0.35), rgba(94,167,255,0.25));
+      transform: translateY(-1px);
+    }
+    .viewer-wrap { flex: 1; position: relative; overflow: hidden; }
+    #three-canvas { width: 100%; height: 100%; display: block; }
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; background: rgba(6,8,13,0.85);
       backdrop-filter: blur(8px);
     }
-    .loading-overlay.hidden { display: none; }
-    .loader {
-      width: 44px; height: 44px;
+    .overlay.hidden { display: none; }
+    .spinner {
+      width: 40px; height: 40px;
       border: 3px solid rgba(94,167,255,0.2);
       border-top-color: #5ea7ff;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #eaf0ff;
-    }
-    .loading-sub {
-      font-size: 0.78rem;
-      color: #aab3c6;
-    }
-
-    /* Empty state */
-    .empty-state {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      pointer-events: none;
-    }
-    .empty-state.hidden { display: none; }
-    .empty-icon { font-size: 4rem; opacity: 0.3; }
-    .empty-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #eaf0ff;
-      opacity: 0.5;
-    }
-    .empty-sub {
-      font-size: 0.82rem;
-      color: #aab3c6;
-      opacity: 0.5;
-      text-align: center;
-      max-width: 280px;
-    }
-
-    /* Toolbar */
-    .viewer-toolbar {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 10;
+    .overlay-title { font-size: 0.9rem; font-weight: 700; }
+    .overlay-sub { font-size: 0.78rem; color: #aab3c6; }
+    .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; pointer-events: none; }
+    .empty.hidden { display: none; }
+    .empty-icon { font-size: 4rem; opacity: 0.2; }
+    .empty-title { font-size: 1rem; font-weight: 800; opacity: 0.4; }
+    .empty-sub { font-size: 0.8rem; color: #aab3c6; opacity: 0.4; text-align: center; max-width: 260px; }
+    .viewer-tools {
+      position: absolute; top: 12px; right: 12px;
+      display: flex; flex-direction: column; gap: 6px; z-index: 10;
     }
     .tool-btn {
       width: 36px; height: 36px;
       background: rgba(13,16,24,0.9);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      color: #eaf0ff;
-      cursor: pointer;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      backdrop-filter: blur(8px);
+      border-radius: 8px; color: #eaf0ff;
+      cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s ease; backdrop-filter: blur(8px);
     }
-    .tool-btn:hover {
-      background: rgba(94,167,255,0.2);
-      border-color: rgba(94,167,255,0.4);
-    }
-
-    /* Status bar */
+    .tool-btn:hover { background: rgba(94,167,255,0.2); border-color: rgba(94,167,255,0.4); }
     .statusbar {
       height: 28px;
       background: rgba(13,16,24,0.95);
       border-top: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 16px;
-      font-size: 0.72rem;
-      color: #aab3c6;
-      flex-shrink: 0;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      font-size: 0.72rem; color: #aab3c6;
     }
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #aab3c6;
-    }
-    .status-dot.green { background: #79f5dc; }
-    .status-dot.yellow { background: #ffd080; }
-
-    /* Back link */
-    .back-link {
-      color: #aab3c6;
-      text-decoration: none;
-      font-size: 0.8rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.15s;
-    }
-    .back-link:hover { color: #eaf0ff; }
-
-    /* Scrollbar */
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #aab3c6; }
+    .dot.green { background: #79f5dc; }
+    .dot.yellow { background: #ffd080; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .back-link { color: #aab3c6; text-decoration: none; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .back-link:hover { color: #eaf0ff; }
+    .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .success-toast {
+      position: fixed; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(121,245,220,0.15);
+      border: 1px solid rgba(121,245,220,0.4);
+      border-radius: 12px; padding: 12px 20px;
+      font-size: 0.85rem; font-weight: 700;
+      color: #79f5dc; z-index: 9999;
+      display: none; backdrop-filter: blur(8px);
     }
   </style>
 </head>
 <body>
 
-<!-- Top Bar -->
 <div class="topbar">
-  <a href="./index.html" class="back-link">← Back</a>
-  <div class="topbar-divider"></div>
-  <div class="topbar-brand">🏢 Lindner LCA Tool</div>
-  <div class="topbar-divider"></div>
-  <div class="topbar-title" id="viewerTitle">BIM Viewer — No file loaded</div>
+  <a href="./index.html" class="back-link">← Back to LCA Tool</a>
+  <div class="divider"></div>
+  <div class="topbar-brand">🏗️ BIM Viewer</div>
+  <div class="topbar-title" id="topTitle">No file loaded</div>
   <div class="topbar-actions">
-    <button class="btn" id="btnFitView" title="Fit to view">⊡ Fit View</button>
-    <button class="btn" id="btnReset" title="Reset view">↺ Reset</button>
-    <label class="btn btn-primary" for="ifcFileInput">
-      📂 Open IFC
-    </label>
-    <input type="file" id="ifcFileInput" accept=".ifc,.IFC" style="display:none">
+    <button class="btn" id="btnFit">⊡ Fit View</button>
+    <button class="btn" id="btnWire">🔲 Wireframe</button>
+    <label class="btn btn-primary" for="ifcInput">📂 Open IFC</label>
+    <input type="file" id="ifcInput" accept=".ifc" style="display:none">
   </div>
 </div>
 
-<!-- Main -->
 <div class="main">
-
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-section">
       <div class="sidebar-title">📁 IFC File</div>
       <div class="upload-area" id="uploadArea">
-        <div class="upload-icon">🏗️</div>
-        <div class="upload-text">
-          <strong>Drop IFC file here</strong><br>
-          or click to browse
-        </div>
+        <div style="font-size:2rem;margin-bottom:8px;">🏗️</div>
+        <div class="upload-text"><strong>Drop IFC here</strong><br>or click to browse</div>
       </div>
-      <div class="file-info" id="fileInfo">
-        <div class="file-name" id="fileName">—</div>
-        <div class="file-size" id="fileSize">—</div>
+      <div class="file-badge" id="fileBadge">
+        <div class="name" id="fName"></div>
+        <div class="size" id="fSize"></div>
       </div>
     </div>
 
-    <div class="sidebar-section" style="flex:1; overflow:auto;">
-      <div class="sidebar-title">🔍 Selected Element</div>
-      <div class="props-panel" id="propsPanel">
-        <div class="props-empty">
-          <div class="props-empty-icon">🖱️</div>
-          <div>Click any element<br>to see its properties</div>
-        </div>
+    <div class="props-scroll" id="propsScroll">
+      <div style="text-align:center;color:#aab3c6;font-size:0.82rem;padding:20px 0;">
+        <div style="font-size:2rem;margin-bottom:8px;">🖱️</div>
+        Load an IFC file to see<br>floors and rooms
       </div>
+    </div>
+
+    <div class="import-btn-wrap">
+      <button class="import-btn" id="importBtn">
+        🚀 Import to LCA Tool
+      </button>
     </div>
   </div>
 
-  <!-- 3D Viewer -->
   <div class="viewer-wrap">
-    <canvas id="xeokit-canvas"></canvas>
+    <canvas id="three-canvas"></canvas>
 
-    <!-- Empty state -->
-    <div class="empty-state" id="emptyState">
+    <div class="empty" id="emptyState">
       <div class="empty-icon">🏗️</div>
-      <div class="empty-title">No IFC File Loaded</div>
-      <div class="empty-sub">
-        Open an IFC file to visualize your building model in 3D
-      </div>
+      <div class="empty-title">No IFC Loaded</div>
+      <div class="empty-sub">Open an IFC file to see the 3D building model</div>
     </div>
 
-    <!-- Loading overlay -->
-    <div class="loading-overlay hidden" id="loadingOverlay">
-      <div class="loader"></div>
-      <div class="loading-text">Loading IFC Model...</div>
-      <div class="loading-sub" id="loadingStatus">Parsing geometry...</div>
+    <div class="overlay hidden" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="overlay-title">Loading IFC Model...</div>
+      <div class="overlay-sub" id="loadSub">Initializing...</div>
     </div>
 
-    <!-- Toolbar -->
-    <div class="viewer-toolbar">
-      <button class="tool-btn" id="btnPerspective" title="Perspective view">📐</button>
-      <button class="tool-btn" id="btnTop" title="Top view">⬆️</button>
+    <div class="viewer-tools">
+      <button class="tool-btn" id="btnTop" title="Top view">⬆</button>
       <button class="tool-btn" id="btnFront" title="Front view">⬛</button>
-      <button class="tool-btn" id="btnWireframe" title="Wireframe">🔲</button>
+      <button class="tool-btn" id="btnRight" title="Right view">▶</button>
+      <button class="tool-btn" id="btn3D" title="3D view">🔷</button>
     </div>
   </div>
 </div>
 
-<!-- Status Bar -->
 <div class="statusbar">
-  <div class="status-dot" id="statusDot"></div>
-  <span id="statusText">Ready — Open an IFC file to begin</span>
-  <span style="margin-left:auto">xeokit-sdk v2 • WebGL</span>
+  <div class="dot" id="sDot"></div>
+  <span id="sText">Ready — Open an IFC file</span>
+  <span style="margin-left:auto">Three.js + web-ifc</span>
 </div>
+
+<div class="success-toast" id="toast"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 
 <script type="module">
-import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as WebIFC from 'https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js';
 
-const statusText     = document.getElementById('statusText');
-const statusDot      = document.getElementById('statusDot');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const loadingStatus  = document.getElementById('loadingStatus');
-const emptyState     = document.getElementById('emptyState');
-const propsPanel     = document.getElementById('propsPanel');
-const viewerTitle    = document.getElementById('viewerTitle');
-const fileName       = document.getElementById('fileName');
-const fileSize       = document.getElementById('fileSize');
-const fileInfo       = document.getElementById('fileInfo');
-const uploadArea     = document.getElementById('uploadArea');
+// ── DOM ──────────────────────────────────────
+const canvas     = document.getElementById('three-canvas');
+const emptyState = document.getElementById('emptyState');
+const loadOver   = document.getElementById('loadingOverlay');
+const loadSub    = document.getElementById('loadSub');
+const propsScroll= document.getElementById('propsScroll');
+const fileBadge  = document.getElementById('fileBadge');
+const fName      = document.getElementById('fName');
+const fSize      = document.getElementById('fSize');
+const uploadArea = document.getElementById('uploadArea');
+const topTitle   = document.getElementById('topTitle');
+const sDot       = document.getElementById('sDot');
+const sText      = document.getElementById('sText');
+const importBtn  = document.getElementById('importBtn');
+const toast      = document.getElementById('toast');
 
+// ── Three.js Setup ───────────────────────────
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.setClearColor(0x0a0e1a, 1);
+
+const scene  = new THREE.Scene();
+scene.fog    = new THREE.Fog(0x0a0e1a, 50, 300);
+
+const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 1000);
+camera.position.set(20, 15, 20);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+sun.position.set(10, 20, 10);
+sun.castShadow = true;
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xeaf0ff, 0x2a364a, 0.4));
+
+// Grid
+const grid = new THREE.GridHelper(100, 100, 0x4a5a75, 0x2a364a);
+grid.position.y = -0.01;
+scene.add(grid);
+
+// Resize
+const resizeObs = new ResizeObserver(() => {
+  const { width, height } = canvas.parentElement.getBoundingClientRect();
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+});
+resizeObs.observe(canvas.parentElement);
+
+// Animate
+(function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+})();
+
+// ── State ────────────────────────────────────
+let ifcApi    = null;
+let modelID   = null;
+let modelMesh = null;
+let ifcData   = { floors: [], spaces: [], walls: [], slabs: [] };
+let selectedSpaces = new Set();
+let isWireframe = false;
+
+// ── Helpers ──────────────────────────────────
 function setStatus(dot, text) {
-  statusDot.className = 'status-dot' + (dot ? ` ${dot}` : '');
-  statusText.textContent = text;
+  sDot.className = 'dot' + (dot ? ` ${dot}` : '');
+  sText.textContent = text;
+}
+function showLoad(show, msg = '') {
+  loadOver.classList.toggle('hidden', !show);
+  if (msg) loadSub.textContent = msg;
+}
+function fmt(bytes) {
+  return bytes < 1048576
+    ? (bytes/1024).toFixed(1)+' KB'
+    : (bytes/1048576).toFixed(1)+' MB';
+}
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 3000);
 }
 
-function showLoading(show, msg = '') {
-  loadingOverlay.classList.toggle('hidden', !show);
-  if (msg) loadingStatus.textContent = msg;
-}
-
-function formatSize(bytes) {
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-}
-
+// ── Load IFC ─────────────────────────────────
 async function loadIFC(file) {
-  showLoading(true, 'Initializing IFC parser...');
+  showLoad(true, 'Initializing web-ifc...');
   emptyState.classList.add('hidden');
   setStatus('yellow', `Loading ${file.name}...`);
 
   try {
-    const ifcApi = new WebIFC.IfcAPI();
-    ifcApi.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
-
-    showLoading(true, 'Loading WASM module...');
+    ifcApi = new WebIFC.IfcAPI();
+    ifcApi.SetWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/');
     await ifcApi.Init();
 
-    showLoading(true, 'Reading IFC file...');
-    const buffer = await file.arrayBuffer();
-    const data = new Uint8Array(buffer);
+    showLoad(true, 'Reading file...');
+    const buf  = await file.arrayBuffer();
+    const data = new Uint8Array(buf);
 
-    showLoading(true, 'Parsing IFC model...');
-    const modelID = ifcApi.OpenModel(data);
+    showLoad(true, 'Parsing IFC...');
+    modelID = ifcApi.OpenModel(data);
 
-    showLoading(true, 'Extracting elements...');
+    showLoad(true, 'Extracting geometry...');
+    await buildGeometry();
 
-    // Use numeric type IDs directly
-    const typeMap = {
-      23: 'Wall',
-      25: 'Wall',
-      31: 'Beam',
-      40: 'Column',
-      44: 'Door',
-      90: 'Slab',
-      128: 'Stair',
-      137: 'Window',
-      182: 'Roof',
-      211: 'Furniture',
-    };
+    showLoad(true, 'Extracting spaces & rooms...');
+    await extractSpaces();
 
-    // Get all lines and count by type
-    const allLines = ifcApi.GetAllLines(modelID);
-    const counts = {};
-    const elementsList = [];
+    showLoad(false);
 
-    for (let i = 0; i < allLines.size(); i++) {
-      try {
-        const expressID = allLines.get(i);
-        const props = ifcApi.GetLine(modelID, expressID);
-        if (props && props.type) {
-          const typeName = WebIFC[
-            Object.keys(WebIFC).find(k => WebIFC[k] === props.type)
-          ] ? Object.keys(WebIFC).find(k => WebIFC[k] === props.type) : null;
-
-          if (props.Name && props.Name.value) {
-            elementsList.push({
-              id: expressID,
-              name: props.Name.value,
-              type: typeName || `Type_${props.type}`,
-              rawType: props.type
-            });
-          }
-        }
-      } catch(e) {}
-    }
-
-    // Better approach - just get named elements
-    const namedElements = elementsList.filter(e =>
-      e.name && e.name !== '' && !e.name.startsWith('$')
-    );
-
-    // Count types
-    for (const el of namedElements) {
-      counts[el.type] = (counts[el.type] || 0) + 1;
-    }
-
-    showLoading(false);
-
-    // Show file info
-    fileName.textContent = file.name;
-    fileSize.textContent = formatSize(file.size);
-    fileInfo.classList.add('visible');
+    // File badge
+    fName.textContent = file.name;
+    fSize.textContent = fmt(file.size);
+    fileBadge.classList.add('show');
     uploadArea.style.display = 'none';
-    viewerTitle.textContent = `BIM Viewer — ${file.name}`;
-    setStatus('green', `✅ Loaded: ${file.name} — ${namedElements.length} elements found`);
+    topTitle.textContent = file.name;
+    setStatus('green', `✅ ${file.name} — ${ifcData.spaces.length} rooms found`);
 
-    showModelSummary(ifcApi, modelID, file.name, namedElements, counts);
+    renderSidebar();
+    importBtn.classList.add('show');
 
-    window._ifcApi = ifcApi;
-    window._modelID = modelID;
-    window._elements = namedElements;
-
-  } catch (err) {
-    showLoading(false);
-    setStatus('', `❌ Error: ${err.message}`);
-    console.error('IFC load error:', err);
+  } catch(err) {
+    showLoad(false);
+    setStatus('', `❌ ${err.message}`);
+    console.error(err);
   }
 }
 
-function showModelSummary(ifcApi, modelID, fname, elements, counts) {
-  // Get project info
-  let projectName = 'Unknown';
-  let projectDesc = '';
+// ── Build Three.js Geometry from IFC ─────────
+async function buildGeometry() {
+  if (modelMesh) { scene.remove(modelMesh); modelMesh.traverse(c => { c.geometry?.dispose(); c.material?.dispose(); }); }
+
+  const group = new THREE.Group();
+  const flatMesh = ifcApi.LoadAllGeometry(modelID);
+
+  const defaultMat = new THREE.MeshLambertMaterial({ color: 0x8899aa, side: THREE.DoubleSide });
+  const glassMat   = new THREE.MeshLambertMaterial({ color: 0x88ccff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+  const floorMat   = new THREE.MeshLambertMaterial({ color: 0xccbbaa, side: THREE.DoubleSide });
+  const wallMat    = new THREE.MeshLambertMaterial({ color: 0xaabbcc, side: THREE.DoubleSide });
+  const roofMat    = new THREE.MeshLambertMaterial({ color: 0xcc9977, side: THREE.DoubleSide });
+
+  for (let i = 0; i < flatMesh.size(); i++) {
+    const mesh = flatMesh.get(i);
+    const geoms = mesh.geometries;
+
+    for (let j = 0; j < geoms.size(); j++) {
+      const g    = geoms.get(j);
+      const vArr = g.GetVertexData();
+      const iArr = g.GetIndexData();
+      const mat  = g.GetTransformMatrix();
+
+      if (!vArr || vArr.length === 0) continue;
+
+      // Build geometry
+      const geometry = new THREE.BufferGeometry();
+      const vCount   = vArr.length / 6;
+      const positions = new Float32Array(vCount * 3);
+      const normals   = new Float32Array(vCount * 3);
+
+      for (let k = 0; k < vCount; k++) {
+        positions[k*3]   = vArr[k*6];
+        positions[k*3+1] = vArr[k*6+1];
+        positions[k*3+2] = vArr[k*6+2];
+        normals[k*3]     = vArr[k*6+3];
+        normals[k*3+1]   = vArr[k*6+4];
+        normals[k*3+2]   = vArr[k*6+5];
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
+      if (iArr && iArr.length > 0) {
+        geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(iArr), 1));
+      }
+
+      // Color from IFC
+      const c = g.color;
+      let material;
+      if (c && c.w < 0.5) {
+        material = glassMat;
+      } else if (c) {
+        material = new THREE.MeshLambertMaterial({
+          color: new THREE.Color(c.x, c.y, c.z),
+          side: THREE.DoubleSide,
+          transparent: c.w < 0.9,
+          opacity: c.w
+        });
+      } else {
+        material = defaultMat;
+      }
+
+      const threeMesh = new THREE.Mesh(geometry, material);
+
+      // Apply transform matrix
+      if (mat) {
+        const m = new THREE.Matrix4();
+        m.set(
+          mat.get(0,0), mat.get(0,1), mat.get(0,2), mat.get(0,3),
+          mat.get(1,0), mat.get(1,1), mat.get(1,2), mat.get(1,3),
+          mat.get(2,0), mat.get(2,1), mat.get(2,2), mat.get(2,3),
+          mat.get(3,0), mat.get(3,1), mat.get(3,2), mat.get(3,3)
+        );
+        threeMesh.applyMatrix4(m);
+      }
+
+      threeMesh.userData.expressID = mesh.id;
+      group.add(threeMesh);
+    }
+  }
+
+  // Scale from mm to meters
+  group.scale.set(0.001, 0.001, 0.001);
+
+  modelMesh = group;
+  scene.add(group);
+
+  // Fit camera
+  const box    = new THREE.Box3().setFromObject(group);
+  const center = box.getCenter(new THREE.Vector3());
+  const size   = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+
+  controls.target.copy(center);
+  camera.position.set(
+    center.x + maxDim * 1.2,
+    center.y + maxDim * 0.8,
+    center.z + maxDim * 1.2
+  );
+  controls.update();
+}
+
+// ── Extract Spaces/Rooms ──────────────────────
+async function extractSpaces() {
+  ifcData = { floors: [], spaces: [], walls: [], slabs: [] };
+
+  // Get storeys (floors)
   try {
-    const projects = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCPROJECT);
-    if (projects.size() > 0) {
-      const proj = ifcApi.GetLine(modelID, projects.get(0));
-      if (proj.Name) projectName = proj.Name.value || projectName;
-      if (proj.Description) projectDesc = proj.Description.value || '';
+    const storeyIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCBUILDINGSTOREY);
+    for (let i = 0; i < storeyIDs.size(); i++) {
+      const id   = storeyIDs.get(i);
+      const line = ifcApi.GetLine(modelID, id, true);
+      ifcData.floors.push({
+        id,
+        name: line.Name?.value || `Floor ${i+1}`,
+        elevation: line.Elevation?.value || 0
+      });
     }
   } catch(e) {}
 
-  const countHTML = Object.entries(counts).length > 0
-    ? Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .map(([name, count]) => `
-          <div class="prop-item" style="cursor:pointer;"
-               onclick="window.showElements('${name}')">
-            <span class="prop-key">${name.replace('IFC','').replace(/([A-Z])/g, ' $1').trim()}</span>
-            <span class="prop-val" style="color:#79f5dc;">${count}</span>
-          </div>
-        `).join('')
-    : `<div style="color:#aab3c6;font-size:0.8rem;">No named elements found</div>`;
+  // Get spaces (rooms)
+  try {
+    const spaceIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCSPACE);
+    for (let i = 0; i < spaceIDs.size(); i++) {
+      const id   = spaceIDs.get(i);
+      const line = ifcApi.GetLine(modelID, id, true);
 
-  propsPanel.innerHTML = `
-    <div class="selected-title">📊 Model Summary</div>
-    <div class="prop-item">
-      <span class="prop-key">Project</span>
-      <span class="prop-val">${projectName}</span>
-    </div>
-    <div class="prop-item">
-      <span class="prop-key">File</span>
-      <span class="prop-val" style="font-size:0.72rem;">${fname}</span>
-    </div>
-    <div class="prop-item">
-      <span class="prop-key">Elements</span>
-      <span class="prop-val">${elements.length}</span>
-    </div>
-    ${projectDesc ? `<div class="prop-item"><span class="prop-key">Description</span><span class="prop-val" style="font-size:0.72rem;">${projectDesc}</span></div>` : ''}
-    <br>
-    <div class="selected-title">🏗️ Element Types</div>
-    ${countHTML}
-    <br>
-    <div style="font-size:0.75rem;color:#aab3c6;text-align:center;padding:8px 0;">
-      Click a type to see elements
-    </div>
-  `;
+      // Get area from properties
+      let grossArea = 0, netArea = 0;
+      try {
+        const psets = line.IsDefinedBy;
+        if (psets) {
+          for (const pset of psets) {
+            const props = pset.RelatingPropertyDefinition?.HasProperties || [];
+            for (const p of props) {
+              if (p.Name?.value === 'GrossPlannedArea') grossArea = p.NominalValue?.value || 0;
+              if (p.Name?.value === 'NetPlannedArea')   netArea   = p.NominalValue?.value || 0;
+            }
+          }
+        }
+      } catch(e) {}
+
+      ifcData.spaces.push({
+        id,
+        name:      line.Name?.value || `Space ${i+1}`,
+        longName:  line.LongName?.value || '',
+        grossArea,
+        netArea,
+        height: 2.2 // default, will extract below
+      });
+    }
+  } catch(e) {}
+
+  // Get walls
+  try {
+    const wallIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCWALL);
+    const wallIDs2 = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCWALLSTANDARDCASE);
+    const allWallIDs = [...Array(wallIDs.size()).keys()].map(i => wallIDs.get(i))
+      .concat([...Array(wallIDs2.size()).keys()].map(i => wallIDs2.get(i)));
+
+    for (const id of allWallIDs) {
+      try {
+        const line = ifcApi.GetLine(modelID, id, true);
+        let width = 0, length = 0, area = 0;
+        try {
+          const qsets = line.IsDefinedBy || [];
+          for (const q of qsets) {
+            const quantities = q.RelatingPropertyDefinition?.Quantities || [];
+            for (const qty of quantities) {
+              if (qty.Name?.value === 'Width')       width  = (qty.LengthValue?.value || 0) / 1000;
+              if (qty.Name?.value === 'Length')      length = (qty.LengthValue?.value || 0) / 1000;
+              if (qty.Name?.value === 'NetSideArea') area   = qty.AreaValue?.value || 0;
+            }
+          }
+        } catch(e) {}
+        ifcData.walls.push({ id, name: line.Name?.value || 'Wall', width, length, area });
+      } catch(e) {}
+    }
+  } catch(e) {}
+
+  // Get slabs
+  try {
+    const slabIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCSLAB);
+    for (let i = 0; i < slabIDs.size(); i++) {
+      const id   = slabIDs.get(i);
+      const line = ifcApi.GetLine(modelID, id, true);
+      let depth = 0, area = 0;
+      try {
+        const qsets = line.IsDefinedBy || [];
+        for (const q of qsets) {
+          const quantities = q.RelatingPropertyDefinition?.Quantities || [];
+          for (const qty of quantities) {
+            if (qty.Name?.value === 'Depth')   depth = (qty.LengthValue?.value || 0) / 1000;
+            if (qty.Name?.value === 'NetArea') area  = qty.AreaValue?.value || 0;
+          }
+        }
+      } catch(e) {}
+      ifcData.slabs.push({ id, name: line.Name?.value || 'Slab', depth, area });
+    }
+  } catch(e) {}
 }
 
-// Show elements of a type
-window.showElements = function(typeName) {
-  const elements = window._elements?.filter(e => e.type === typeName) || [];
+// ── Render Sidebar ────────────────────────────
+function renderSidebar() {
+  const floors  = ifcData.floors;
+  const spaces  = ifcData.spaces;
+  const walls   = ifcData.walls;
+  const slabs   = ifcData.slabs;
 
-  propsPanel.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-      <button onclick="window.location.reload()" 
-              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-                     border-radius:6px;color:#eaf0ff;padding:4px 10px;cursor:pointer;font-size:0.75rem;">
-        ← Back
-      </button>
-      <div class="selected-title" style="margin:0;">${typeName.replace('IFC','').replace(/([A-Z])/g,' $1').trim()} (${elements.length})</div>
-    </div>
-    ${elements.slice(0, 50).map(el => `
-      <div class="prop-item" style="cursor:pointer;padding:8px 4px;"
-           onclick="window.showElementDetail(${el.id})">
-        <span class="prop-key" style="font-size:0.75rem;">#${el.id}</span>
-        <span class="prop-val" style="color:#5ea7ff;">${el.name || '—'}</span>
-      </div>
-    `).join('')}
-    ${elements.length > 50 ? `<div style="color:#aab3c6;font-size:0.75rem;text-align:center;padding:8px;">+${elements.length - 50} more...</div>` : ''}
+  let html = `
+    <div class="section-head">🏢 Building Summary</div>
+    <div class="prop-row"><span class="prop-k">Floors</span><span class="prop-v">${floors.length}</span></div>
+    <div class="prop-row"><span class="prop-k">Rooms/Spaces</span><span class="prop-v">${spaces.length}</span></div>
+    <div class="prop-row"><span class="prop-k">Walls</span><span class="prop-v">${walls.length}</span></div>
+    <div class="prop-row"><span class="prop-k">Slabs</span><span class="prop-v">${slabs.length}</span></div>
   `;
-};
 
-// Show element detail
-window.showElementDetail = function(expressID) {
-  try {
-    const ifcApi = window._ifcApi;
-    const modelID = window._modelID;
-    const props = ifcApi.GetLine(modelID, expressID, true);
+  if (floors.length > 0) {
+    html += `<div class="section-head" style="margin-top:14px;">🏬 Floors & Rooms</div>`;
+    html += `<div style="font-size:0.72rem;color:#aab3c6;margin-bottom:8px;">Select rooms to import into LCA Tool</div>`;
 
-    const rows = [];
-    for (const [key, val] of Object.entries(props)) {
-      if (val === null || val === undefined) continue;
-      let display = '';
-      if (typeof val === 'object' && val.value !== undefined) {
-        display = String(val.value);
-      } else if (typeof val !== 'object') {
-        display = String(val);
-      }
-      if (display && display !== 'null' && key !== 'type') {
-        rows.push([key, display]);
+    for (const floor of floors) {
+      const floorSpaces = spaces.length > 0 ? spaces : [];
+      html += `
+        <div style="font-weight:800;font-size:0.8rem;color:#5ea7ff;margin:8px 0 4px;">
+          📐 ${floor.name}
+        </div>
+      `;
+
+      if (floorSpaces.length > 0) {
+        for (const space of floorSpaces) {
+          const isSelected = selectedSpaces.has(space.id);
+          const area = space.grossArea || space.netArea;
+          html += `
+            <div class="element-item ${isSelected ? 'selected' : ''}"
+                 onclick="window.toggleSpace(${space.id})">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:1rem;">${isSelected ? '✅' : '⬜'}</span>
+                <div>
+                  <div class="element-name">${space.name}</div>
+                  <div class="element-meta">
+                    ${area > 0 ? `${area.toFixed(1)} m²` : ''}
+                    ${space.longName ? ` • ${space.longName}` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `<div style="color:#aab3c6;font-size:0.78rem;padding:6px 4px;">No spaces defined in IFC</div>`;
       }
     }
-
-    propsPanel.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-        <button onclick="history.back()" 
-                style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-                       border-radius:6px;color:#eaf0ff;padding:4px 10px;cursor:pointer;font-size:0.75rem;">
-          ← Back
-        </button>
-        <div class="selected-title" style="margin:0;">Element #${expressID}</div>
-      </div>
-      ${rows.map(([k, v]) => `
-        <div class="prop-item">
-          <span class="prop-key">${k}</span>
-          <span class="prop-val">${v}</span>
-        </div>
-      `).join('')}
-    `;
-  } catch(e) {
-    console.warn('Error getting element detail:', e);
   }
+
+  if (walls.length > 0) {
+    html += `<div class="section-head" style="margin-top:14px;">🧱 Walls (${walls.length})</div>`;
+    for (const w of walls.slice(0, 5)) {
+      html += `
+        <div class="prop-row">
+          <span class="prop-k">${w.name}</span>
+          <span class="prop-v">${w.area > 0 ? w.area.toFixed(1)+' m²' : w.length > 0 ? w.length.toFixed(2)+'m' : '—'}</span>
+        </div>
+      `;
+    }
+    if (walls.length > 5) html += `<div style="color:#aab3c6;font-size:0.72rem;padding:4px;">+${walls.length-5} more walls</div>`;
+  }
+
+  if (slabs.length > 0) {
+    html += `<div class="section-head" style="margin-top:14px;">⬛ Slabs (${slabs.length})</div>`;
+    for (const s of slabs) {
+      html += `
+        <div class="prop-row">
+          <span class="prop-k">${s.name}</span>
+          <span class="prop-v">${s.area > 0 ? s.area.toFixed(1)+' m²' : '—'}</span>
+        </div>
+      `;
+    }
+  }
+
+  propsScroll.innerHTML = html;
+  updateImportBtn();
+}
+
+// ── Toggle Space Selection ────────────────────
+window.toggleSpace = function(id) {
+  if (selectedSpaces.has(id)) selectedSpaces.delete(id);
+  else selectedSpaces.add(id);
+  renderSidebar();
 };
 
-// File input
-document.getElementById('ifcFileInput').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (file) loadIFC(file);
+function updateImportBtn() {
+  const count = selectedSpaces.size;
+  if (count > 0) {
+    importBtn.textContent = `🚀 Import ${count} Room${count>1?'s':''} to LCA Tool`;
+    importBtn.classList.add('show');
+  } else {
+    importBtn.textContent = '🚀 Import to LCA Tool';
+  }
+}
+
+// ── Import to LCA Tool ────────────────────────
+importBtn.addEventListener('click', () => {
+  const spaces = ifcData.spaces.filter(s => selectedSpaces.has(s.id));
+
+  if (spaces.length === 0) {
+    // Import all spaces
+    ifcData.spaces.forEach(s => selectedSpaces.add(s.id));
+    renderSidebar();
+    return;
+  }
+
+  // Build import payload
+  const payload = {
+    type: 'IFC_IMPORT',
+    building: {
+      name: topTitle.textContent.replace('.ifc','') || 'IFC Building',
+      floors: buildFloorsPayload(spaces)
+    }
+  };
+
+  // Store in localStorage for main app
+  localStorage.setItem('lindner-ifc-import', JSON.stringify(payload));
+
+  // Open main app
+  showToast(`✅ Importing ${spaces.length} rooms to LCA Tool...`);
+  setTimeout(() => {
+    window.location.href = './index.html?ifc-import=1';
+  }, 1000);
 });
 
-// Drag & drop
-uploadArea.addEventListener('click', () => document.getElementById('ifcFileInput').click());
+function buildFloorsPayload(spaces) {
+  const floors = ifcData.floors.length > 0
+    ? ifcData.floors
+    : [{ id: 'floor-1', name: 'Ground Floor' }];
+
+  return floors.map((floor, fi) => ({
+    id: `floor-ifc-${fi}`,
+    name: floor.name,
+    rooms: spaces.map((space, si) => {
+      const area = space.grossArea || space.netArea || 18;
+      // Estimate dimensions from area
+      const length = Math.sqrt(area * 1.6);
+      const width  = area / length;
+      return {
+        id: `room-ifc-${fi}-${si}`,
+        name: space.name,
+        dims: {
+          length: parseFloat(length.toFixed(2)),
+          width:  parseFloat(width.toFixed(2)),
+          height: 2.2
+        },
+        area,
+        fromIFC: true
+      };
+    })
+  }));
+}
+
+// ── Camera Controls ───────────────────────────
+document.getElementById('btnFit').addEventListener('click', () => {
+  if (!modelMesh) return;
+  const box    = new THREE.Box3().setFromObject(modelMesh);
+  const center = box.getCenter(new THREE.Vector3());
+  const size   = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  controls.target.copy(center);
+  camera.position.set(center.x + maxDim*1.2, center.y + maxDim*0.8, center.z + maxDim*1.2);
+  controls.update();
+});
+
+document.getElementById('btnWire').addEventListener('click', () => {
+  isWireframe = !isWireframe;
+  modelMesh?.traverse(c => { if (c.isMesh) c.material.wireframe = isWireframe; });
+});
+
+document.getElementById('btnTop').addEventListener('click', () => {
+  if (!modelMesh) return;
+  const box = new THREE.Box3().setFromObject(modelMesh);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  controls.target.copy(center);
+  camera.position.set(center.x, center.y + Math.max(size.x,size.z)*1.5, center.z);
+  controls.update();
+});
+
+document.getElementById('btnFront').addEventListener('click', () => {
+  if (!modelMesh) return;
+  const box = new THREE.Box3().setFromObject(modelMesh);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  controls.target.copy(center);
+  camera.position.set(center.x, center.y, center.z + Math.max(size.x,size.y)*1.5);
+  controls.update();
+});
+
+document.getElementById('btnRight').addEventListener('click', () => {
+  if (!modelMesh) return;
+  const box = new THREE.Box3().setFromObject(modelMesh);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  controls.target.copy(center);
+  camera.position.set(center.x + Math.max(size.y,size.z)*1.5, center.y, center.z);
+  controls.update();
+});
+
+document.getElementById('btn3D').addEventListener('click', () => {
+  if (!modelMesh) return;
+  const box = new THREE.Box3().setFromObject(modelMesh);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  controls.target.copy(center);
+  camera.position.set(center.x + maxDim*1.2, center.y + maxDim*0.8, center.z + maxDim*1.2);
+  controls.update();
+});
+
+// ── File Input ────────────────────────────────
+document.getElementById('ifcInput').addEventListener('change', e => {
+  if (e.target.files[0]) loadIFC(e.target.files[0]);
+});
+
+uploadArea.addEventListener('click', () => document.getElementById('ifcInput').click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
 uploadArea.addEventListener('drop', e => {
   e.preventDefault();
   uploadArea.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file?.name.toLowerCase().endsWith('.ifc')) loadIFC(file);
+  const f = e.dataTransfer.files[0];
+  if (f?.name.toLowerCase().endsWith('.ifc')) loadIFC(f);
 });
-
-// Toolbar buttons (no 3D yet)
-document.getElementById('btnFitView').addEventListener('click', () => {});
-document.getElementById('btnReset').addEventListener('click', () => {});
-document.getElementById('btnTop').addEventListener('click', () => {});
-document.getElementById('btnFront').addEventListener('click', () => {});
-document.getElementById('btnWireframe').addEventListener('click', () => {});
-document.getElementById('btnPerspective').addEventListener('click', () => {});
 
 setStatus('green', 'Ready — Open an IFC file to begin');
 </script>
