@@ -1452,34 +1452,41 @@ window.loadProjectData = function(buildingData) {
     state.currentFloorId = cloned.floors[0]?.id || 'floor-1';
     state.currentRoomId = cloned.floors[0]?.rooms[0]?.id || 'room-1';
     state.viewMode = 'room';
-    window.state = state;
+window.state = state;
 
-    // Refresh UI
-   try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
+// Refresh UI
+try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
 try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
 
 // Force room view mode in UI
 const roomViewBtn = document.querySelector('[data-view="room"]');
 if (roomViewBtn) roomViewBtn.click();
-    
-// Rebuild 3D model automatically
-// Rebuild 3D model automatically
+
+saveToLocalStorage();
+
+const nameInput = document.getElementById('buildingName');
+if (nameInput) nameInput.value = cloned.name || '';
+const locationInput = document.getElementById('buildingLocation');
+if (locationInput) locationInput.value = cloned.location || '';
+
+// Rebuild 3D room model
 setTimeout(() => {
   try {
+    // Force room mode before clicking build
+    state.viewMode = 'room';
+    window.state = state;
     const buildBtn = document.getElementById('buildBtn');
     if (buildBtn) {
-      // Make sure we're in the right view mode first
-      if (state.viewMode === 'building') {
-        // Switch to room view to trigger room build
-        state.viewMode = 'room';
-      }
       buildBtn.click();
-      console.log('✅ Build triggered');
+      console.log('✅ Build triggered in room mode');
     }
   } catch(e) {
     console.warn('Build trigger error:', e.message);
   }
-}, 500);
+}, 800);
+
+console.log('✅ Project loaded:', cloned.name);
+return true;
 
     saveToLocalStorage();
 
