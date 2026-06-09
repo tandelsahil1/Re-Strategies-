@@ -1470,15 +1470,17 @@ window.loadProjectData = function(buildingData) {
     try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
     saveToLocalStorage();
     // Rebuild 3D model with correct view mode
-    setTimeout(() => {
+    // Step 1: switch to room mode immediately
+state.viewMode = 'room';
+window.state = state;
+const roomBtn = document.getElementById('viewModeRoomBtn');
+const buildingBtn = document.getElementById('viewModeBuildingBtn');
+if (roomBtn) roomBtn.classList.add('active');
+if (buildingBtn) buildingBtn.classList.remove('active');
+
+// Step 2: update inputs after short delay
+setTimeout(() => {
   try {
-    state.viewMode = 'room';
-    window.state = state;
-    const roomBtn = document.getElementById('viewModeRoomBtn');
-    const buildingBtn = document.getElementById('viewModeBuildingBtn');
-    if (roomBtn) roomBtn.classList.add('active');
-    if (buildingBtn) buildingBtn.classList.remove('active');
-    // Update input fields with room data first
     const room = state.building.floors[0]?.rooms[0];
     if (room) {
       const li = document.getElementById('lengthInput');
@@ -1490,12 +1492,30 @@ window.loadProjectData = function(buildingData) {
       if (hi) hi.value = String(room.dims.height);
       if (ni) ni.value = room.name;
     }
-    if (window.buildRoom) window.buildRoom();
-    console.log('✅ 3D model rebuilt after load');
+  } catch(e) {}
+}, 200);
+
+// Step 3: build room after everything is ready
+setTimeout(() => {
+  try {
+    if (window.buildRoom) {
+      window.buildRoom();
+      console.log('✅ 3D rebuilt - step 3');
+    }
   } catch(e) {
-    console.warn('3D rebuild error:', e.message);
+    console.warn('Step 3 error:', e.message);
   }
-}, 1000);
+}, 800);
+
+// Step 4: backup attempt
+setTimeout(() => {
+  try {
+    if (window.buildRoom) {
+      window.buildRoom();
+      console.log('✅ 3D rebuilt - step 4 backup');
+    }
+  } catch(e) {}
+}, 1500);
     
     // Update inputs
     const nameInput = document.getElementById('buildingName');
