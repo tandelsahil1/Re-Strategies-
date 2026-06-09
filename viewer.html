@@ -64,8 +64,6 @@
     .back { color:#aab3c6; text-decoration:none; font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:5px; }
     .back:hover { color:#eaf0ff; }
     .main { flex:1; display:flex; overflow:hidden; }
-
-    /* Sidebar */
     .sidebar {
       width:270px;
       background:rgba(13,16,24,0.98);
@@ -160,8 +158,6 @@
     .pk { color:#aab3c6; flex-shrink:0; }
     .pv { color:#eaf0ff; font-weight:600; text-align:right; word-break:break-word; }
     .sec-head { font-weight:800; font-size:0.82rem; color:#79f5dc; margin:10px 0 6px; }
-
-    /* Viewer */
     .viewer-wrap { flex:1; position:relative; overflow:hidden; }
     #xeo-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
     .empty {
@@ -204,7 +200,6 @@
       cursor:pointer; font-size:0.85rem;
       display:flex; align-items:center; justify-content:center;
       transition:all 0.15s; backdrop-filter:blur(8px);
-      title:attr(title);
     }
     .tool:hover { background:rgba(94,167,255,0.2); border-color:rgba(94,167,255,0.4); }
     .tool.active { background:rgba(121,245,220,0.2); border-color:rgba(121,245,220,0.4); }
@@ -235,8 +230,6 @@
   </style>
 </head>
 <body>
-
-<!-- Topbar -->
 <div class="topbar">
   <a href="./index.html" class="back">← Back</a>
   <div class="divider"></div>
@@ -246,16 +239,12 @@
   <div class="top-actions">
     <button class="btn" id="btnFit">⊡ Fit</button>
     <button class="btn" id="btnWire">🔲 Wire</button>
-    <button class="btn" id="btnX-ray">👁 X-Ray</button>
+    <button class="btn" id="btnXray">👁 X-Ray</button>
     <label class="btn btn-primary" for="ifcIn">📂 Open IFC</label>
     <input type="file" id="ifcIn" accept=".ifc,.IFC" style="display:none">
   </div>
 </div>
-
-<!-- Main -->
 <div class="main">
-
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sb-section">
       <div class="sb-title">📁 IFC File</div>
@@ -268,37 +257,30 @@
         <div class="fs" id="fSize"></div>
       </div>
     </div>
-
     <div class="sb-scroll" id="sbScroll">
       <div class="sb-empty">
         <div style="font-size:2rem;margin-bottom:8px;">🏢</div>
         Load an IFC file to see<br>floors and rooms
       </div>
     </div>
-
     <div class="import-wrap">
       <button class="import-btn" id="importBtn">
         🚀 Import Rooms to LCA Tool
       </button>
     </div>
   </div>
-
-  <!-- 3D Viewer -->
   <div class="viewer-wrap">
     <canvas id="xeo-canvas"></canvas>
-
     <div class="empty" id="emptyEl">
       <div class="empty-icon">🏗️</div>
       <div class="empty-title">No IFC File Loaded</div>
       <div class="empty-sub">Open an IFC file to view your building model in 3D</div>
     </div>
-
     <div class="loading hide" id="loadEl">
       <div class="spin"></div>
       <div class="load-title">Loading IFC Model...</div>
       <div class="load-sub" id="loadSub">Please wait...</div>
     </div>
-
     <div class="tools">
       <button class="tool" id="tTop"    title="Top view">⬆</button>
       <button class="tool" id="tFront"  title="Front view">⬛</button>
@@ -308,40 +290,22 @@
     </div>
   </div>
 </div>
-
-<!-- Status Bar -->
 <div class="statusbar">
   <div class="dot" id="sDot"></div>
   <span id="sTxt">Ready — Open an IFC file</span>
   <span style="margin-left:auto">xeokit-sdk • WebIFC</span>
 </div>
-
 <div class="toast" id="toast"></div>
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
 <script type="module">
-// ─────────────────────────────────────────────────────────────
-// Lindner BIM Viewer - xeokit-sdk + WebIFC direct IFC loading
-// ─────────────────────────────────────────────────────────────
-
 import {
   Viewer,
   WebIFCLoaderPlugin,
   NavCubePlugin,
   SectionPlanesPlugin
 } from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
-
 import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/web-ifc-api.js";
 
-// ── DOM ──────────────────────────────────────────────────────
 const topTitle  = document.getElementById('topTitle');
 const uploadZone= document.getElementById('uploadZone');
 const filePill  = document.getElementById('filePill');
@@ -356,17 +320,16 @@ const sDot      = document.getElementById('sDot');
 const sTxt      = document.getElementById('sTxt');
 const toast     = document.getElementById('toast');
 
-// ── State ─────────────────────────────────────────────────────
 let viewer       = null;
 let loaderPlugin = null;
 let model        = null;
 let sectionPlanes= null;
+let currentFile  = null;
 let ifcData      = { floors:[], spaces:[], walls:[], slabs:[] };
 let selectedRooms= new Set();
 let isWireframe  = false;
 let isXray       = false;
 
-// ── Helpers ───────────────────────────────────────────────────
 const setStatus = (dot, txt) => {
   sDot.className = 'dot' + (dot ? ` ${dot}` : '');
   sTxt.textContent = txt;
@@ -384,26 +347,21 @@ const showToast = msg => {
   setTimeout(() => toast.style.display='none', 3000);
 };
 
-// ── Init xeokit Viewer ────────────────────────────────────────
-function initViewer() {
-  // Pre-load web-ifc wasm
-  window.WebIFCLoaderPluginDefaultWasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/";
+// ── Init xeokit Viewer (now async) ────────────────────────────
+async function initViewer() {
   viewer = new Viewer({
     canvasId: "xeo-canvas",
     transparent: true,
     dtxEnabled: true,
     pbrEnabled: true,
   });
-
   viewer.scene.canvas.canvas.style.background =
     "linear-gradient(180deg, #0d1018 0%, #0a0e1a 100%)";
 
-  // Default camera
   viewer.camera.eye  = [10, 10, 10];
   viewer.camera.look = [0, 0, 0];
   viewer.camera.up   = [0, 1, 0];
 
-  // Navigation cube
   new NavCubePlugin(viewer, {
     canvasId: "xeo-canvas",
     visible: true,
@@ -413,23 +371,20 @@ function initViewer() {
     rightMargin: 10,
   });
 
-  // Section planes
   sectionPlanes = new SectionPlanesPlugin(viewer, {
-    overviewCanvasId: "xeo-canvas",
     overviewVisible: false,
   });
 
-  // WebIFC Loader
- const ifcApi = new WebIFC.IfcAPI();
-ifcApi.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/");
-await ifcApi.Init();
+  // Init WebIFC API
+  const ifcApi = new WebIFC.IfcAPI();
+  ifcApi.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/");
+  await ifcApi.Init();
 
-loaderPlugin = new WebIFCLoaderPlugin(viewer, {
-  WebIFC,
-  IfcAPI: ifcApi,
-});
+  loaderPlugin = new WebIFCLoaderPlugin(viewer, {
+    WebIFC,
+    IfcAPI: ifcApi,
+  });
 
-  // Click to highlight
   viewer.scene.input.on("mouseclicked", coords => {
     const hit = viewer.scene.pick({ canvasPos: coords });
     if (hit?.entity) {
@@ -447,22 +402,22 @@ loaderPlugin = new WebIFCLoaderPlugin(viewer, {
   });
 
   setStatus('g', 'Viewer ready — Open an IFC file');
-  return viewer;
 }
 
-// ── Load IFC ──────────────────────────────────────────────────
 async function loadIFC(file) {
-  if (!viewer) initViewer();
+  if (!viewer || !loaderPlugin) {
+    setStatus('y', 'Initializing viewer...');
+    await initViewer();
+  }
   if (model) { model.destroy(); model = null; }
+  currentFile = file;
 
-  showLoad(true, 'Initializing WebIFC WASM...');
+  showLoad(true, 'Parsing IFC geometry...');
   emptyEl.classList.add('hide');
   setStatus('y', `Loading ${file.name}...`);
 
   try {
-    // Create object URL for the file
     const url = URL.createObjectURL(file);
-    showLoad(true, 'Parsing IFC geometry...');
 
     model = loaderPlugin.load({
       id:   "ifcModel",
@@ -476,11 +431,8 @@ async function loadIFC(file) {
     model.on("loaded", () => {
       URL.revokeObjectURL(url);
       showLoad(false);
-
-      // Fit camera
       viewer.cameraFlight.flyTo(model, { duration: 1 });
 
-      // Update UI
       fName.textContent = file.name;
       fSize.textContent = fmt(file.size);
       filePill.classList.add('show');
@@ -488,7 +440,6 @@ async function loadIFC(file) {
       topTitle.textContent = file.name;
       setStatus('g', `✅ ${file.name} loaded`);
 
-      // Extract data
       extractIFCData();
       renderSidebar();
       importBtn.classList.add('show');
@@ -500,7 +451,6 @@ async function loadIFC(file) {
       setStatus('r', `❌ ${err}`);
       console.error('Model error:', err);
     });
-
   } catch(err) {
     showLoad(false);
     setStatus('r', `❌ ${err.message}`);
@@ -508,10 +458,8 @@ async function loadIFC(file) {
   }
 }
 
-// ── Extract IFC Metadata ──────────────────────────────────────
 function extractIFCData() {
   ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
-
   const metaObjects = viewer.metaScene.metaObjects;
 
   for (const id in metaObjects) {
@@ -541,14 +489,13 @@ function extractIFCData() {
   }
 
   setStatus('g',
-    `✅ ${file?.name || 'Model'} — `+
-    `${ifcData.floors.length} floors, `+
-    `${ifcData.spaces.length} spaces, `+
+    `✅ ${currentFile?.name || 'Model'} — ` +
+    `${ifcData.floors.length} floors, ` +
+    `${ifcData.spaces.length} spaces, ` +
     `${ifcData.walls.length} walls`
   );
 }
 
-// ── Show Properties Panel ─────────────────────────────────────
 function showProps(meta) {
   let html = `<div class="sec-head">📦 ${meta.name || 'Element'}</div>`;
   html += `<div class="prop-row"><span class="pk">Type</span><span class="pv">${meta.type||'—'}</span></div>`;
@@ -556,7 +503,6 @@ function showProps(meta) {
   if (meta.parent) {
     html += `<div class="prop-row"><span class="pk">Parent</span><span class="pv">${meta.parent.name||'—'}</span></div>`;
   }
-  // Property sets
   if (meta.propertySets?.length) {
     for (const pset of meta.propertySets) {
       if (pset.properties?.length) {
@@ -573,19 +519,16 @@ function showProps(meta) {
   sbScroll.innerHTML = html;
 }
 
-// ── Render Sidebar ────────────────────────────────────────────
 function renderSidebar() {
   const { floors, spaces, walls, slabs } = ifcData;
   let html = '';
 
-  // Summary
   html += `<div class="sec-head">🏢 Model Summary</div>`;
   html += row('Floors',  floors.length);
   html += row('Spaces',  spaces.length);
   html += row('Walls',   walls.length);
   html += row('Slabs',   slabs.length);
 
-  // Floors + spaces
   if (floors.length > 0 || spaces.length > 0) {
     html += `<div class="sec-head" style="margin-top:14px;">🏬 Floors & Spaces</div>`;
     html += `<div style="font-size:0.7rem;color:#aab3c6;margin-bottom:8px;">
@@ -595,7 +538,6 @@ function renderSidebar() {
     if (floors.length > 0) {
       for (const floor of floors) {
         html += `<div class="floor-label">📐 ${floor.name}</div>`;
-        // Find spaces in this floor
         const floorSpaces = spaces.filter(s =>
           s.parent === floor.name || spaces.length <= 5
         );
@@ -617,7 +559,6 @@ function renderSidebar() {
         }
       }
     } else if (spaces.length > 0) {
-      // No floors defined, show spaces directly
       html += `<div class="floor-label">📐 Ground Floor</div>`;
       for (const sp of spaces) {
         const sel = selectedRooms.has(sp.id);
@@ -634,7 +575,6 @@ function renderSidebar() {
     }
   }
 
-  // Walls summary
   if (walls.length > 0) {
     html += `<div class="sec-head" style="margin-top:14px;">🧱 Walls (${walls.length})</div>`;
     for (const w of walls.slice(0,5)) {
@@ -653,15 +593,12 @@ function row(k, v) {
   return `<div class="prop-row"><span class="pk">${k}</span><span class="pv">${v}</span></div>`;
 }
 
-// ── Toggle Room ───────────────────────────────────────────────
 window.toggleRoom = id => {
   if (selectedRooms.has(id)) {
     selectedRooms.delete(id);
-    // Deselect in viewer
     viewer.scene.setObjectsSelected([id], false);
   } else {
     selectedRooms.add(id);
-    // Highlight in viewer
     viewer.scene.setObjectsSelected([id], true);
   }
   renderSidebar();
@@ -676,7 +613,6 @@ function updateImportBtn() {
   }
 }
 
-// ── Import to LCA Tool ────────────────────────────────────────
 importBtn.addEventListener('click', () => {
   const spaces = selectedRooms.size > 0
     ? ifcData.spaces.filter(s => selectedRooms.has(s.id))
@@ -687,7 +623,6 @@ importBtn.addEventListener('click', () => {
     return;
   }
 
-  // Build payload
   const floors = ifcData.floors.length > 0
     ? ifcData.floors
     : [{ id:'floor-0', name:'Ground Floor' }];
@@ -721,40 +656,40 @@ importBtn.addEventListener('click', () => {
 
   localStorage.setItem('lindner-ifc-import', JSON.stringify(payload));
   showToast(`✅ Importing ${spaces.length} rooms...`);
-
   setTimeout(() => {
     window.location.href = './index.html?from=ifc';
   }, 1200);
 });
 
-// ── Camera Controls ───────────────────────────────────────────
 document.getElementById('btnFit').onclick = () => {
   if (model) viewer.cameraFlight.flyTo(model);
 };
-
 document.getElementById('btnWire').onclick = function() {
+  if (!viewer) return;
   isWireframe = !isWireframe;
   viewer.scene.setObjectsWireframe(viewer.scene.objectIds, isWireframe);
   this.classList.toggle('active', isWireframe);
 };
-
-document.getElementById('btnX-ray').onclick = function() {
+document.getElementById('btnXray').onclick = function() {
+  if (!viewer) return;
   isXray = !isXray;
   viewer.scene.setObjectsXRayed(viewer.scene.objectIds, isXray);
   this.classList.toggle('active', isXray);
 };
-
 document.getElementById('tTop').onclick = () => {
+  if (!viewer) return;
   viewer.cameraFlight.flyTo({
     eye:[0,30,0], look:[0,0,0], up:[0,0,-1], duration:0.8
   });
 };
 document.getElementById('tFront').onclick = () => {
+  if (!viewer) return;
   viewer.cameraFlight.flyTo({
     eye:[0,5,30], look:[0,5,0], up:[0,1,0], duration:0.8
   });
 };
 document.getElementById('tRight').onclick = () => {
+  if (!viewer) return;
   viewer.cameraFlight.flyTo({
     eye:[30,5,0], look:[0,5,0], up:[0,1,0], duration:0.8
   });
@@ -763,6 +698,7 @@ document.getElementById('t3D').onclick = () => {
   if (model) viewer.cameraFlight.flyTo(model, { duration:0.8 });
 };
 document.getElementById('tSect').onclick = function() {
+  if (!sectionPlanes) return;
   this.classList.toggle('active');
   if (this.classList.contains('active')) {
     sectionPlanes.createSectionPlane({
@@ -777,11 +713,9 @@ document.getElementById('tSect').onclick = function() {
   }
 };
 
-// ── File Input ────────────────────────────────────────────────
 document.getElementById('ifcIn').onchange = e => {
   if (e.target.files[0]) loadIFC(e.target.files[0]);
 };
-
 uploadZone.onclick = () => document.getElementById('ifcIn').click();
 uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
 uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
@@ -792,8 +726,11 @@ uploadZone.ondrop = e => {
   if (f?.name.toLowerCase().endsWith('.ifc')) loadIFC(f);
 };
 
-// ── Init ──────────────────────────────────────────────────────
-initViewer();
+// Init viewer asynchronously
+initViewer().catch(err => {
+  console.error('Viewer init failed:', err);
+  setStatus('r', `❌ Init failed: ${err.message}`);
+});
 </script>
 </body>
 </html>
