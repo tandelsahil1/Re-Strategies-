@@ -1,306 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lindner BIM Viewer</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background: #06080d;
-      color: #eaf0ff;
-      font-family: "Inter", system-ui, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      background:#06080d;
+      color:#eaf0ff;
+      font-family:"Inter",system-ui,sans-serif;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
     }
     .topbar {
-      height: 52px;
-      background: rgba(13,16,24,0.95);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      gap: 16px;
-      flex-shrink: 0;
+      height:52px;
+      background:rgba(13,16,24,0.98);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      padding:0 20px;
+      gap:14px;
+      flex-shrink:0;
+      z-index:100;
     }
-    .topbar-brand {
-      font-size: 0.95rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #79f5dc, #5ea7ff);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .brand {
+      font-size:0.95rem;
+      font-weight:900;
+      background:linear-gradient(135deg,#79f5dc,#5ea7ff);
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
     }
-    .topbar-title {
-      font-size: 0.85rem;
-      color: #aab3c6;
-      font-weight: 600;
-    }
-    .topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+    .divider { width:1px; height:20px; background:rgba(255,255,255,0.1); }
+    .top-title { font-size:0.82rem; color:#aab3c6; font-weight:600; }
+    .top-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
     .btn {
-      padding: 7px 14px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: #eaf0ff;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      padding:7px 14px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.05);
+      color:#eaf0ff;
+      font-size:0.8rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:all 0.15s;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      text-decoration:none;
     }
-    .btn:hover { background: rgba(94,167,255,0.15); border-color: rgba(94,167,255,0.4); }
+    .btn:hover { background:rgba(94,167,255,0.15); border-color:rgba(94,167,255,0.4); }
     .btn-primary {
-      background: linear-gradient(135deg, rgba(94,167,255,0.25), rgba(121,245,220,0.18));
-      border-color: rgba(94,167,255,0.45);
+      background:linear-gradient(135deg,rgba(94,167,255,0.25),rgba(121,245,220,0.18));
+      border-color:rgba(94,167,255,0.45);
     }
     .btn-success {
-      background: linear-gradient(135deg, rgba(121,245,220,0.25), rgba(94,167,255,0.18));
-      border-color: rgba(121,245,220,0.45);
+      background:linear-gradient(135deg,rgba(121,245,220,0.2),rgba(94,167,255,0.15));
+      border-color:rgba(121,245,220,0.4);
     }
-    .main { flex: 1; display: flex; overflow: hidden; }
+    .back { color:#aab3c6; text-decoration:none; font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:5px; }
+    .back:hover { color:#eaf0ff; }
+    .main { flex:1; display:flex; overflow:hidden; }
+
+    /* Sidebar */
     .sidebar {
-      width: 280px;
-      background: rgba(13,16,24,0.95);
-      border-right: 1px solid rgba(255,255,255,0.06);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      width:270px;
+      background:rgba(13,16,24,0.98);
+      border-right:1px solid rgba(255,255,255,0.06);
+      display:flex;
+      flex-direction:column;
+      flex-shrink:0;
     }
-    .sidebar-section {
-      padding: 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+    .sb-section { padding:14px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .sb-title {
+      font-size:0.7rem;
+      font-weight:800;
+      color:#aab3c6;
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      margin-bottom:10px;
     }
-    .sidebar-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: #aab3c6;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 10px;
+    .upload-zone {
+      border:2px dashed rgba(94,167,255,0.3);
+      border-radius:10px;
+      padding:20px;
+      text-align:center;
+      cursor:pointer;
+      transition:all 0.2s;
     }
-    .upload-area {
-      border: 2px dashed rgba(94,167,255,0.3);
-      border-radius: 12px;
-      padding: 20px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .upload-zone:hover { border-color:rgba(94,167,255,0.6); background:rgba(94,167,255,0.05); }
+    .upload-zone.drag { border-color:#79f5dc; background:rgba(121,245,220,0.08); }
+    .upload-icon { font-size:2rem; margin-bottom:6px; }
+    .upload-text { font-size:0.8rem; color:#aab3c6; line-height:1.4; }
+    .upload-text b { color:#5ea7ff; }
+    .file-pill {
+      display:none;
+      background:rgba(121,245,220,0.08);
+      border:1px solid rgba(121,245,220,0.25);
+      border-radius:8px;
+      padding:10px 12px;
+      font-size:0.78rem;
     }
-    .upload-area:hover { border-color: rgba(94,167,255,0.6); background: rgba(94,167,255,0.05); }
-    .upload-area.dragover { border-color: #79f5dc; background: rgba(121,245,220,0.08); }
-    .upload-text { font-size: 0.82rem; color: #aab3c6; line-height: 1.5; }
-    .upload-text strong { color: #5ea7ff; }
-    .file-badge {
-      display: none;
-      background: rgba(121,245,220,0.08);
-      border: 1px solid rgba(121,245,220,0.25);
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 0.78rem;
-    }
-    .file-badge.show { display: block; }
-    .file-badge .name { font-weight: 700; color: #79f5dc; }
-    .file-badge .size { color: #aab3c6; margin-top: 2px; }
-    .props-scroll { flex: 1; overflow-y: auto; padding: 14px; }
-    .prop-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.78rem;
-      gap: 8px;
-    }
-    .prop-k { color: #aab3c6; flex-shrink: 0; }
-    .prop-v { color: #eaf0ff; font-weight: 600; text-align: right; word-break: break-word; }
-    .section-head {
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: #79f5dc;
-      margin: 10px 0 6px;
-    }
-    .element-item {
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.06);
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 0.78rem;
-      transition: all 0.15s ease;
-    }
-    .element-item:hover { background: rgba(94,167,255,0.1); border-color: rgba(94,167,255,0.3); }
-    .element-item.selected { background: rgba(121,245,220,0.1); border-color: rgba(121,245,220,0.4); }
-    .element-name { font-weight: 700; color: #eaf0ff; }
-    .element-meta { color: #aab3c6; margin-top: 2px; font-size: 0.72rem; }
-    .import-btn-wrap {
-      padding: 12px 14px;
-      border-top: 1px solid rgba(255,255,255,0.06);
-    }
+    .file-pill.show { display:block; }
+    .file-pill .fn { font-weight:700; color:#79f5dc; margin-bottom:2px; }
+    .file-pill .fs { color:#aab3c6; font-size:0.72rem; }
+    .sb-scroll { flex:1; overflow-y:auto; padding:14px; }
+    .sb-empty { text-align:center; color:#aab3c6; font-size:0.78rem; padding:20px 0; }
+    .import-wrap { padding:12px 14px; border-top:1px solid rgba(255,255,255,0.06); }
     .import-btn {
-      width: 100%;
-      padding: 10px;
-      background: linear-gradient(135deg, rgba(121,245,220,0.2), rgba(94,167,255,0.15));
-      border: 1px solid rgba(121,245,220,0.4);
-      border-radius: 10px;
-      color: #eaf0ff;
-      font-weight: 800;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: none;
+      display:none;
+      width:100%;
+      padding:10px;
+      background:linear-gradient(135deg,rgba(121,245,220,0.2),rgba(94,167,255,0.15));
+      border:1px solid rgba(121,245,220,0.4);
+      border-radius:10px;
+      color:#eaf0ff;
+      font-weight:800;
+      font-size:0.85rem;
+      cursor:pointer;
+      transition:all 0.2s;
     }
-    .import-btn.show { display: block; }
-    .import-btn:hover {
-      background: linear-gradient(135deg, rgba(121,245,220,0.35), rgba(94,167,255,0.25));
-      transform: translateY(-1px);
+    .import-btn.show { display:block; }
+    .import-btn:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(121,245,220,0.2); }
+    .room-item {
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.06);
+      margin-bottom:4px;
+      cursor:pointer;
+      font-size:0.78rem;
+      transition:all 0.15s;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
-    .viewer-wrap { flex: 1; position: relative; overflow: hidden; }
-    #three-canvas { width: 100%; height: 100%; display: block; }
-    .overlay {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 14px; background: rgba(6,8,13,0.85);
-      backdrop-filter: blur(8px);
+    .room-item:hover { background:rgba(94,167,255,0.08); border-color:rgba(94,167,255,0.25); }
+    .room-item.sel { background:rgba(121,245,220,0.1); border-color:rgba(121,245,220,0.4); }
+    .room-name { font-weight:700; color:#eaf0ff; }
+    .room-meta { color:#aab3c6; font-size:0.7rem; margin-top:1px; }
+    .floor-label {
+      font-weight:800;
+      font-size:0.78rem;
+      color:#5ea7ff;
+      margin:10px 0 6px;
+      padding-bottom:4px;
+      border-bottom:1px solid rgba(94,167,255,0.2);
     }
-    .overlay.hidden { display: none; }
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(94,167,255,0.2);
-      border-top-color: #5ea7ff;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .prop-row {
+      display:flex;
+      justify-content:space-between;
+      padding:4px 0;
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      font-size:0.76rem;
+      gap:8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .overlay-title { font-size: 0.9rem; font-weight: 700; }
-    .overlay-sub { font-size: 0.78rem; color: #aab3c6; }
-    .empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; pointer-events: none; }
-    .empty.hidden { display: none; }
-    .empty-icon { font-size: 4rem; opacity: 0.2; }
-    .empty-title { font-size: 1rem; font-weight: 800; opacity: 0.4; }
-    .empty-sub { font-size: 0.8rem; color: #aab3c6; opacity: 0.4; text-align: center; max-width: 260px; }
-    .viewer-tools {
-      position: absolute; top: 12px; right: 12px;
-      display: flex; flex-direction: column; gap: 6px; z-index: 10;
+    .pk { color:#aab3c6; flex-shrink:0; }
+    .pv { color:#eaf0ff; font-weight:600; text-align:right; word-break:break-word; }
+    .sec-head { font-weight:800; font-size:0.82rem; color:#79f5dc; margin:10px 0 6px; }
+
+    /* Viewer */
+    .viewer-wrap { flex:1; position:relative; overflow:hidden; }
+    #xeo-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
+    .empty {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:10px; pointer-events:none;
     }
-    .tool-btn {
-      width: 36px; height: 36px;
-      background: rgba(13,16,24,0.9);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px; color: #eaf0ff;
-      cursor: pointer; font-size: 0.9rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s ease; backdrop-filter: blur(8px);
+    .empty.hide { display:none; }
+    .empty-icon { font-size:4rem; opacity:0.2; }
+    .empty-title { font-size:1rem; font-weight:800; opacity:0.4; }
+    .empty-sub { font-size:0.78rem; color:#aab3c6; opacity:0.4; text-align:center; max-width:240px; }
+    .loading {
+      position:absolute; inset:0;
+      background:rgba(6,8,13,0.92);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:14px; backdrop-filter:blur(8px);
     }
-    .tool-btn:hover { background: rgba(94,167,255,0.2); border-color: rgba(94,167,255,0.4); }
+    .loading.hide { display:none; }
+    .spin {
+      width:40px; height:40px;
+      border:3px solid rgba(94,167,255,0.2);
+      border-top-color:#5ea7ff;
+      border-radius:50%;
+      animation:spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .load-title { font-size:0.9rem; font-weight:700; }
+    .load-sub { font-size:0.76rem; color:#aab3c6; }
+    .tools {
+      position:absolute; top:12px; right:12px;
+      display:flex; flex-direction:column; gap:6px; z-index:10;
+    }
+    .tool {
+      width:34px; height:34px;
+      background:rgba(13,16,24,0.9);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:8px; color:#eaf0ff;
+      cursor:pointer; font-size:0.85rem;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.15s; backdrop-filter:blur(8px);
+      title:attr(title);
+    }
+    .tool:hover { background:rgba(94,167,255,0.2); border-color:rgba(94,167,255,0.4); }
+    .tool.active { background:rgba(121,245,220,0.2); border-color:rgba(121,245,220,0.4); }
     .statusbar {
-      height: 28px;
-      background: rgba(13,16,24,0.95);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      display: flex; align-items: center;
-      padding: 0 16px; gap: 12px;
-      font-size: 0.72rem; color: #aab3c6;
+      height:26px;
+      background:rgba(13,16,24,0.98);
+      border-top:1px solid rgba(255,255,255,0.06);
+      display:flex; align-items:center;
+      padding:0 16px; gap:10px;
+      font-size:0.7rem; color:#aab3c6;
     }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: #aab3c6; }
-    .dot.green { background: #79f5dc; }
-    .dot.yellow { background: #ffd080; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-    .back-link { color: #aab3c6; text-decoration: none; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-    .back-link:hover { color: #eaf0ff; }
-    .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-    .success-toast {
-      position: fixed; bottom: 40px; left: 50%;
-      transform: translateX(-50%);
-      background: rgba(121,245,220,0.15);
-      border: 1px solid rgba(121,245,220,0.4);
-      border-radius: 12px; padding: 12px 20px;
-      font-size: 0.85rem; font-weight: 700;
-      color: #79f5dc; z-index: 9999;
-      display: none; backdrop-filter: blur(8px);
+    .dot { width:6px; height:6px; border-radius:50%; background:#aab3c6; }
+    .dot.g { background:#79f5dc; }
+    .dot.y { background:#ffd080; }
+    .dot.r { background:#ff6b6b; }
+    .toast {
+      position:fixed; bottom:40px; left:50%;
+      transform:translateX(-50%);
+      background:rgba(121,245,220,0.15);
+      border:1px solid rgba(121,245,220,0.4);
+      border-radius:12px; padding:10px 20px;
+      font-size:0.82rem; font-weight:700; color:#79f5dc;
+      z-index:9999; display:none; backdrop-filter:blur(8px);
     }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
   </style>
 </head>
 <body>
 
+<!-- Topbar -->
 <div class="topbar">
-  <a href="./index.html" class="back-link">← Back to LCA Tool</a>
+  <a href="./index.html" class="back">← Back</a>
   <div class="divider"></div>
-  <div class="topbar-brand">🏗️ BIM Viewer</div>
-  <div class="topbar-title" id="topTitle">No file loaded</div>
-  <div class="topbar-actions">
-    <button class="btn" id="btnFit">⊡ Fit View</button>
-    <button class="btn" id="btnWire">🔲 Wireframe</button>
-    <label class="btn btn-primary" for="ifcInput">📂 Open IFC</label>
-    <input type="file" id="ifcInput" accept=".ifc" style="display:none">
+  <div class="brand">🏗️ Lindner BIM Viewer</div>
+  <div class="divider"></div>
+  <div class="top-title" id="topTitle">No file loaded</div>
+  <div class="top-actions">
+    <button class="btn" id="btnFit">⊡ Fit</button>
+    <button class="btn" id="btnWire">🔲 Wire</button>
+    <button class="btn" id="btnX-ray">👁 X-Ray</button>
+    <label class="btn btn-primary" for="ifcIn">📂 Open IFC</label>
+    <input type="file" id="ifcIn" accept=".ifc,.IFC" style="display:none">
   </div>
 </div>
 
+<!-- Main -->
 <div class="main">
+
+  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-title">📁 IFC File</div>
-      <div class="upload-area" id="uploadArea">
-        <div style="font-size:2rem;margin-bottom:8px;">🏗️</div>
-        <div class="upload-text"><strong>Drop IFC here</strong><br>or click to browse</div>
+    <div class="sb-section">
+      <div class="sb-title">📁 IFC File</div>
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-icon">🏗️</div>
+        <div class="upload-text"><b>Drop IFC here</b><br>or click to browse</div>
       </div>
-      <div class="file-badge" id="fileBadge">
-        <div class="name" id="fName"></div>
-        <div class="size" id="fSize"></div>
+      <div class="file-pill" id="filePill">
+        <div class="fn" id="fName"></div>
+        <div class="fs" id="fSize"></div>
       </div>
     </div>
 
-    <div class="props-scroll" id="propsScroll">
-      <div style="text-align:center;color:#aab3c6;font-size:0.82rem;padding:20px 0;">
-        <div style="font-size:2rem;margin-bottom:8px;">🖱️</div>
+    <div class="sb-scroll" id="sbScroll">
+      <div class="sb-empty">
+        <div style="font-size:2rem;margin-bottom:8px;">🏢</div>
         Load an IFC file to see<br>floors and rooms
       </div>
     </div>
 
-    <div class="import-btn-wrap">
+    <div class="import-wrap">
       <button class="import-btn" id="importBtn">
-        🚀 Import to LCA Tool
+        🚀 Import Rooms to LCA Tool
       </button>
     </div>
   </div>
 
+  <!-- 3D Viewer -->
   <div class="viewer-wrap">
-    <canvas id="three-canvas"></canvas>
+    <canvas id="xeo-canvas"></canvas>
 
-    <div class="empty" id="emptyState">
+    <div class="empty" id="emptyEl">
       <div class="empty-icon">🏗️</div>
-      <div class="empty-title">No IFC Loaded</div>
-      <div class="empty-sub">Open an IFC file to see the 3D building model</div>
+      <div class="empty-title">No IFC File Loaded</div>
+      <div class="empty-sub">Open an IFC file to view your building model in 3D</div>
     </div>
 
-    <div class="overlay hidden" id="loadingOverlay">
-      <div class="spinner"></div>
-      <div class="overlay-title">Loading IFC Model...</div>
-      <div class="overlay-sub" id="loadSub">Initializing...</div>
+    <div class="loading hide" id="loadEl">
+      <div class="spin"></div>
+      <div class="load-title">Loading IFC Model...</div>
+      <div class="load-sub" id="loadSub">Please wait...</div>
     </div>
 
-    <div class="viewer-tools">
-      <button class="tool-btn" id="btnTop" title="Top view">⬆</button>
-      <button class="tool-btn" id="btnFront" title="Front view">⬛</button>
-      <button class="tool-btn" id="btnRight" title="Right view">▶</button>
-      <button class="tool-btn" id="btn3D" title="3D view">🔷</button>
+    <div class="tools">
+      <button class="tool" id="tTop"    title="Top view">⬆</button>
+      <button class="tool" id="tFront"  title="Front view">⬛</button>
+      <button class="tool" id="tRight"  title="Right view">▶</button>
+      <button class="tool" id="t3D"     title="3D view">🔷</button>
+      <button class="tool" id="tSect"   title="Section">✂️</button>
     </div>
   </div>
 </div>
 
+<!-- Status Bar -->
 <div class="statusbar">
   <div class="dot" id="sDot"></div>
-  <span id="sText">Ready — Open an IFC file</span>
-  <span style="margin-left:auto">Three.js + web-ifc</span>
+  <span id="sTxt">Ready — Open an IFC file</span>
+  <span style="margin-left:auto">xeokit-sdk • WebIFC</span>
 </div>
 
-<div class="success-toast" id="toast"></div>
+<div class="toast" id="toast"></div>
 
 <script type="importmap">
 {
@@ -312,576 +328,464 @@
 </script>
 
 <script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import * as WebIFC from 'https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js';
+// ─────────────────────────────────────────────────────────────
+// Lindner BIM Viewer - xeokit-sdk + WebIFC direct IFC loading
+// ─────────────────────────────────────────────────────────────
 
-// ── DOM ──────────────────────────────────────
-const canvas     = document.getElementById('three-canvas');
-const emptyState = document.getElementById('emptyState');
-const loadOver   = document.getElementById('loadingOverlay');
-const loadSub    = document.getElementById('loadSub');
-const propsScroll= document.getElementById('propsScroll');
-const fileBadge  = document.getElementById('fileBadge');
-const fName      = document.getElementById('fName');
-const fSize      = document.getElementById('fSize');
-const uploadArea = document.getElementById('uploadArea');
-const topTitle   = document.getElementById('topTitle');
-const sDot       = document.getElementById('sDot');
-const sText      = document.getElementById('sText');
-const importBtn  = document.getElementById('importBtn');
-const toast      = document.getElementById('toast');
+import {
+  Viewer,
+  WebIFCLoaderPlugin,
+  NavCubePlugin,
+  SectionPlanesPlugin,
+  ContextMenu
+} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk@2.3.8/dist/xeokit-sdk.es.min.js";
 
-// ── Three.js Setup ───────────────────────────
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.setClearColor(0x0a0e1a, 1);
+// ── DOM ──────────────────────────────────────────────────────
+const topTitle  = document.getElementById('topTitle');
+const uploadZone= document.getElementById('uploadZone');
+const filePill  = document.getElementById('filePill');
+const fName     = document.getElementById('fName');
+const fSize     = document.getElementById('fSize');
+const sbScroll  = document.getElementById('sbScroll');
+const emptyEl   = document.getElementById('emptyEl');
+const loadEl    = document.getElementById('loadEl');
+const loadSub   = document.getElementById('loadSub');
+const importBtn = document.getElementById('importBtn');
+const sDot      = document.getElementById('sDot');
+const sTxt      = document.getElementById('sTxt');
+const toast     = document.getElementById('toast');
 
-const scene  = new THREE.Scene();
-scene.fog    = new THREE.Fog(0x0a0e1a, 50, 300);
+// ── State ─────────────────────────────────────────────────────
+let viewer       = null;
+let loaderPlugin = null;
+let model        = null;
+let sectionPlanes= null;
+let ifcData      = { floors:[], spaces:[], walls:[], slabs:[] };
+let selectedRooms= new Set();
+let isWireframe  = false;
+let isXray       = false;
 
-const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 1000);
-camera.position.set(20, 15, 20);
-
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-
-// Lights
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-sun.position.set(10, 20, 10);
-sun.castShadow = true;
-scene.add(sun);
-scene.add(new THREE.HemisphereLight(0xeaf0ff, 0x2a364a, 0.4));
-
-// Grid
-const grid = new THREE.GridHelper(100, 100, 0x4a5a75, 0x2a364a);
-grid.position.y = -0.01;
-scene.add(grid);
-
-// Resize
-const resizeObs = new ResizeObserver(() => {
-  const { width, height } = canvas.parentElement.getBoundingClientRect();
-  renderer.setSize(width, height, false);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-});
-resizeObs.observe(canvas.parentElement);
-
-// Animate
-(function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-})();
-
-// ── State ────────────────────────────────────
-let ifcApi    = null;
-let modelID   = null;
-let modelMesh = null;
-let ifcData   = { floors: [], spaces: [], walls: [], slabs: [] };
-let selectedSpaces = new Set();
-let isWireframe = false;
-
-// ── Helpers ──────────────────────────────────
-function setStatus(dot, text) {
+// ── Helpers ───────────────────────────────────────────────────
+const setStatus = (dot, txt) => {
   sDot.className = 'dot' + (dot ? ` ${dot}` : '');
-  sText.textContent = text;
-}
-function showLoad(show, msg = '') {
-  loadOver.classList.toggle('hidden', !show);
+  sTxt.textContent = txt;
+};
+const showLoad = (show, msg='') => {
+  loadEl.classList.toggle('hide', !show);
   if (msg) loadSub.textContent = msg;
-}
-function fmt(bytes) {
-  return bytes < 1048576
-    ? (bytes/1024).toFixed(1)+' KB'
-    : (bytes/1048576).toFixed(1)+' MB';
-}
-function showToast(msg) {
+};
+const fmt = b => b < 1048576
+  ? (b/1024).toFixed(1)+' KB'
+  : (b/1048576).toFixed(1)+' MB';
+const showToast = msg => {
   toast.textContent = msg;
   toast.style.display = 'block';
-  setTimeout(() => toast.style.display = 'none', 3000);
+  setTimeout(() => toast.style.display='none', 3000);
+};
+
+// ── Init xeokit Viewer ────────────────────────────────────────
+function initViewer() {
+  viewer = new Viewer({
+    canvasId: "xeo-canvas",
+    transparent: true,
+    dtxEnabled: true,
+    pbrEnabled: true,
+  });
+
+  viewer.scene.canvas.canvas.style.background =
+    "linear-gradient(180deg, #0d1018 0%, #0a0e1a 100%)";
+
+  // Default camera
+  viewer.camera.eye  = [10, 10, 10];
+  viewer.camera.look = [0, 0, 0];
+  viewer.camera.up   = [0, 1, 0];
+
+  // Navigation cube
+  new NavCubePlugin(viewer, {
+    canvasId: "xeo-canvas",
+    visible: true,
+    size: 100,
+    alignment: "bottomRight",
+    bottomMargin: 30,
+    rightMargin: 10,
+  });
+
+  // Section planes
+  sectionPlanes = new SectionPlanesPlugin(viewer, {
+    overviewCanvasId: "xeo-canvas",
+    overviewVisible: false,
+  });
+
+  // WebIFC Loader
+  loaderPlugin = new WebIFCLoaderPlugin(viewer, {
+    wasmPath: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/",
+  });
+
+  // Click to highlight
+  viewer.scene.input.on("mouseclicked", coords => {
+    const hit = viewer.scene.pick({ canvasPos: coords });
+    if (hit?.entity) {
+      viewer.scene.setObjectsHighlighted(
+        viewer.scene.highlightedObjectIds, false
+      );
+      hit.entity.highlighted = true;
+      const meta = viewer.metaScene.metaObjects[hit.entity.id];
+      if (meta) showProps(meta);
+    } else {
+      viewer.scene.setObjectsHighlighted(
+        viewer.scene.highlightedObjectIds, false
+      );
+    }
+  });
+
+  setStatus('g', 'Viewer ready — Open an IFC file');
+  return viewer;
 }
 
-// ── Load IFC ─────────────────────────────────
+// ── Load IFC ──────────────────────────────────────────────────
 async function loadIFC(file) {
-  showLoad(true, 'Initializing web-ifc...');
-  emptyState.classList.add('hidden');
-  setStatus('yellow', `Loading ${file.name}...`);
+  if (!viewer) initViewer();
+  if (model) { model.destroy(); model = null; }
+
+  showLoad(true, 'Initializing WebIFC WASM...');
+  emptyEl.classList.add('hide');
+  setStatus('y', `Loading ${file.name}...`);
 
   try {
-    ifcApi = new WebIFC.IfcAPI();
-    ifcApi.SetWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/');
-    await ifcApi.Init();
+    // Create object URL for the file
+    const url = URL.createObjectURL(file);
+    showLoad(true, 'Parsing IFC geometry...');
 
-    showLoad(true, 'Reading file...');
-    const buf  = await file.arrayBuffer();
-    const data = new Uint8Array(buf);
+    model = loaderPlugin.load({
+      id:   "ifcModel",
+      src:   url,
+      excludeUnclassifiedObjects: false,
+      objectDefaults: {
+        IfcSpace: { visible: false },
+      }
+    });
 
-    showLoad(true, 'Parsing IFC...');
-    modelID = ifcApi.OpenModel(data);
+    model.on("loaded", () => {
+      URL.revokeObjectURL(url);
+      showLoad(false);
 
-    showLoad(true, 'Extracting geometry...');
-    await buildGeometry();
+      // Fit camera
+      viewer.cameraFlight.flyTo(model, { duration: 1 });
 
-    showLoad(true, 'Extracting spaces & rooms...');
-    await extractSpaces();
+      // Update UI
+      fName.textContent = file.name;
+      fSize.textContent = fmt(file.size);
+      filePill.classList.add('show');
+      uploadZone.style.display = 'none';
+      topTitle.textContent = file.name;
+      setStatus('g', `✅ ${file.name} loaded`);
 
-    showLoad(false);
+      // Extract data
+      extractIFCData();
+      renderSidebar();
+      importBtn.classList.add('show');
+    });
 
-    // File badge
-    fName.textContent = file.name;
-    fSize.textContent = fmt(file.size);
-    fileBadge.classList.add('show');
-    uploadArea.style.display = 'none';
-    topTitle.textContent = file.name;
-    setStatus('green', `✅ ${file.name} — ${ifcData.spaces.length} rooms found`);
-
-    renderSidebar();
-    importBtn.classList.add('show');
+    model.on("error", err => {
+      URL.revokeObjectURL(url);
+      showLoad(false);
+      setStatus('r', `❌ ${err}`);
+      console.error('Model error:', err);
+    });
 
   } catch(err) {
     showLoad(false);
-    setStatus('', `❌ ${err.message}`);
+    setStatus('r', `❌ ${err.message}`);
     console.error(err);
   }
 }
 
-// ── Build Three.js Geometry from IFC ─────────
-async function buildGeometry() {
-  if (modelMesh) { scene.remove(modelMesh); modelMesh.traverse(c => { c.geometry?.dispose(); c.material?.dispose(); }); }
+// ── Extract IFC Metadata ──────────────────────────────────────
+function extractIFCData() {
+  ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
 
-  const group = new THREE.Group();
-  const flatMesh = ifcApi.LoadAllGeometry(modelID);
+  const metaObjects = viewer.metaScene.metaObjects;
 
-  const defaultMat = new THREE.MeshLambertMaterial({ color: 0x8899aa, side: THREE.DoubleSide });
-  const glassMat   = new THREE.MeshLambertMaterial({ color: 0x88ccff, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
-  const floorMat   = new THREE.MeshLambertMaterial({ color: 0xccbbaa, side: THREE.DoubleSide });
-  const wallMat    = new THREE.MeshLambertMaterial({ color: 0xaabbcc, side: THREE.DoubleSide });
-  const roofMat    = new THREE.MeshLambertMaterial({ color: 0xcc9977, side: THREE.DoubleSide });
+  for (const id in metaObjects) {
+    const obj = metaObjects[id];
+    const type = obj.type;
 
-  for (let i = 0; i < flatMesh.size(); i++) {
-    const mesh = flatMesh.get(i);
-    const geoms = mesh.geometries;
-
-    for (let j = 0; j < geoms.size(); j++) {
-      const g    = geoms.get(j);
-      const vArr = g.GetVertexData();
-      const iArr = g.GetIndexData();
-      const mat  = g.GetTransformMatrix();
-
-      if (!vArr || vArr.length === 0) continue;
-
-      // Build geometry
-      const geometry = new THREE.BufferGeometry();
-      const vCount   = vArr.length / 6;
-      const positions = new Float32Array(vCount * 3);
-      const normals   = new Float32Array(vCount * 3);
-
-      for (let k = 0; k < vCount; k++) {
-        positions[k*3]   = vArr[k*6];
-        positions[k*3+1] = vArr[k*6+1];
-        positions[k*3+2] = vArr[k*6+2];
-        normals[k*3]     = vArr[k*6+3];
-        normals[k*3+1]   = vArr[k*6+4];
-        normals[k*3+2]   = vArr[k*6+5];
-      }
-
-      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute('normal',   new THREE.BufferAttribute(normals, 3));
-      if (iArr && iArr.length > 0) {
-        geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(iArr), 1));
-      }
-
-      // Color from IFC
-      const c = g.color;
-      let material;
-      if (c && c.w < 0.5) {
-        material = glassMat;
-      } else if (c) {
-        material = new THREE.MeshLambertMaterial({
-          color: new THREE.Color(c.x, c.y, c.z),
-          side: THREE.DoubleSide,
-          transparent: c.w < 0.9,
-          opacity: c.w
-        });
-      } else {
-        material = defaultMat;
-      }
-
-      const threeMesh = new THREE.Mesh(geometry, material);
-
-      // Apply transform matrix
-      if (mat) {
-        const m = new THREE.Matrix4();
-        m.set(
-          mat.get(0,0), mat.get(0,1), mat.get(0,2), mat.get(0,3),
-          mat.get(1,0), mat.get(1,1), mat.get(1,2), mat.get(1,3),
-          mat.get(2,0), mat.get(2,1), mat.get(2,2), mat.get(2,3),
-          mat.get(3,0), mat.get(3,1), mat.get(3,2), mat.get(3,3)
-        );
-        threeMesh.applyMatrix4(m);
-      }
-
-      threeMesh.userData.expressID = mesh.id;
-      group.add(threeMesh);
-    }
-  }
-
-  // Scale from mm to meters
-  group.scale.set(0.001, 0.001, 0.001);
-
-  modelMesh = group;
-  scene.add(group);
-
-  // Fit camera
-  const box    = new THREE.Box3().setFromObject(group);
-  const center = box.getCenter(new THREE.Vector3());
-  const size   = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
-
-  controls.target.copy(center);
-  camera.position.set(
-    center.x + maxDim * 1.2,
-    center.y + maxDim * 0.8,
-    center.z + maxDim * 1.2
-  );
-  controls.update();
-}
-
-// ── Extract Spaces/Rooms ──────────────────────
-async function extractSpaces() {
-  ifcData = { floors: [], spaces: [], walls: [], slabs: [] };
-
-  // Get storeys (floors)
-  try {
-    const storeyIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCBUILDINGSTOREY);
-    for (let i = 0; i < storeyIDs.size(); i++) {
-      const id   = storeyIDs.get(i);
-      const line = ifcApi.GetLine(modelID, id, true);
+    if (type === 'IfcBuildingStorey') {
       ifcData.floors.push({
-        id,
-        name: line.Name?.value || `Floor ${i+1}`,
-        elevation: line.Elevation?.value || 0
+        id: obj.id,
+        name: obj.name || 'Floor',
+        children: obj.children || []
       });
     }
-  } catch(e) {}
-
-  // Get spaces (rooms)
-  try {
-    const spaceIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCSPACE);
-    for (let i = 0; i < spaceIDs.size(); i++) {
-      const id   = spaceIDs.get(i);
-      const line = ifcApi.GetLine(modelID, id, true);
-
-      // Get area from properties
-      let grossArea = 0, netArea = 0;
-      try {
-        const psets = line.IsDefinedBy;
-        if (psets) {
-          for (const pset of psets) {
-            const props = pset.RelatingPropertyDefinition?.HasProperties || [];
-            for (const p of props) {
-              if (p.Name?.value === 'GrossPlannedArea') grossArea = p.NominalValue?.value || 0;
-              if (p.Name?.value === 'NetPlannedArea')   netArea   = p.NominalValue?.value || 0;
-            }
-          }
-        }
-      } catch(e) {}
-
+    if (type === 'IfcSpace') {
       ifcData.spaces.push({
-        id,
-        name:      line.Name?.value || `Space ${i+1}`,
-        longName:  line.LongName?.value || '',
-        grossArea,
-        netArea,
-        height: 2.2 // default, will extract below
+        id: obj.id,
+        name: obj.name || 'Space',
+        parent: obj.parent?.name || ''
       });
     }
-  } catch(e) {}
-
-  // Get walls
-  try {
-    const wallIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCWALL);
-    const wallIDs2 = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCWALLSTANDARDCASE);
-    const allWallIDs = [...Array(wallIDs.size()).keys()].map(i => wallIDs.get(i))
-      .concat([...Array(wallIDs2.size()).keys()].map(i => wallIDs2.get(i)));
-
-    for (const id of allWallIDs) {
-      try {
-        const line = ifcApi.GetLine(modelID, id, true);
-        let width = 0, length = 0, area = 0;
-        try {
-          const qsets = line.IsDefinedBy || [];
-          for (const q of qsets) {
-            const quantities = q.RelatingPropertyDefinition?.Quantities || [];
-            for (const qty of quantities) {
-              if (qty.Name?.value === 'Width')       width  = (qty.LengthValue?.value || 0) / 1000;
-              if (qty.Name?.value === 'Length')      length = (qty.LengthValue?.value || 0) / 1000;
-              if (qty.Name?.value === 'NetSideArea') area   = qty.AreaValue?.value || 0;
-            }
-          }
-        } catch(e) {}
-        ifcData.walls.push({ id, name: line.Name?.value || 'Wall', width, length, area });
-      } catch(e) {}
+    if (type === 'IfcWall' || type === 'IfcWallStandardCase') {
+      ifcData.walls.push({ id: obj.id, name: obj.name || 'Wall' });
     }
-  } catch(e) {}
-
-  // Get slabs
-  try {
-    const slabIDs = ifcApi.GetLineIDsWithType(modelID, WebIFC.IFCSLAB);
-    for (let i = 0; i < slabIDs.size(); i++) {
-      const id   = slabIDs.get(i);
-      const line = ifcApi.GetLine(modelID, id, true);
-      let depth = 0, area = 0;
-      try {
-        const qsets = line.IsDefinedBy || [];
-        for (const q of qsets) {
-          const quantities = q.RelatingPropertyDefinition?.Quantities || [];
-          for (const qty of quantities) {
-            if (qty.Name?.value === 'Depth')   depth = (qty.LengthValue?.value || 0) / 1000;
-            if (qty.Name?.value === 'NetArea') area  = qty.AreaValue?.value || 0;
-          }
-        }
-      } catch(e) {}
-      ifcData.slabs.push({ id, name: line.Name?.value || 'Slab', depth, area });
+    if (type === 'IfcSlab') {
+      ifcData.slabs.push({ id: obj.id, name: obj.name || 'Slab' });
     }
-  } catch(e) {}
+  }
+
+  setStatus('g',
+    `✅ ${file?.name || 'Model'} — `+
+    `${ifcData.floors.length} floors, `+
+    `${ifcData.spaces.length} spaces, `+
+    `${ifcData.walls.length} walls`
+  );
 }
 
-// ── Render Sidebar ────────────────────────────
-function renderSidebar() {
-  const floors  = ifcData.floors;
-  const spaces  = ifcData.spaces;
-  const walls   = ifcData.walls;
-  const slabs   = ifcData.slabs;
-
-  let html = `
-    <div class="section-head">🏢 Building Summary</div>
-    <div class="prop-row"><span class="prop-k">Floors</span><span class="prop-v">${floors.length}</span></div>
-    <div class="prop-row"><span class="prop-k">Rooms/Spaces</span><span class="prop-v">${spaces.length}</span></div>
-    <div class="prop-row"><span class="prop-k">Walls</span><span class="prop-v">${walls.length}</span></div>
-    <div class="prop-row"><span class="prop-k">Slabs</span><span class="prop-v">${slabs.length}</span></div>
-  `;
-
-  if (floors.length > 0) {
-    html += `<div class="section-head" style="margin-top:14px;">🏬 Floors & Rooms</div>`;
-    html += `<div style="font-size:0.72rem;color:#aab3c6;margin-bottom:8px;">Select rooms to import into LCA Tool</div>`;
-
-    for (const floor of floors) {
-      const floorSpaces = spaces.length > 0 ? spaces : [];
-      html += `
-        <div style="font-weight:800;font-size:0.8rem;color:#5ea7ff;margin:8px 0 4px;">
-          📐 ${floor.name}
-        </div>
-      `;
-
-      if (floorSpaces.length > 0) {
-        for (const space of floorSpaces) {
-          const isSelected = selectedSpaces.has(space.id);
-          const area = space.grossArea || space.netArea;
-          html += `
-            <div class="element-item ${isSelected ? 'selected' : ''}"
-                 onclick="window.toggleSpace(${space.id})">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:1rem;">${isSelected ? '✅' : '⬜'}</span>
-                <div>
-                  <div class="element-name">${space.name}</div>
-                  <div class="element-meta">
-                    ${area > 0 ? `${area.toFixed(1)} m²` : ''}
-                    ${space.longName ? ` • ${space.longName}` : ''}
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
+// ── Show Properties Panel ─────────────────────────────────────
+function showProps(meta) {
+  let html = `<div class="sec-head">📦 ${meta.name || 'Element'}</div>`;
+  html += `<div class="prop-row"><span class="pk">Type</span><span class="pv">${meta.type||'—'}</span></div>`;
+  html += `<div class="prop-row"><span class="pk">ID</span><span class="pv">${meta.id||'—'}</span></div>`;
+  if (meta.parent) {
+    html += `<div class="prop-row"><span class="pk">Parent</span><span class="pv">${meta.parent.name||'—'}</span></div>`;
+  }
+  // Property sets
+  if (meta.propertySets?.length) {
+    for (const pset of meta.propertySets) {
+      if (pset.properties?.length) {
+        html += `<div class="sec-head" style="margin-top:10px;">${pset.name||'Properties'}</div>`;
+        for (const p of pset.properties) {
+          html += `<div class="prop-row">
+            <span class="pk">${p.name}</span>
+            <span class="pv">${p.value??'—'}</span>
+          </div>`;
         }
-      } else {
-        html += `<div style="color:#aab3c6;font-size:0.78rem;padding:6px 4px;">No spaces defined in IFC</div>`;
+      }
+    }
+  }
+  sbScroll.innerHTML = html;
+}
+
+// ── Render Sidebar ────────────────────────────────────────────
+function renderSidebar() {
+  const { floors, spaces, walls, slabs } = ifcData;
+  let html = '';
+
+  // Summary
+  html += `<div class="sec-head">🏢 Model Summary</div>`;
+  html += row('Floors',  floors.length);
+  html += row('Spaces',  spaces.length);
+  html += row('Walls',   walls.length);
+  html += row('Slabs',   slabs.length);
+
+  // Floors + spaces
+  if (floors.length > 0 || spaces.length > 0) {
+    html += `<div class="sec-head" style="margin-top:14px;">🏬 Floors & Spaces</div>`;
+    html += `<div style="font-size:0.7rem;color:#aab3c6;margin-bottom:8px;">
+      ✅ Select rooms to import into LCA Tool
+    </div>`;
+
+    if (floors.length > 0) {
+      for (const floor of floors) {
+        html += `<div class="floor-label">📐 ${floor.name}</div>`;
+        // Find spaces in this floor
+        const floorSpaces = spaces.filter(s =>
+          s.parent === floor.name || spaces.length <= 5
+        );
+        if (floorSpaces.length > 0) {
+          for (const sp of floorSpaces) {
+            const sel = selectedRooms.has(sp.id);
+            html += `
+              <div class="room-item ${sel?'sel':''}"
+                   onclick="window.toggleRoom('${sp.id}')">
+                <span style="font-size:1rem;">${sel?'✅':'⬜'}</span>
+                <div>
+                  <div class="room-name">${sp.name}</div>
+                  <div class="room-meta">IfcSpace</div>
+                </div>
+              </div>`;
+          }
+        } else {
+          html += `<div style="color:#aab3c6;font-size:0.75rem;padding:4px 8px;">No spaces on this floor</div>`;
+        }
+      }
+    } else if (spaces.length > 0) {
+      // No floors defined, show spaces directly
+      html += `<div class="floor-label">📐 Ground Floor</div>`;
+      for (const sp of spaces) {
+        const sel = selectedRooms.has(sp.id);
+        html += `
+          <div class="room-item ${sel?'sel':''}"
+               onclick="window.toggleRoom('${sp.id}')">
+            <span style="font-size:1rem;">${sel?'✅':'⬜'}</span>
+            <div>
+              <div class="room-name">${sp.name}</div>
+              <div class="room-meta">IfcSpace</div>
+            </div>
+          </div>`;
       }
     }
   }
 
+  // Walls summary
   if (walls.length > 0) {
-    html += `<div class="section-head" style="margin-top:14px;">🧱 Walls (${walls.length})</div>`;
-    for (const w of walls.slice(0, 5)) {
-      html += `
-        <div class="prop-row">
-          <span class="prop-k">${w.name}</span>
-          <span class="prop-v">${w.area > 0 ? w.area.toFixed(1)+' m²' : w.length > 0 ? w.length.toFixed(2)+'m' : '—'}</span>
-        </div>
-      `;
+    html += `<div class="sec-head" style="margin-top:14px;">🧱 Walls (${walls.length})</div>`;
+    for (const w of walls.slice(0,5)) {
+      html += row(w.name, 'Wall');
     }
-    if (walls.length > 5) html += `<div style="color:#aab3c6;font-size:0.72rem;padding:4px;">+${walls.length-5} more walls</div>`;
-  }
-
-  if (slabs.length > 0) {
-    html += `<div class="section-head" style="margin-top:14px;">⬛ Slabs (${slabs.length})</div>`;
-    for (const s of slabs) {
-      html += `
-        <div class="prop-row">
-          <span class="prop-k">${s.name}</span>
-          <span class="prop-v">${s.area > 0 ? s.area.toFixed(1)+' m²' : '—'}</span>
-        </div>
-      `;
+    if (walls.length > 5) {
+      html += `<div style="color:#aab3c6;font-size:0.7rem;padding:4px;">+${walls.length-5} more</div>`;
     }
   }
 
-  propsScroll.innerHTML = html;
+  sbScroll.innerHTML = html;
   updateImportBtn();
 }
 
-// ── Toggle Space Selection ────────────────────
-window.toggleSpace = function(id) {
-  if (selectedSpaces.has(id)) selectedSpaces.delete(id);
-  else selectedSpaces.add(id);
+function row(k, v) {
+  return `<div class="prop-row"><span class="pk">${k}</span><span class="pv">${v}</span></div>`;
+}
+
+// ── Toggle Room ───────────────────────────────────────────────
+window.toggleRoom = id => {
+  if (selectedRooms.has(id)) {
+    selectedRooms.delete(id);
+    // Deselect in viewer
+    viewer.scene.setObjectsSelected([id], false);
+  } else {
+    selectedRooms.add(id);
+    // Highlight in viewer
+    viewer.scene.setObjectsSelected([id], true);
+  }
   renderSidebar();
 };
 
 function updateImportBtn() {
-  const count = selectedSpaces.size;
-  if (count > 0) {
-    importBtn.textContent = `🚀 Import ${count} Room${count>1?'s':''} to LCA Tool`;
-    importBtn.classList.add('show');
+  const n = selectedRooms.size;
+  if (n > 0) {
+    importBtn.textContent = `🚀 Import ${n} Room${n>1?'s':''} to LCA Tool`;
   } else {
-    importBtn.textContent = '🚀 Import to LCA Tool';
+    importBtn.textContent = `🚀 Import All Rooms to LCA Tool`;
   }
 }
 
-// ── Import to LCA Tool ────────────────────────
+// ── Import to LCA Tool ────────────────────────────────────────
 importBtn.addEventListener('click', () => {
-  const spaces = ifcData.spaces.filter(s => selectedSpaces.has(s.id));
+  const spaces = selectedRooms.size > 0
+    ? ifcData.spaces.filter(s => selectedRooms.has(s.id))
+    : ifcData.spaces;
 
   if (spaces.length === 0) {
-    // Import all spaces
-    ifcData.spaces.forEach(s => selectedSpaces.add(s.id));
-    renderSidebar();
+    showToast('⚠️ No rooms found to import');
     return;
   }
 
-  // Build import payload
+  // Build payload
+  const floors = ifcData.floors.length > 0
+    ? ifcData.floors
+    : [{ id:'floor-0', name:'Ground Floor' }];
+
   const payload = {
     type: 'IFC_IMPORT',
+    source: topTitle.textContent,
     building: {
-      name: topTitle.textContent.replace('.ifc','') || 'IFC Building',
-      floors: buildFloorsPayload(spaces)
+      name: topTitle.textContent.replace(/\.ifc$/i,'') || 'IFC Building',
+      location: '',
+      projectType: 'office',
+      floors: floors.map((floor, fi) => {
+        const floorSpaces = spaces.filter(s =>
+          s.parent === floor.name || spaces.length <= 5
+        );
+        const roomsToImport = floorSpaces.length > 0 ? floorSpaces : spaces;
+        return {
+          id: `floor-ifc-${fi}`,
+          name: floor.name,
+          rooms: roomsToImport.map((sp, ri) => ({
+            id: `room-ifc-${fi}-${ri}`,
+            name: sp.name,
+            dims: { length: 5, width: 5, height: 2.7 },
+            fromIFC: true,
+            ifcId: sp.id,
+          }))
+        };
+      })
     }
   };
 
-  // Store in localStorage for main app
   localStorage.setItem('lindner-ifc-import', JSON.stringify(payload));
+  showToast(`✅ Importing ${spaces.length} rooms...`);
 
-  // Open main app
-  showToast(`✅ Importing ${spaces.length} rooms to LCA Tool...`);
   setTimeout(() => {
-    window.location.href = './index.html?ifc-import=1';
-  }, 1000);
+    window.location.href = './index.html?from=ifc';
+  }, 1200);
 });
 
-function buildFloorsPayload(spaces) {
-  const floors = ifcData.floors.length > 0
-    ? ifcData.floors
-    : [{ id: 'floor-1', name: 'Ground Floor' }];
+// ── Camera Controls ───────────────────────────────────────────
+document.getElementById('btnFit').onclick = () => {
+  if (model) viewer.cameraFlight.flyTo(model);
+};
 
-  return floors.map((floor, fi) => ({
-    id: `floor-ifc-${fi}`,
-    name: floor.name,
-    rooms: spaces.map((space, si) => {
-      const area = space.grossArea || space.netArea || 18;
-      // Estimate dimensions from area
-      const length = Math.sqrt(area * 1.6);
-      const width  = area / length;
-      return {
-        id: `room-ifc-${fi}-${si}`,
-        name: space.name,
-        dims: {
-          length: parseFloat(length.toFixed(2)),
-          width:  parseFloat(width.toFixed(2)),
-          height: 2.2
-        },
-        area,
-        fromIFC: true
-      };
-    })
-  }));
-}
-
-// ── Camera Controls ───────────────────────────
-document.getElementById('btnFit').addEventListener('click', () => {
-  if (!modelMesh) return;
-  const box    = new THREE.Box3().setFromObject(modelMesh);
-  const center = box.getCenter(new THREE.Vector3());
-  const size   = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
-  controls.target.copy(center);
-  camera.position.set(center.x + maxDim*1.2, center.y + maxDim*0.8, center.z + maxDim*1.2);
-  controls.update();
-});
-
-document.getElementById('btnWire').addEventListener('click', () => {
+document.getElementById('btnWire').onclick = function() {
   isWireframe = !isWireframe;
-  modelMesh?.traverse(c => { if (c.isMesh) c.material.wireframe = isWireframe; });
-});
+  viewer.scene.setObjectsWireframe(viewer.scene.objectIds, isWireframe);
+  this.classList.toggle('active', isWireframe);
+};
 
-document.getElementById('btnTop').addEventListener('click', () => {
-  if (!modelMesh) return;
-  const box = new THREE.Box3().setFromObject(modelMesh);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  controls.target.copy(center);
-  camera.position.set(center.x, center.y + Math.max(size.x,size.z)*1.5, center.z);
-  controls.update();
-});
+document.getElementById('btnX-ray').onclick = function() {
+  isXray = !isXray;
+  viewer.scene.setObjectsXRayed(viewer.scene.objectIds, isXray);
+  this.classList.toggle('active', isXray);
+};
 
-document.getElementById('btnFront').addEventListener('click', () => {
-  if (!modelMesh) return;
-  const box = new THREE.Box3().setFromObject(modelMesh);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  controls.target.copy(center);
-  camera.position.set(center.x, center.y, center.z + Math.max(size.x,size.y)*1.5);
-  controls.update();
-});
+document.getElementById('tTop').onclick = () => {
+  viewer.cameraFlight.flyTo({
+    eye:[0,30,0], look:[0,0,0], up:[0,0,-1], duration:0.8
+  });
+};
+document.getElementById('tFront').onclick = () => {
+  viewer.cameraFlight.flyTo({
+    eye:[0,5,30], look:[0,5,0], up:[0,1,0], duration:0.8
+  });
+};
+document.getElementById('tRight').onclick = () => {
+  viewer.cameraFlight.flyTo({
+    eye:[30,5,0], look:[0,5,0], up:[0,1,0], duration:0.8
+  });
+};
+document.getElementById('t3D').onclick = () => {
+  if (model) viewer.cameraFlight.flyTo(model, { duration:0.8 });
+};
+document.getElementById('tSect').onclick = function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) {
+    sectionPlanes.createSectionPlane({
+      id: "sp1",
+      pos: [0, 5, 0],
+      dir: [0, -1, 0],
+      active: true
+    });
+    sectionPlanes.showControl("sp1");
+  } else {
+    sectionPlanes.destroySectionPlane("sp1");
+  }
+};
 
-document.getElementById('btnRight').addEventListener('click', () => {
-  if (!modelMesh) return;
-  const box = new THREE.Box3().setFromObject(modelMesh);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  controls.target.copy(center);
-  camera.position.set(center.x + Math.max(size.y,size.z)*1.5, center.y, center.z);
-  controls.update();
-});
-
-document.getElementById('btn3D').addEventListener('click', () => {
-  if (!modelMesh) return;
-  const box = new THREE.Box3().setFromObject(modelMesh);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
-  controls.target.copy(center);
-  camera.position.set(center.x + maxDim*1.2, center.y + maxDim*0.8, center.z + maxDim*1.2);
-  controls.update();
-});
-
-// ── File Input ────────────────────────────────
-document.getElementById('ifcInput').addEventListener('change', e => {
+// ── File Input ────────────────────────────────────────────────
+document.getElementById('ifcIn').onchange = e => {
   if (e.target.files[0]) loadIFC(e.target.files[0]);
-});
+};
 
-uploadArea.addEventListener('click', () => document.getElementById('ifcInput').click());
-uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-uploadArea.addEventListener('drop', e => {
+uploadZone.onclick = () => document.getElementById('ifcIn').click();
+uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
+uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
+uploadZone.ondrop = e => {
   e.preventDefault();
-  uploadArea.classList.remove('dragover');
+  uploadZone.classList.remove('drag');
   const f = e.dataTransfer.files[0];
   if (f?.name.toLowerCase().endsWith('.ifc')) loadIFC(f);
-});
+};
 
-setStatus('green', 'Ready — Open an IFC file to begin');
+// ── Init ──────────────────────────────────────────────────────
+initViewer();
 </script>
 </body>
 </html>
