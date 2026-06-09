@@ -3567,11 +3567,25 @@ window.loadProjectData = function(buildingData) {
   try {
     if (!buildingData?.floors?.length) return false;
 
-    // Fix all rooms safely before touching state
+    // Save selected data BEFORE any processing
+    const selectedMap = {};
+    buildingData.floors.forEach((floor, fi) => {
+      floor.rooms.forEach((room, ri) => {
+        const key = `${fi}-${ri}`;
+        if (room.selected instanceof Set) {
+          selectedMap[key] = Array.from(room.selected);
+        } else if (Array.isArray(room.selected)) {
+          selectedMap[key] = room.selected;
+        } else {
+          selectedMap[key] = [];
+        }
+      });
+    });
+
+    // Fix all rooms
     buildingData.floors.forEach(floor => {
       floor.rooms.forEach(room => {
-        // Force selected to empty Set regardless of stored format
-        room.selected = Array.isArray(room.selected) ? new Set(room.selected) : new Set();
+        room.selected = new Set();
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
@@ -3584,23 +3598,22 @@ window.loadProjectData = function(buildingData) {
     state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
     state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
     state.viewMode = 'room';
+
+    // Restore selected from saved map
+    state.building.floors.forEach((floor, fi) => {
+      floor.rooms.forEach((room, ri) => {
+        room.selected = new Set(selectedMap[`${fi}-${ri}`] || []);
+      });
+    });
+
     window.state = state;
 
-    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
-    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
-
-        saveToLocalStorage();
-    const nameInput = document.getElementById('buildingNameInput');
-    if (nameInput) nameInput.value = buildingData.name || '';
-    const locationInput = document.getElementById('buildingLocationInput');
-    if (locationInput) locationInput.value = buildingData.location || '';
-    // Set room mode
-    state.viewMode = 'room';
-    window.state = state;
+    // Update view mode buttons
     const roomBtn = document.getElementById('viewModeRoomBtn');
     const buildingBtn = document.getElementById('viewModeBuildingBtn');
     if (roomBtn) roomBtn.classList.add('active');
     if (buildingBtn) buildingBtn.classList.remove('active');
+
     // Update input fields
     const room = state.building.floors[0]?.rooms[0];
     if (room) {
@@ -3613,6 +3626,17 @@ window.loadProjectData = function(buildingData) {
       if (hi) hi.value = String(room.dims.height);
       if (ni) ni.value = room.name;
     }
+
+    // Update building inputs
+    const nameInput = document.getElementById('buildingNameInput');
+    if (nameInput) nameInput.value = buildingData.name || '';
+    const locationInput = document.getElementById('buildingLocationInput');
+    if (locationInput) locationInput.value = buildingData.location || '';
+
+    try { refreshCurrentRoom(); } catch(e) {}
+    try { renderBuildingTree(); } catch(e) {}
+    saveToLocalStorage();
+
     // Rebuild 3D model
     setTimeout(() => {
       try {
@@ -3622,6 +3646,7 @@ window.loadProjectData = function(buildingData) {
         console.warn('buildRoom error:', e.message);
       }
     }, 500);
+
     console.log('✅ Project loaded:', buildingData.name);
     return true;
   } catch(e) {
