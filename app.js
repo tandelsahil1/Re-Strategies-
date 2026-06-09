@@ -1419,62 +1419,7 @@ function loadFromLocalStorage() {
 }
 
 
-    // Apply to state
-    state.building = cloned;
-    state.currentFloorId = cloned.floors[0]?.id || 'floor-1';
-    state.currentRoomId = cloned.floors[0]?.rooms[0]?.id || 'room-1';
-    state.viewMode = 'room';
-window.state = state;
 
-// Refresh UI
-try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
-try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
-
-// Force room view mode in UI
-const roomViewBtn = document.querySelector('[data-view="room"]');
-if (roomViewBtn) roomViewBtn.click();
-
-saveToLocalStorage();
-
-const nameInput = document.getElementById('buildingName');
-if (nameInput) nameInput.value = cloned.name || '';
-const locationInput = document.getElementById('buildingLocation');
-if (locationInput) locationInput.value = cloned.location || '';
-
-// Rebuild 3D room model
-setTimeout(() => {
-  try {
-    // Force room mode before clicking build
-    state.viewMode = 'room';
-    window.state = state;
-    const buildBtn = document.getElementById('buildBtn');
-    if (buildBtn) {
-      buildBtn.click();
-      console.log('✅ Build triggered in room mode');
-    }
-  } catch(e) {
-    console.warn('Build trigger error:', e.message);
-  }
-}, 800);
-
-console.log('✅ Project loaded:', cloned.name);
-return true;
-
-    saveToLocalStorage();
-
-    // Update inputs
-    const nameInput = document.getElementById('buildingName');
-    if (nameInput) nameInput.value = cloned.name || '';
-    const locationInput = document.getElementById('buildingLocation');
-    if (locationInput) locationInput.value = cloned.location || '';
-
-    console.log('✅ Project loaded:', cloned.name);
-    return true;
-  } catch(e) {
-    console.warn('Failed to load project data:', e);
-    return false;
-  }
-};
 
 function setupUI() {
   const currentRoom = getCurrentRoom();
