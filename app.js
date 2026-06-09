@@ -1455,8 +1455,28 @@ window.loadProjectData = function(buildingData) {
     window.state = state;
 
     // Refresh UI
-    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e); }
-    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e); }
+   try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
+try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
+
+// Rebuild 3D model automatically
+setTimeout(() => {
+  try {
+    // Simulate clicking the Build button
+    const buildBtn = document.getElementById('buildBtn');
+    if (buildBtn) {
+      buildBtn.click();
+      console.log('✅ Build triggered via button');
+    } else if (typeof buildRoom === 'function') {
+      buildRoom();
+      console.log('✅ Build triggered via buildRoom()');
+    } else if (typeof buildBuildingView === 'function') {
+      buildBuildingView();
+      console.log('✅ Build triggered via buildBuildingView()');
+    }
+  } catch(e) {
+    console.warn('Build trigger error:', e.message);
+  }
+}, 300);
 
     saveToLocalStorage();
 
