@@ -129,10 +129,7 @@ const state = {
     pedestalAnchors: [], ceilingLightCandidates: [],
   },
 };
-function saveToLocalStorage() {
-  localStorage.setItem("lindner-project", JSON.stringify(payload));
-  window.state = state; // ← ADD THIS LINE
-}
+window.state = state;
 
 function getCurrentRoom() {
   const floor = getCurrentFloor();
@@ -1373,6 +1370,7 @@ function saveToLocalStorage() {
       viewMode: state.viewMode,
     };
     localStorage.setItem("lindner-project", JSON.stringify(payload));
+    window.state = state; // Keep window.state in sync
   } catch (e) { console.warn("Failed to save to localStorage:", e); }
 }
 
