@@ -3648,13 +3648,19 @@ window.loadProjectData = function(buildingData) {
     try { renderBuildingTree(); } catch(e) {}
     saveToLocalStorage();
 
-    // Rebuild 3D model
+        // Rebuild 3D model in building view
     setTimeout(() => {
       try {
-        window.buildRoom();
-        console.log('✅ 3D rebuilt');
+        state.viewMode = 'building';
+        window.state = state;
+        const roomBtn = document.getElementById('viewModeRoomBtn');
+        const buildingBtn = document.getElementById('viewModeBuildingBtn');
+        if (roomBtn) roomBtn.classList.remove('active');
+        if (buildingBtn) buildingBtn.classList.add('active');
+        window.buildBuildingView();
+        console.log('✅ 3D building view rebuilt');
       } catch(e) {
-        console.warn('buildRoom error:', e.message);
+        console.warn('buildBuildingView error:', e.message);
       }
     }, 500);
 
