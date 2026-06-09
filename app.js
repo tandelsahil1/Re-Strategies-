@@ -1371,14 +1371,17 @@ function importProject(file) {
 
 function saveToLocalStorage() {
   try {
+    // Manually build cloned object to ensure Sets are captured
     const cloned = JSON.parse(JSON.stringify(state.building, (key, value) => {
       if (value instanceof Set) return Array.from(value);
       return value;
     }));
-    cloned.floors.forEach((floor, fi) => {
+    // Double-check selected is saved for each room
+    state.building.floors.forEach((floor, fi) => {
       floor.rooms.forEach((room, ri) => {
-        const liveRoom = state.building.floors[fi]?.rooms[ri];
-        if (liveRoom?.selected) room.selected = Array.from(liveRoom.selected);
+        if (cloned.floors[fi]?.rooms[ri]) {
+          cloned.floors[fi].rooms[ri].selected = Array.from(room.selected || []);
+        }
       });
     });
     const payload = {
