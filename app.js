@@ -3529,7 +3529,7 @@ window.loadProjectData = function(buildingData) {
     buildingData.floors.forEach(floor => {
       floor.rooms.forEach(room => {
         // Force selected to empty Set regardless of stored format
-        room.selected = new Set();
+        room.selected = Array.isArray(room.selected) ? new Set(room.selected) : new Set();
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
