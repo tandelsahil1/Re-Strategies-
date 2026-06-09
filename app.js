@@ -1460,35 +1460,30 @@ window.loadProjectData = function(buildingData) {
     state.viewMode = 'room';
     window.state = state;
 
-    // Refresh UI
-   try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
-try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
-
-// Force room view mode in UI
-const roomViewBtn = document.querySelector('[data-view="room"]');
-if (roomViewBtn) roomViewBtn.click();
-    
-// Rebuild 3D model automatically
-// Rebuild 3D model automatically
-setTimeout(() => {
-  try {
-    const buildBtn = document.getElementById('buildBtn');
-    if (buildBtn) {
-      // Make sure we're in the right view mode first
-      if (state.viewMode === 'building') {
-        // Switch to room view to trigger room build
-        state.viewMode = 'room';
-      }
-      buildBtn.click();
-      console.log('✅ Build triggered');
-    }
-  } catch(e) {
-    console.warn('Build trigger error:', e.message);
-  }
-}, 500);
-
+       // Refresh UI
+    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
+    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
     saveToLocalStorage();
-
+    // Rebuild 3D model with correct view mode
+    setTimeout(() => {
+      try {
+        if (state.viewMode === 'building') {
+          buildBuildingView();
+        } else {
+          state.viewMode = 'room';
+          window.state = state;
+          const roomBtn = document.getElementById('viewModeRoomBtn');
+          const buildingBtn = document.getElementById('viewModeBuildingBtn');
+          if (roomBtn) roomBtn.classList.add('active');
+          if (buildingBtn) buildingBtn.classList.remove('active');
+          buildRoom();
+        }
+        console.log('✅ 3D model rebuilt after load');
+      } catch(e) {
+        console.warn('3D rebuild error:', e.message);
+      }
+    }, 400);
+    
     // Update inputs
     const nameInput = document.getElementById('buildingName');
     if (nameInput) nameInput.value = cloned.name || '';
