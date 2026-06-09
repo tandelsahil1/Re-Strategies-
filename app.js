@@ -617,9 +617,9 @@ function refreshCurrentRoom() {
       ui.doorCountInput.value = String(room.settings.door.count ?? 1);
     }
   }
-  syncUISelectionState();
+    syncUISelectionState();
   updateScenarioButtonState();
-  buildRoom();
+  if (state.viewMode !== 'building') buildRoom();
 }
 // After refreshCurrentRoom closing }
 window.refreshCurrentRoom = refreshCurrentRoom;
@@ -3608,7 +3608,7 @@ window.loadProjectData = function(buildingData) {
     state.building = buildingData;
     state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
     state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
-    state.viewMode = 'room';
+        state.viewMode = 'building';
 
     // Restore selected from saved map
     state.building.floors.forEach((floor, fi) => {
@@ -3644,9 +3644,7 @@ window.loadProjectData = function(buildingData) {
     const locationInput = document.getElementById('buildingLocationInput');
     if (locationInput) locationInput.value = buildingData.location || '';
 
-    try { refreshCurrentRoom(); } catch(e) {}
-    try { renderBuildingTree(); } catch(e) {}
-    saveToLocalStorage();
+        try { renderBuildingTree(); } catch(e) {}
 
         // Rebuild 3D model in building view
     setTimeout(() => {
