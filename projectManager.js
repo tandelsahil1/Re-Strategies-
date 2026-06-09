@@ -28,6 +28,7 @@ export function triggerAutoSave(buildingData) {
 
 async function performSave(buildingData) {
   if (isSaving) return;
+  if (window._isLoadingProject) return;
   const hash = JSON.stringify(buildingData).length.toString();
   if (hash === lastSaveHash) {
     hideSaveIndicator();
