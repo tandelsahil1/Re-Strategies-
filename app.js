@@ -1397,11 +1397,22 @@ function saveToLocalStorage() {
         localStorage.setItem("lindner-project", JSON.stringify(payload));
     window.state = state;
     // Trigger cloud auto-save with fresh serialized copy
-    if (window._autoSave) {
+        if (window._autoSave) {
+      // Build fresh copy with selected properly saved
       const freshCopy = JSON.parse(JSON.stringify(state.building, (k, v) => {
         if (v instanceof Set) return Array.from(v);
         return v;
       }));
+      // Double-check selected is saved for each room
+      state.building.floors.forEach((floor, fi) => {
+        if (freshCopy.floors[fi]) {
+          floor.rooms.forEach((room, ri) => {
+            if (freshCopy.floors[fi].rooms[ri]) {
+              freshCopy.floors[fi].rooms[ri].selected = Array.from(room.selected || []);
+            }
+          });
+        }
+      });
       window._autoSave(freshCopy);
     }
   } catch (e) { console.warn("Failed to save to localStorage:", e); }
