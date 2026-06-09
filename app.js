@@ -1426,33 +1426,24 @@ window.loadProjectData = function(buildingData) {
       return false;
     }
 
-    // Deep clone to avoid reference issues
+    // Deep clone
     const cloned = JSON.parse(JSON.stringify(buildingData));
 
-    // Safely restore all room data
+    // Fix all rooms before passing to state
     cloned.floors.forEach(floor => {
       floor.rooms.forEach(room => {
-        // Fix selected - handle any format safely
-        try {
-          if (room.selected instanceof Set) {
-            room.selected = room.selected;
-          } else if (Array.isArray(room.selected)) {
-            room.selected = new Set(room.selected);
-          } else if (room.selected && typeof room.selected === 'object') {
-            // Handle plain object from JSON
-            room.selected = new Set(Object.values(room.selected));
-          } else {
-            room.selected = new Set();
-          }
-        } catch(e) {
-          room.selected = new Set();
-        }
+        // Fix selected - force to empty Set always
+        // (selections don't need to be saved anyway)
+        room.selected = new Set();
 
-        // Restore scenario data
+        // Fix scenario
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
         room.scenario.stepByComponent = room.scenario.stepByComponent || {};
+
+        // Fix components array
+        room.components = room.components || [];
       });
     });
 
@@ -1463,17 +1454,13 @@ window.loadProjectData = function(buildingData) {
     state.viewMode = 'room';
     window.state = state;
 
-    // Refresh UI using exposed functions
-    if (typeof refreshCurrentRoom === 'function') refreshCurrentRoom();
-    if (typeof renderBuildingTree === 'function') renderBuildingTree();
-    
-    // Also try window versions as fallback
-    if (window.refreshCurrentRoom) window.refreshCurrentRoom();
-    if (window.renderBuildingTree) window.renderBuildingTree();
+    // Refresh UI
+    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e); }
+    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e); }
 
     saveToLocalStorage();
 
-    // Update building name inputs
+    // Update inputs
     const nameInput = document.getElementById('buildingName');
     if (nameInput) nameInput.value = cloned.name || '';
     const locationInput = document.getElementById('buildingLocation');
