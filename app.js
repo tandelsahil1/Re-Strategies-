@@ -3495,31 +3495,40 @@ async function initCloudSync() {
 window.loadProjectData = function(buildingData) {
   try {
     if (!buildingData?.floors?.length) return false;
+
+    // Fix all rooms safely before touching state
     buildingData.floors.forEach(floor => {
       floor.rooms.forEach(room => {
-        room.selected = new Set(room.selected || []);
+        // Force selected to empty Set regardless of stored format
+        room.selected = new Set();
         room.scenario = room.scenario || {};
         room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
         room.scenario.initialByComponent = room.scenario.initialByComponent || {};
         room.scenario.stepByComponent = room.scenario.stepByComponent || {};
+        room.components = room.components || [];
       });
     });
+
     state.building = buildingData;
     state.currentFloorId = buildingData.floors[0]?.id || 'floor-1';
     state.currentRoomId = buildingData.floors[0]?.rooms[0]?.id || 'room-1';
     state.viewMode = 'room';
     window.state = state;
-    refreshCurrentRoom();
-    renderBuildingTree();
+
+    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
+    try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
+
     saveToLocalStorage();
+
     const nameInput = document.getElementById('buildingName');
     if (nameInput) nameInput.value = buildingData.name || '';
     const locationInput = document.getElementById('buildingLocation');
     if (locationInput) locationInput.value = buildingData.location || '';
+
     console.log('✅ Project loaded:', buildingData.name);
     return true;
   } catch(e) {
-    console.warn('Failed to load project data:', e);
+    console.warn('Failed to load project data:', e.message);
     return false;
   }
 };
