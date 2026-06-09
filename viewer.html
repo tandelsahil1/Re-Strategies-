@@ -337,7 +337,7 @@ import {
   WebIFCLoaderPlugin,
   NavCubePlugin,
   SectionPlanesPlugin
-} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk@1.3.5/dist/xeokit-sdk.es.min.js";
+} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
 
 // ── DOM ──────────────────────────────────────────────────────
 const topTitle  = document.getElementById('topTitle');
@@ -384,6 +384,8 @@ const showToast = msg => {
 
 // ── Init xeokit Viewer ────────────────────────────────────────
 function initViewer() {
+  // Pre-load web-ifc wasm
+  window.WebIFCLoaderPluginDefaultWasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.34/";
   viewer = new Viewer({
     canvasId: "xeo-canvas",
     transparent: true,
