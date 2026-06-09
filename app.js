@@ -1458,25 +1458,28 @@ window.loadProjectData = function(buildingData) {
    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
 try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
 
+// Force room view mode in UI
+const roomViewBtn = document.querySelector('[data-view="room"]');
+if (roomViewBtn) roomViewBtn.click();
+    
+// Rebuild 3D model automatically
 // Rebuild 3D model automatically
 setTimeout(() => {
   try {
-    // Simulate clicking the Build button
     const buildBtn = document.getElementById('buildBtn');
     if (buildBtn) {
+      // Make sure we're in the right view mode first
+      if (state.viewMode === 'building') {
+        // Switch to room view to trigger room build
+        state.viewMode = 'room';
+      }
       buildBtn.click();
-      console.log('✅ Build triggered via button');
-    } else if (typeof buildRoom === 'function') {
-      buildRoom();
-      console.log('✅ Build triggered via buildRoom()');
-    } else if (typeof buildBuildingView === 'function') {
-      buildBuildingView();
-      console.log('✅ Build triggered via buildBuildingView()');
+      console.log('✅ Build triggered');
     }
   } catch(e) {
     console.warn('Build trigger error:', e.message);
   }
-}, 300);
+}, 500);
 
     saveToLocalStorage();
 
