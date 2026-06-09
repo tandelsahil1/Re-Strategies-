@@ -1418,34 +1418,6 @@ function loadFromLocalStorage() {
   }
 }
 
-// Load project data from cloud (called when user opens a saved project)
-window.loadProjectData = function(buildingData) {
-  try {
-    if (!buildingData?.floors?.length) {
-      console.warn('No floors in project data');
-      return false;
-    }
-
-    // Deep clone
-    const cloned = JSON.parse(JSON.stringify(buildingData));
-
-    // Fix all rooms before passing to state
-    cloned.floors.forEach(floor => {
-      floor.rooms.forEach(room => {
-        // Fix selected - force to empty Set always
-        // (selections don't need to be saved anyway)
-        room.selected = new Set();
-
-        // Fix scenario
-        room.scenario = room.scenario || {};
-        room.scenario.chosenByComponent = room.scenario.chosenByComponent || {};
-        room.scenario.initialByComponent = room.scenario.initialByComponent || {};
-        room.scenario.stepByComponent = room.scenario.stepByComponent || {};
-
-        // Fix components array
-        room.components = room.components || [];
-      });
-    });
 
     // Apply to state
     state.building = cloned;
@@ -3554,15 +3526,26 @@ window.loadProjectData = function(buildingData) {
     state.viewMode = 'room';
     window.state = state;
 
-    try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
+       try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
     try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
-
     saveToLocalStorage();
 
-    const nameInput = document.getElementById('buildingName');
+    const nameInput = document.getElementById('buildingNameInput');
     if (nameInput) nameInput.value = buildingData.name || '';
-    const locationInput = document.getElementById('buildingLocation');
+    const locationInput = document.getElementById('buildingLocationInput');
     if (locationInput) locationInput.value = buildingData.location || '';
+
+    // Rebuild 3D model
+    setTimeout(() => {
+      try {
+        state.viewMode = 'room';
+        window.state = state;
+        buildRoom();
+        console.log('✅ 3D room rebuilt');
+      } catch(e) {
+        console.warn('buildRoom error:', e.message);
+      }
+    }, 300);
 
     console.log('✅ Project loaded:', buildingData.name);
     return true;
