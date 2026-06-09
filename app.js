@@ -132,8 +132,7 @@ const state = {
 window.state = state;
 window.refreshCurrentRoom = refreshCurrentRoom;
 window.renderBuildingTree = renderBuildingTree;
-window.buildRoom = buildRoom;
-window.buildBuildingView = buildBuildingView;
+
 
 function getCurrentRoom() {
   const floor = getCurrentFloor();
@@ -275,7 +274,12 @@ async function init() {
       controls.update();
     }
   }
-  renderer.setAnimationLoop(renderLoop);
+ renderer.setAnimationLoop(renderLoop);
+  // Expose functions globally after init
+  window.buildRoom = buildRoom;
+  window.buildBuildingView = buildBuildingView;
+  window.refreshCurrentRoom = refreshCurrentRoom;
+  window.renderBuildingTree = renderBuildingTree;
 }
 
 function parseScenarioCSVs(chartCSVText, descCSVText) {
