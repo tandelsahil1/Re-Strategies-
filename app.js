@@ -3585,13 +3585,39 @@ window.loadProjectData = function(buildingData) {
     try { refreshCurrentRoom(); } catch(e) { console.warn('refreshCurrentRoom error:', e.message); }
     try { renderBuildingTree(); } catch(e) { console.warn('renderBuildingTree error:', e.message); }
 
-    saveToLocalStorage();
-
-    const nameInput = document.getElementById('buildingName');
+        saveToLocalStorage();
+    const nameInput = document.getElementById('buildingNameInput');
     if (nameInput) nameInput.value = buildingData.name || '';
-    const locationInput = document.getElementById('buildingLocation');
+    const locationInput = document.getElementById('buildingLocationInput');
     if (locationInput) locationInput.value = buildingData.location || '';
-
+    // Set room mode
+    state.viewMode = 'room';
+    window.state = state;
+    const roomBtn = document.getElementById('viewModeRoomBtn');
+    const buildingBtn = document.getElementById('viewModeBuildingBtn');
+    if (roomBtn) roomBtn.classList.add('active');
+    if (buildingBtn) buildingBtn.classList.remove('active');
+    // Update input fields
+    const room = state.building.floors[0]?.rooms[0];
+    if (room) {
+      const li = document.getElementById('lengthInput');
+      const wi = document.getElementById('widthInput');
+      const hi = document.getElementById('heightInput');
+      const ni = document.getElementById('roomNameInput');
+      if (li) li.value = String(room.dims.length);
+      if (wi) wi.value = String(room.dims.width);
+      if (hi) hi.value = String(room.dims.height);
+      if (ni) ni.value = room.name;
+    }
+    // Rebuild 3D model
+    setTimeout(() => {
+      try {
+        window.buildRoom();
+        console.log('✅ 3D rebuilt');
+      } catch(e) {
+        console.warn('buildRoom error:', e.message);
+      }
+    }, 500);
     console.log('✅ Project loaded:', buildingData.name);
     return true;
   } catch(e) {
