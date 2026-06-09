@@ -1397,7 +1397,7 @@ function saveToLocalStorage() {
         localStorage.setItem("lindner-project", JSON.stringify(payload));
     window.state = state;
     // Trigger cloud auto-save with fresh serialized copy
-        if (window._autoSave) {
+            if (window._autoSave && cloudSyncInitialized) {
       // Build fresh copy with selected properly saved
       const freshCopy = JSON.parse(JSON.stringify(state.building, (k, v) => {
         if (v instanceof Set) return Array.from(v);
@@ -3530,12 +3530,14 @@ function hexToRgba(hex, a) {
 // ============================================================
 // CLOUD SYNC - Auto-save and Auto-load
 // ============================================================
+let cloudSyncInitialized = false;
+
 async function initCloudSync() {
+  if (cloudSyncInitialized) return;
+  cloudSyncInitialized = true;
   try {
     const { getCurrentUser } = await import('./supabase.js');
     const { triggerAutoSave } = await import('./projectManager.js');
-
-    // Expose auto-save globally
     window._autoSave = function(buildingData) {
       triggerAutoSave(buildingData);
     };
