@@ -3491,4 +3491,9 @@ window.loadProjectData = function(buildingData) {
 };
 
 // Start cloud sync after app loads
-setTimeout(initCloudSync, 1500);
+// Wait for full app initialization before cloud sync
+if (document.readyState === 'complete') {
+  setTimeout(initCloudSync, 2000);
+} else {
+  window.addEventListener('load', () => setTimeout(initCloudSync, 2000));
+}
