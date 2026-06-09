@@ -129,6 +129,10 @@ const state = {
     pedestalAnchors: [], ceilingLightCandidates: [],
   },
 };
+function saveToLocalStorage() {
+  localStorage.setItem("lindner-project", JSON.stringify(payload));
+  window.state = state; // ← ADD THIS LINE
+}
 
 function getCurrentRoom() {
   const floor = getCurrentFloor();
