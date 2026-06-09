@@ -1397,7 +1397,7 @@ function saveToLocalStorage() {
         localStorage.setItem("lindner-project", JSON.stringify(payload));
     window.state = state;
     // Trigger cloud auto-save with fresh serialized copy
-            if (window._autoSave && cloudSyncInitialized) {
+                if (window._autoSave && cloudSyncInitialized && !window._isLoadingProject) {
       // Build fresh copy with selected properly saved
       const freshCopy = JSON.parse(JSON.stringify(state.building, (k, v) => {
         if (v instanceof Set) return Array.from(v);
@@ -1446,6 +1446,9 @@ function loadFromLocalStorage() {
 
 // Load project data from cloud (called when user opens a saved project)
 window.loadProjectData = function(buildingData) {
+  // Prevent auto-save during load
+  window._isLoadingProject = true;
+  setTimeout(() => { window._isLoadingProject = false; }, 3000);
   try {
     if (!buildingData?.floors?.length) {
       console.warn('No floors in project data');
