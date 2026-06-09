@@ -1448,7 +1448,7 @@ function loadFromLocalStorage() {
 window.loadProjectData = function(buildingData) {
   // Prevent auto-save during load
   window._isLoadingProject = true;
-  setTimeout(() => { window._isLoadingProject = false; }, 3000);
+  setTimeout(() => { window._isLoadingProject = false; }, 8000);
   try {
     if (!buildingData?.floors?.length) {
       console.warn('No floors in project data');
