@@ -369,25 +369,28 @@
     }
   });
 
-  async function checkAndLoadLastProject() {
-    const projectToLoad = localStorage.getItem('lindner-load-project');
-    if (!projectToLoad) return;
-    localStorage.removeItem('lindner-load-project');
-    try {
-      const data = JSON.parse(projectToLoad);
-      if (data && data.floors) {
+ async function checkAndLoadLastProject() {
+  // Handle project loaded from "My Projects" modal
+  const projectToLoad = localStorage.getItem('lindner-load-project');
+  if (!projectToLoad) return;
+  localStorage.removeItem('lindner-load-project');
+  try {
+    const data = JSON.parse(projectToLoad);
+    if (data?.floors?.length) {
+      // Wait for app to initialize then load
+      const tryLoad = (attempts = 0) => {
         if (window.loadProjectData) {
           window.loadProjectData(data);
-        } else {
-          setTimeout(() => {
-            if (window.loadProjectData) window.loadProjectData(data);
-          }, 1000);
+        } else if (attempts < 10) {
+          setTimeout(() => tryLoad(attempts + 1), 500);
         }
-      }
-    } catch(e) {
-      console.warn('Failed to restore project:', e);
+      };
+      setTimeout(() => tryLoad(), 800);
     }
+  } catch(e) {
+    console.warn('Failed to restore project:', e);
   }
+}
 
   function setupDropdownEvents() {
     const authBtn = document.getElementById('authUserBtn');
