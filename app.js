@@ -1471,20 +1471,31 @@ window.loadProjectData = function(buildingData) {
     saveToLocalStorage();
     // Rebuild 3D model with correct view mode
     setTimeout(() => {
-      try {
-        state.viewMode = 'room';
-        window.state = state;
-        const roomBtn = document.getElementById('viewModeRoomBtn');
-        const buildingBtn = document.getElementById('viewModeBuildingBtn');
-        if (roomBtn) roomBtn.classList.add('active');
-        if (buildingBtn) buildingBtn.classList.remove('active');
-        if (window.buildRoom) window.buildRoom();
-        else if (typeof buildRoom === 'function') buildRoom();
-        console.log('✅ 3D model rebuilt after load');
-      } catch(e) {
-        console.warn('3D rebuild error:', e.message);
-      }
-    }, 400);
+  try {
+    state.viewMode = 'room';
+    window.state = state;
+    const roomBtn = document.getElementById('viewModeRoomBtn');
+    const buildingBtn = document.getElementById('viewModeBuildingBtn');
+    if (roomBtn) roomBtn.classList.add('active');
+    if (buildingBtn) buildingBtn.classList.remove('active');
+    // Update input fields with room data first
+    const room = state.building.floors[0]?.rooms[0];
+    if (room) {
+      const li = document.getElementById('lengthInput');
+      const wi = document.getElementById('widthInput');
+      const hi = document.getElementById('heightInput');
+      const ni = document.getElementById('roomNameInput');
+      if (li) li.value = String(room.dims.length);
+      if (wi) wi.value = String(room.dims.width);
+      if (hi) hi.value = String(room.dims.height);
+      if (ni) ni.value = room.name;
+    }
+    if (window.buildRoom) window.buildRoom();
+    console.log('✅ 3D model rebuilt after load');
+  } catch(e) {
+    console.warn('3D rebuild error:', e.message);
+  }
+}, 1000);
     
     // Update inputs
     const nameInput = document.getElementById('buildingName');
