@@ -1385,10 +1385,16 @@ function saveToLocalStorage() {
       currentRoomId: state.currentRoomId,
       viewMode: state.viewMode,
     };
-    localStorage.setItem("lindner-project", JSON.stringify(payload));
-window.state = state;
-// Trigger cloud auto-save if logged in
-if (window._autoSave) window._autoSave(state.building);
+        localStorage.setItem("lindner-project", JSON.stringify(payload));
+    window.state = state;
+    // Trigger cloud auto-save with fresh serialized copy
+    if (window._autoSave) {
+      const freshCopy = JSON.parse(JSON.stringify(state.building, (k, v) => {
+        if (v instanceof Set) return Array.from(v);
+        return v;
+      }));
+      window._autoSave(freshCopy);
+    }
   } catch (e) { console.warn("Failed to save to localStorage:", e); }
 }
 
