@@ -286,50 +286,46 @@ async function loadGLB(file) {
     url,
     (gltf) => {
       console.log('✅ GLTF loaded:', gltf);
-      console.log('Scene children:', gltf.scene.children.length);
       
-      building = gltf.scene;
+      // Wrap in a group so we can transform freely
+      building = new THREE.Group();
+      const inner = gltf.scene;
+      building.add(inner);
       
       let meshCount = 0;
-      let totalVertices = 0;
       
-      building.traverse(o => {
+      inner.traverse(o => {
         if (o.isMesh) {
           meshCount++;
-          if (o.geometry?.attributes?.position) {
-            totalVertices += o.geometry.attributes.position.count;
-          }
-          
           o.castShadow = true;
           o.receiveShadow = true;
           
-          // Ensure material is visible
+          // Fix materials
           if (o.material) {
             const mats = Array.isArray(o.material) ? o.material : [o.material];
             mats.forEach(m => {
-              m.side = THREE.DoubleSide; // Show both sides
+              m.side = THREE.DoubleSide;
               m.transparent = false;
               m.opacity = 1;
               m.needsUpdate = true;
             });
           } else {
-            // No material? Give it one
             o.material = new THREE.MeshStandardMaterial({ 
               color: COLORS.default, 
               side: THREE.DoubleSide 
             });
           }
           
-          // Treat each named mesh as a "room"
           const roomName = o.name || `Element_${meshCount}`;
+          const mat = Array.isArray(o.material) ? o.material[0] : o.material;
           const roomData = {
             id: `room-${rooms.length}`,
             name: roomName,
             floor: 'Floor 1',
             floorIdx: 0,
             mesh: o,
-            material: Array.isArray(o.material) ? o.material[0] : o.material,
-            originalColor: (Array.isArray(o.material) ? o.material[0] : o.material).color?.clone(),
+            material: mat,
+            originalColor: mat.color?.clone(),
             dims: { length: 5, width: 5, height: 2.7 }
           };
           o.userData.roomData = roomData;
@@ -337,7 +333,7 @@ async function loadGLB(file) {
         }
       });
       
-      console.log(`📊 Found ${meshCount} meshes, ${totalVertices} vertices`);
+      console.log(`📊 Found ${meshCount} meshes`);
       
       if (meshCount === 0) {
         showToast('❌ GLB has no geometry!');
@@ -345,34 +341,46 @@ async function loadGLB(file) {
         return;
       }
       
-      // Check bounding box
+      scene.add(building);
+      
+      // === SMART AUTO-FIT (THE FIX) ===
+      // 1) Measure ORIGINAL bounding box
       const box = new THREE.Box3().setFromObject(building);
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
-      console.log('📐 Bounding box size:', size, 'Center:', center);
+      console.log('📐 Original size:', size.x.toFixed(1), size.y.toFixed(1), size.z.toFixed(1));
+      console.log('📍 Original center:', center.x.toFixed(1), center.y.toFixed(1), center.z.toFixed(1));
       
-      // Auto-scale if model is very small or huge
+      // 2) Calculate scale to fit in ~30 unit cube
       const maxDim = Math.max(size.x, size.y, size.z);
-      if (maxDim < 0.1) {
-        building.scale.setScalar(100);
-        console.log('🔍 Model too small, scaled up 100x');
-      } else if (maxDim > 1000) {
-        building.scale.setScalar(0.01);
-        console.log('🔍 Model too large, scaled down 100x');
-      }
+      const targetSize = 30;
+      const scale = targetSize / maxDim;
+      console.log(`🔍 Auto-scaling by ${scale.toFixed(6)}x`);
       
-      // Center the model at origin
-      building.position.sub(center.multiplyScalar(building.scale.x));
+      building.scale.setScalar(scale);
       
-      scene.add(building);
+      // 3) Re-measure AFTER scaling and center properly
+      const box2 = new THREE.Box3().setFromObject(building);
+      const center2 = box2.getCenter(new THREE.Vector3());
+      const min2 = box2.min;
+      
+      // Move so model sits on the ground (y=0) and is centered on x,z
+      building.position.x -= center2.x;
+      building.position.z -= center2.z;
+      building.position.y -= min2.y; // bottom touches grid
+      
+      console.log('✅ Final position:', building.position);
+      
       fitCamera();
       renderSidebar();
       URL.revokeObjectURL(url);
       showToast(`✅ Loaded ${meshCount} elements`);
     },
     (progress) => {
-      const pct = progress.total ? ((progress.loaded / progress.total) * 100).toFixed(0) : 0;
-      console.log(`Loading: ${pct}%`);
+      if (progress.total) {
+        const pct = ((progress.loaded / progress.total) * 100).toFixed(0);
+        console.log(`Loading: ${pct}%`);
+      }
     },
     (err) => {
       console.error('❌ GLB load error:', err);
@@ -403,10 +411,24 @@ function fitCamera() {
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
   const maxDim = Math.max(size.x, size.y, size.z);
-  const dist = maxDim * 1.8;
-  camera.position.set(center.x + dist, center.y + dist * 0.7, center.z + dist);
+  
+  // Position camera at a good viewing angle
+  const dist = maxDim * 1.5;
+  camera.position.set(
+    center.x + dist * 0.8,
+    center.y + dist * 0.8,
+    center.z + dist * 0.8
+  );
+  camera.near = maxDim / 1000;
+  camera.far = maxDim * 100;
+  camera.updateProjectionMatrix();
+  
   controls.target.copy(center);
+  controls.minDistance = maxDim * 0.1;
+  controls.maxDistance = maxDim * 10;
   controls.update();
+  
+  console.log('📷 Camera positioned at:', camera.position);
 }
 
 // Click selection
