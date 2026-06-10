@@ -2,66 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lindner BIM Viewer</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:#06080d; color:#eaf0ff; font-family:system-ui,sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
-    .topbar { height:52px; background:rgba(13,16,24,0.98); border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; padding:0 20px; gap:14px; flex-shrink:0; }
-    .brand { font-size:0.95rem; font-weight:900; background:linear-gradient(135deg,#79f5dc,#5ea7ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .topbar { height:52px; background:rgba(13,16,24,0.98); border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; padding:0 20px; gap:14px; }
+    .brand { font-weight:900; background:linear-gradient(135deg,#79f5dc,#5ea7ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
     .divider { width:1px; height:20px; background:rgba(255,255,255,0.1); }
-    .top-title { font-size:0.82rem; color:#aab3c6; font-weight:600; }
     .top-actions { margin-left:auto; display:flex; gap:8px; }
-    .btn { padding:7px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#eaf0ff; font-size:0.8rem; font-weight:700; cursor:pointer; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
-    .btn:hover { background:rgba(94,167,255,0.15); border-color:rgba(94,167,255,0.4); }
+    .btn { padding:7px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#eaf0ff; font-size:0.8rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+    .btn:hover { background:rgba(94,167,255,0.15); }
     .btn-primary { background:linear-gradient(135deg,rgba(94,167,255,0.25),rgba(121,245,220,0.18)); border-color:rgba(94,167,255,0.45); }
     .back { color:#aab3c6; text-decoration:none; font-size:0.8rem; font-weight:600; }
     .main { flex:1; display:flex; overflow:hidden; }
-    .sidebar { width:280px; background:rgba(13,16,24,0.98); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; }
+    .sidebar { width:300px; background:rgba(13,16,24,0.98); border-right:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; }
     .sb-section { padding:14px; border-bottom:1px solid rgba(255,255,255,0.06); }
-    .sb-title { font-size:0.7rem; font-weight:800; color:#aab3c6; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:10px; }
-    .upload-zone { border:2px dashed rgba(94,167,255,0.3); border-radius:10px; padding:20px; text-align:center; cursor:pointer; transition:all 0.2s; }
-    .upload-zone:hover { border-color:rgba(94,167,255,0.6); background:rgba(94,167,255,0.05); }
-    .upload-zone.drag { border-color:#79f5dc; background:rgba(121,245,220,0.08); }
-    .upload-icon { font-size:2rem; margin-bottom:6px; }
-    .upload-text { font-size:0.8rem; color:#aab3c6; line-height:1.4; }
-    .upload-text b { color:#5ea7ff; }
-    .file-pill { display:none; background:rgba(121,245,220,0.08); border:1px solid rgba(121,245,220,0.25); border-radius:8px; padding:10px 12px; font-size:0.78rem; }
-    .file-pill.show { display:block; }
-    .file-pill .fn { font-weight:700; color:#79f5dc; }
-    .file-pill .fs { color:#aab3c6; font-size:0.72rem; margin-top:2px; }
+    .sb-title { font-size:0.7rem; font-weight:800; color:#aab3c6; text-transform:uppercase; margin-bottom:10px; }
+    .demo-btn { width:100%; padding:12px; background:linear-gradient(135deg,#5ea7ff,#79f5dc); border:0; border-radius:10px; color:#06080d; font-weight:800; cursor:pointer; margin-bottom:10px; }
+    .upload-zone { border:2px dashed rgba(94,167,255,0.3); border-radius:10px; padding:16px; text-align:center; cursor:pointer; font-size:0.78rem; color:#aab3c6; }
+    .upload-zone:hover { border-color:#79f5dc; background:rgba(121,245,220,0.05); }
+    .hint { font-size:0.7rem; color:#aab3c6; margin-top:8px; line-height:1.5; }
+    .hint a { color:#5ea7ff; }
     .sb-scroll { flex:1; overflow-y:auto; padding:14px; }
-    .sb-empty { text-align:center; color:#aab3c6; font-size:0.78rem; padding:20px 0; }
-    .prop-row { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.76rem; gap:8px; }
-    .pk { color:#aab3c6; }
-    .pv { color:#eaf0ff; font-weight:600; text-align:right; word-break:break-word; }
-    .sec-head { font-weight:800; font-size:0.82rem; color:#79f5dc; margin:10px 0 6px; }
-    .room-item { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); margin-bottom:4px; cursor:pointer; font-size:0.78rem; transition:all 0.15s; display:flex; align-items:center; gap:8px; }
-    .room-item:hover { background:rgba(94,167,255,0.08); }
-    .room-item.sel { background:rgba(121,245,220,0.1); border-color:rgba(121,245,220,0.4); }
+    .floor-group { margin-bottom:14px; }
+    .floor-label { font-weight:800; font-size:0.8rem; color:#5ea7ff; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid rgba(94,167,255,0.2); display:flex; justify-content:space-between; }
+    .floor-toggle { background:none; border:1px solid rgba(94,167,255,0.3); color:#5ea7ff; padding:2px 8px; border-radius:6px; font-size:0.7rem; cursor:pointer; }
+    .room-item { padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); margin-bottom:6px; cursor:pointer; font-size:0.78rem; display:flex; align-items:center; gap:10px; transition:all 0.15s; }
+    .room-item:hover { background:rgba(94,167,255,0.08); border-color:rgba(94,167,255,0.3); }
+    .room-item.sel { background:rgba(121,245,220,0.12); border-color:rgba(121,245,220,0.4); }
     .room-name { font-weight:700; color:#eaf0ff; }
-    .room-meta { color:#aab3c6; font-size:0.7rem; }
-    .floor-label { font-weight:800; font-size:0.78rem; color:#5ea7ff; margin:10px 0 6px; padding-bottom:4px; border-bottom:1px solid rgba(94,167,255,0.2); }
+    .room-meta { color:#aab3c6; font-size:0.7rem; margin-top:2px; }
     .import-wrap { padding:12px 14px; border-top:1px solid rgba(255,255,255,0.06); }
-    .import-btn { display:none; width:100%; padding:10px; background:linear-gradient(135deg,rgba(121,245,220,0.2),rgba(94,167,255,0.15)); border:1px solid rgba(121,245,220,0.4); border-radius:10px; color:#eaf0ff; font-weight:800; font-size:0.85rem; cursor:pointer; }
-    .import-btn.show { display:block; }
-    .viewer-wrap { flex:1; position:relative; overflow:hidden; }
-    #three-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
-    .empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; pointer-events:none; }
-    .empty.hide { display:none; }
-    .empty-icon { font-size:4rem; opacity:0.2; }
-    .empty-title { font-size:1rem; font-weight:800; opacity:0.4; }
-    .empty-sub { font-size:0.78rem; color:#aab3c6; opacity:0.4; text-align:center; max-width:240px; }
-    .loading { position:absolute; inset:0; background:rgba(6,8,13,0.92); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; backdrop-filter:blur(8px); z-index:50; }
-    .loading.hide { display:none; }
-    .spin { width:40px; height:40px; border:3px solid rgba(94,167,255,0.2); border-top-color:#5ea7ff; border-radius:50%; animation:spin 0.8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .load-title { font-size:0.9rem; font-weight:700; }
-    .load-sub { font-size:0.76rem; color:#aab3c6; }
-    .statusbar { height:26px; background:rgba(13,16,24,0.98); border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; padding:0 16px; gap:10px; font-size:0.7rem; color:#aab3c6; }
-    .dot { width:6px; height:6px; border-radius:50%; background:#aab3c6; }
-    .dot.g { background:#79f5dc; } .dot.y { background:#ffd080; } .dot.r { background:#ff6b6b; }
-    .toast { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:rgba(121,245,220,0.15); border:1px solid rgba(121,245,220,0.4); border-radius:12px; padding:10px 20px; font-size:0.82rem; font-weight:700; color:#79f5dc; z-index:9999; display:none; }
+    .import-btn { width:100%; padding:12px; background:linear-gradient(135deg,#79f5dc,#5ea7ff); border:0; border-radius:10px; color:#06080d; font-weight:800; cursor:pointer; font-size:0.85rem; }
+    .import-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .viewer-wrap { flex:1; position:relative; }
+    #canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
+    .toast { position:fixed; bottom:40px; left:50%; transform:translateX(-50%); background:rgba(121,245,220,0.15); border:1px solid rgba(121,245,220,0.4); border-radius:12px; padding:10px 20px; font-weight:700; color:#79f5dc; display:none; z-index:9999; }
+    .info-overlay { position:absolute; top:12px; left:12px; background:rgba(13,16,24,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px 14px; font-size:0.75rem; backdrop-filter:blur(8px); }
+    .info-overlay b { color:#79f5dc; }
   </style>
 </head>
 <body>
@@ -70,66 +48,484 @@
   <a href="./index.html" class="back">← Back</a>
   <div class="divider"></div>
   <div class="brand">🏗️ Lindner BIM Viewer</div>
-  <div class="divider"></div>
-  <div class="top-title" id="topTitle">No file loaded</div>
   <div class="top-actions">
-    <button class="btn" id="btnFit">⊡ Fit</button>
-    <button class="btn" id="btnWire">🔲 Wire</button>
-    <button class="btn" id="btnXray">👁 X-Ray</button>
-    <label class="btn btn-primary" for="ifcIn">📂 Open IFC</label>
-    <input type="file" id="ifcIn" accept=".ifc,.IFC" style="display:none">
+    <button class="btn" id="btnFit">⊡ Fit View</button>
+    <button class="btn" id="btnReset">🔄 Reset</button>
   </div>
 </div>
 
 <div class="main">
   <div class="sidebar">
     <div class="sb-section">
-      <div class="sb-title">📁 IFC File</div>
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">🏗️</div>
-        <div class="upload-text"><b>Drop IFC here</b><br>or click to browse</div>
-      </div>
-      <div class="file-pill" id="filePill">
-        <div class="fn" id="fName"></div>
-        <div class="fs" id="fSize"></div>
+      <div class="sb-title">🏢 Load Building</div>
+      <button class="demo-btn" id="loadDemo">🎬 Load Demo Building</button>
+      <label class="upload-zone" for="glbIn">
+        📂 Upload GLB/GLTF Model
+        <input type="file" id="glbIn" accept=".glb,.gltf" style="display:none">
+      </label>
+      <div class="hint">
+        💡 Have an IFC file? Convert it free at <a href="https://products.aspose.app/3d/conversion/ifc-to-glb" target="_blank">aspose.app</a> or use <a href="https://www.ifcopenshell.org/" target="_blank">IfcOpenShell</a>
       </div>
     </div>
     <div class="sb-scroll" id="sbScroll">
-      <div class="sb-empty">
-        <div style="font-size:2rem;margin-bottom:8px;">🏢</div>
-        Load an IFC file to see<br>floors and rooms
+      <div style="text-align:center;color:#aab3c6;padding:30px 0;font-size:0.8rem;">
+        <div style="font-size:2.5rem;margin-bottom:10px;">🏢</div>
+        Click <b style="color:#79f5dc;">Load Demo Building</b><br>to get started
       </div>
     </div>
     <div class="import-wrap">
-      <button class="import-btn" id="importBtn">🚀 Import Rooms to LCA Tool</button>
+      <button class="import-btn" id="importBtn" disabled>🚀 Import Selected Rooms</button>
     </div>
   </div>
 
   <div class="viewer-wrap">
-    <canvas id="three-canvas"></canvas>
-    <div class="empty" id="emptyEl">
-      <div class="empty-icon">🏗️</div>
-      <div class="empty-title">No IFC File Loaded</div>
-      <div class="empty-sub">Open an IFC file to view your building model in 3D</div>
-    </div>
-    <div class="loading hide" id="loadEl">
-      <div class="spin"></div>
-      <div class="load-title">Loading IFC Model...</div>
-      <div class="load-sub" id="loadSub">Please wait...</div>
+    <canvas id="canvas"></canvas>
+    <div class="info-overlay" id="infoOverlay" style="display:none">
+      <div><b id="infoTitle">Demo Building</b></div>
+      <div style="color:#aab3c6;margin-top:4px;font-size:0.7rem;">Click rooms to select • Drag to rotate</div>
     </div>
   </div>
 </div>
 
-<div class="statusbar">
-  <div class="dot" id="sDot"></div>
-  <span id="sTxt">Ready — Open an IFC file</span>
-  <span style="margin-left:auto">three.js • web-ifc (Vite)</span>
-</div>
-
 <div class="toast" id="toast"></div>
 
-<!-- Vite handles the imports - no importmap needed! -->
-<script type="module" src="/viewer.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+const canvas = document.getElementById('canvas');
+const sbScroll = document.getElementById('sbScroll');
+const importBtn = document.getElementById('importBtn');
+const toast = document.getElementById('toast');
+const infoOverlay = document.getElementById('infoOverlay');
+const infoTitle = document.getElementById('infoTitle');
+
+let scene, camera, renderer, controls, raycaster, mouse;
+let building = null;
+let rooms = []; // { id, name, floor, mesh, originalColor }
+let selectedRooms = new Set();
+let buildingName = 'Demo Building';
+
+const COLORS = {
+  default: 0x6a8caf,
+  hover: 0x5ea7ff,
+  selected: 0x79f5dc,
+  floor: 0x4a5a6f,
+  wall: 0x8a9aaf
+};
+
+// Init Three.js
+function init() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0e1a);
+  scene.fog = new THREE.Fog(0x0a0e1a, 50, 200);
+
+  const rect = canvas.parentElement.getBoundingClientRect();
+  camera = new THREE.PerspectiveCamera(50, rect.width/rect.height, 0.1, 1000);
+  camera.position.set(25, 20, 25);
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(rect.width, rect.height, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  controls = new OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 1);
+  sun.position.set(20, 30, 20);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -30;
+  sun.shadow.camera.right = 30;
+  sun.shadow.camera.top = 30;
+  sun.shadow.camera.bottom = -30;
+  scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xeaf0ff, 0x2a364a, 0.4));
+
+  // Grid + Ground
+  const grid = new THREE.GridHelper(100, 100, 0x224466, 0x112233);
+  grid.position.y = -0.01;
+  scene.add(grid);
+
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
+
+  canvas.addEventListener('click', onCanvasClick);
+  canvas.addEventListener('mousemove', onCanvasMove);
+  window.addEventListener('resize', onResize);
+  
+  animate();
+}
+
+function onResize() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  camera.aspect = rect.width / rect.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(rect.width, rect.height, false);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+// Build Demo Building Procedurally
+function buildDemoBuilding() {
+  clearBuilding();
+  buildingName = 'Demo Office Building';
+  infoTitle.textContent = buildingName;
+  infoOverlay.style.display = 'block';
+  
+  building = new THREE.Group();
+  rooms = [];
+
+  const floorConfigs = [
+    { name: 'Ground Floor', y: 0, rooms: [
+      { name: 'Lobby', x: -6, z: 0, w: 8, d: 6 },
+      { name: 'Reception', x: 2, z: -3, w: 6, d: 4 },
+      { name: 'Meeting Room A', x: 6, z: 3, w: 4, d: 4 },
+      { name: 'Office 101', x: -4, z: 6, w: 5, d: 4 },
+    ]},
+    { name: '1st Floor', y: 3.2, rooms: [
+      { name: 'Open Office', x: -3, z: 0, w: 10, d: 8 },
+      { name: 'Conference Room', x: 6, z: 0, w: 5, d: 6 },
+      { name: 'Kitchen', x: 0, z: -6, w: 6, d: 4 },
+    ]},
+    { name: '2nd Floor', y: 6.4, rooms: [
+      { name: 'Executive Suite', x: 0, z: 0, w: 8, d: 6 },
+      { name: 'Board Room', x: 6, z: 4, w: 5, d: 5 },
+      { name: 'Office 201', x: -6, z: 4, w: 4, d: 4 },
+      { name: 'Office 202', x: -6, z: -2, w: 4, d: 4 },
+    ]}
+  ];
+
+  floorConfigs.forEach((floor, fi) => {
+    // Floor slab
+    const slabGeo = new THREE.BoxGeometry(24, 0.2, 20);
+    const slabMat = new THREE.MeshStandardMaterial({ color: COLORS.floor, roughness: 0.8 });
+    const slab = new THREE.Mesh(slabGeo, slabMat);
+    slab.position.set(0, floor.y, 0);
+    slab.receiveShadow = true;
+    building.add(slab);
+
+    floor.rooms.forEach((room, ri) => {
+      const roomGroup = new THREE.Group();
+      const height = 2.8;
+      
+      // Room box (walls visible as solid)
+      const geo = new THREE.BoxGeometry(room.w, height, room.d);
+      const mat = new THREE.MeshStandardMaterial({ 
+        color: COLORS.default, 
+        roughness: 0.6,
+        transparent: true,
+        opacity: 0.85
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(room.x, floor.y + height/2 + 0.1, room.z);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      
+      // Edges for definition
+      const edges = new THREE.EdgesGeometry(geo);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+      const wireframe = new THREE.LineSegments(edges, lineMat);
+      mesh.add(wireframe);
+      
+      const roomData = {
+        id: `room-${fi}-${ri}`,
+        name: room.name,
+        floor: floor.name,
+        floorIdx: fi,
+        mesh: mesh,
+        material: mat,
+        dims: { length: room.w, width: room.d, height: height }
+      };
+      
+      mesh.userData.roomData = roomData;
+      rooms.push(roomData);
+      building.add(mesh);
+    });
+  });
+
+  scene.add(building);
+  fitCamera();
+  renderSidebar();
+  showToast('✅ Demo building loaded!');
+}
+
+// Load GLB file
+async function loadGLB(file) {
+  clearBuilding();
+  buildingName = file.name.replace(/\.(glb|gltf)$/i, '');
+  infoTitle.textContent = buildingName;
+  infoOverlay.style.display = 'block';
+  
+  const url = URL.createObjectURL(file);
+  const loader = new GLTFLoader();
+  
+  loader.load(url, (gltf) => {
+    building = gltf.scene;
+    building.traverse(o => {
+      if (o.isMesh) {
+        o.castShadow = true;
+        o.receiveShadow = true;
+        
+        // Treat each named mesh as a "room"
+        if (o.name) {
+          const roomData = {
+            id: `room-${rooms.length}`,
+            name: o.name,
+            floor: 'Floor 1',
+            floorIdx: 0,
+            mesh: o,
+            material: o.material,
+            originalColor: o.material.color?.clone(),
+            dims: { length: 5, width: 5, height: 2.7 }
+          };
+          o.userData.roomData = roomData;
+          rooms.push(roomData);
+        }
+      }
+    });
+    
+    scene.add(building);
+    fitCamera();
+    renderSidebar();
+    URL.revokeObjectURL(url);
+    showToast(`✅ Loaded ${rooms.length} elements`);
+  }, undefined, (err) => {
+    showToast('❌ Failed to load GLB file');
+    console.error(err);
+  });
+}
+
+function clearBuilding() {
+  if (building) {
+    scene.remove(building);
+    building.traverse(o => {
+      o.geometry?.dispose();
+      if (o.material) {
+        Array.isArray(o.material) ? o.material.forEach(m => m.dispose()) : o.material.dispose();
+      }
+    });
+  }
+  building = null;
+  rooms = [];
+  selectedRooms.clear();
+}
+
+function fitCamera() {
+  if (!building) return;
+  const box = new THREE.Box3().setFromObject(building);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const dist = maxDim * 1.8;
+  camera.position.set(center.x + dist, center.y + dist * 0.7, center.z + dist);
+  controls.target.copy(center);
+  controls.update();
+}
+
+// Click selection
+function onCanvasClick(e) {
+  if (!building) return;
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(building.children, true);
+  
+  for (const hit of hits) {
+    let obj = hit.object;
+    while (obj && !obj.userData.roomData) obj = obj.parent;
+    if (obj?.userData.roomData) {
+      toggleRoom(obj.userData.roomData.id);
+      break;
+    }
+  }
+}
+
+let hoveredRoom = null;
+function onCanvasMove(e) {
+  if (!building) return;
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(building.children, true);
+  
+  let newHover = null;
+  for (const hit of hits) {
+    let obj = hit.object;
+    while (obj && !obj.userData.roomData) obj = obj.parent;
+    if (obj?.userData.roomData) {
+      newHover = obj.userData.roomData;
+      break;
+    }
+  }
+  
+  if (hoveredRoom !== newHover) {
+    if (hoveredRoom && !selectedRooms.has(hoveredRoom.id)) {
+      hoveredRoom.material.color.setHex(COLORS.default);
+    }
+    hoveredRoom = newHover;
+    if (hoveredRoom && !selectedRooms.has(hoveredRoom.id)) {
+      hoveredRoom.material.color.setHex(COLORS.hover);
+    }
+    canvas.style.cursor = newHover ? 'pointer' : 'default';
+  }
+}
+
+function toggleRoom(id) {
+  const room = rooms.find(r => r.id === id);
+  if (!room) return;
+  
+  if (selectedRooms.has(id)) {
+    selectedRooms.delete(id);
+    room.material.color.setHex(COLORS.default);
+  } else {
+    selectedRooms.add(id);
+    room.material.color.setHex(COLORS.selected);
+  }
+  renderSidebar();
+}
+window.toggleRoom = toggleRoom;
+
+// Sidebar
+function renderSidebar() {
+  if (rooms.length === 0) {
+    sbScroll.innerHTML = '<div style="text-align:center;color:#aab3c6;padding:20px;">No building loaded</div>';
+    importBtn.disabled = true;
+    return;
+  }
+
+  // Group by floor
+  const byFloor = {};
+  rooms.forEach(r => {
+    if (!byFloor[r.floor]) byFloor[r.floor] = [];
+    byFloor[r.floor].push(r);
+  });
+
+  let html = `<div style="font-size:0.75rem;color:#aab3c6;margin-bottom:12px;">
+    <b style="color:#79f5dc;">${rooms.length} rooms</b> • <b style="color:#5ea7ff;">${selectedRooms.size} selected</b>
+  </div>`;
+
+  for (const [floorName, floorRooms] of Object.entries(byFloor)) {
+    const allSelected = floorRooms.every(r => selectedRooms.has(r.id));
+    html += `<div class="floor-group">
+      <div class="floor-label">
+        <span>📐 ${floorName}</span>
+        <button class="floor-toggle" onclick="window.toggleFloor('${floorName}')">${allSelected ? 'Deselect' : 'Select All'}</button>
+      </div>`;
+    
+    for (const r of floorRooms) {
+      const sel = selectedRooms.has(r.id);
+      html += `<div class="room-item ${sel?'sel':''}" onclick="window.toggleRoom('${r.id}')">
+        <span style="font-size:1.1rem;">${sel?'✅':'⬜'}</span>
+        <div style="flex:1;">
+          <div class="room-name">${r.name}</div>
+          <div class="room-meta">${r.dims.length}×${r.dims.width}×${r.dims.height}m</div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  
+  sbScroll.innerHTML = html;
+  importBtn.disabled = selectedRooms.size === 0;
+  importBtn.textContent = `🚀 Import ${selectedRooms.size} Room${selectedRooms.size !== 1 ? 's' : ''} to LCA`;
+}
+
+window.toggleFloor = (floorName) => {
+  const floorRooms = rooms.filter(r => r.floor === floorName);
+  const allSelected = floorRooms.every(r => selectedRooms.has(r.id));
+  floorRooms.forEach(r => {
+    if (allSelected) {
+      selectedRooms.delete(r.id);
+      r.material.color.setHex(COLORS.default);
+    } else {
+      selectedRooms.add(r.id);
+      r.material.color.setHex(COLORS.selected);
+    }
+  });
+  renderSidebar();
+};
+
+// Import to LCA Tool
+importBtn.addEventListener('click', () => {
+  const selected = rooms.filter(r => selectedRooms.has(r.id));
+  if (selected.length === 0) return;
+  
+  // Group by floor
+  const floorMap = {};
+  selected.forEach(r => {
+    if (!floorMap[r.floor]) floorMap[r.floor] = { name: r.floor, idx: r.floorIdx, rooms: [] };
+    floorMap[r.floor].rooms.push(r);
+  });
+  
+  const payload = {
+    type: 'IFC_IMPORT',
+    timestamp: Date.now(),
+    building: {
+      name: buildingName,
+      location: '',
+      projectType: 'office',
+      floors: Object.values(floorMap).map((floor, fi) => ({
+        id: `floor-bim-${fi}`,
+        name: floor.name,
+        rooms: floor.rooms.map((r, ri) => ({
+          id: `room-bim-${fi}-${ri}`,
+          name: r.name,
+          dims: { ...r.dims },
+          fromBIM: true
+        }))
+      }))
+    }
+  };
+  
+  localStorage.setItem('lindner-ifc-import', JSON.stringify(payload));
+  showToast(`✅ Importing ${selected.length} rooms to LCA Tool...`);
+  setTimeout(() => { window.location.href = './index.html?from=bim'; }, 1200);
+});
+
+// Helpers
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 2500);
+}
+
+// Event handlers
+document.getElementById('loadDemo').onclick = buildDemoBuilding;
+document.getElementById('glbIn').onchange = e => {
+  if (e.target.files[0]) loadGLB(e.target.files[0]);
+};
+document.getElementById('btnFit').onclick = fitCamera;
+document.getElementById('btnReset').onclick = () => {
+  selectedRooms.clear();
+  rooms.forEach(r => r.material.color.setHex(COLORS.default));
+  renderSidebar();
+};
+
+init();
+</script>
 </body>
 </html>
