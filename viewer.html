@@ -116,7 +116,7 @@
     .import-btn.show { display:block; }
     .import-btn:hover { transform:translateY(-1px); }
     .viewer-wrap { flex:1; position:relative; overflow:hidden; }
-    #xeokit-canvas { width:100%; height:100%; display:block; background:#0a0e1a; }
+    #viewer-container { width:100%; height:100%; }
     .empty {
       position:absolute; inset:0;
       display:flex; flex-direction:column;
@@ -178,7 +178,7 @@
   <div class="top-title" id="topTitle">No file loaded</div>
   <div class="top-actions">
     <button class="btn" id="btnFit">⊡ Fit</button>
-    <button class="btn" id="btnXray">👁 X-Ray</button>
+    <button class="btn" id="btnClip">✂️ Clip</button>
     <label class="btn btn-primary" for="ifcIn">📂 Open IFC</label>
     <input type="file" id="ifcIn" accept=".ifc,.IFC" style="display:none">
   </div>
@@ -209,7 +209,7 @@
   </div>
 
   <div class="viewer-wrap">
-    <canvas id="xeokit-canvas"></canvas>
+    <div id="viewer-container"></div>
     <div class="empty" id="emptyEl">
       <div class="empty-icon">🏗️</div>
       <div class="empty-title">No IFC File Loaded</div>
@@ -226,19 +226,26 @@
 <div class="statusbar">
   <div class="dot" id="sDot"></div>
   <span id="sTxt">Ready — Open an IFC file</span>
-  <span style="margin-left:auto">xeokit-sdk • web-ifc</span>
+  <span style="margin-left:auto">That Open Engine • web-ifc</span>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-import {
-  Viewer,
-  WebIFCLoaderPlugin,
-  NavCubePlugin
-} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk@2.6.0/dist/xeokit-sdk.es.min.js";
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/": "https://cdn.jsdelivr.net/npm/three@0.160.0/",
+    "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.53/web-ifc-api.js",
+    "@thatopen/components": "https://cdn.jsdelivr.net/npm/@thatopen/components@2.4.0/+esm",
+    "@thatopen/fragments": "https://cdn.jsdelivr.net/npm/@thatopen/fragments@2.4.0/+esm"
+  }
+}
+</script>
 
-import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/web-ifc-api.js";
+<script type="module">
+import * as THREE from "three";
+import * as OBC from "@thatopen/components";
 
 // ── DOM ──────────────────────────────────────
 const topTitle  = document.getElementById('topTitle');
@@ -254,14 +261,15 @@ const importBtn = document.getElementById('importBtn');
 const sDot      = document.getElementById('sDot');
 const sTxt      = document.getElementById('sTxt');
 const toast     = document.getElementById('toast');
+const container = document.getElementById('viewer-container');
 
 // ── State ────────────────────────────────────
-let viewer = null;
-let ifcLoader = null;
-let model = null;
+let components = null;
+let world = null;
+let fragmentIfcLoader = null;
+let currentModel = null;
 let ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
 let selectedRooms = new Set();
-let isXray = false;
 
 // ── Helpers ──────────────────────────────────
 const setStatus = (dot, txt) => {
@@ -280,206 +288,217 @@ const showToast = msg => {
 };
 const row = (k, v) => `<div class="prop-row"><span class="pk">${k}</span><span class="pv">${v}</span></div>`;
 
-// ── Init xeokit Viewer ───────────────────────
+// ── Init TOE Viewer ──────────────────────────
 async function initViewer() {
-  viewer = new Viewer({
-    canvasId: "xeokit-canvas",
-    transparent: false,
-    dtxEnabled: true,
-  });
-
-  viewer.scene.canvas.backgroundColor = [0.04, 0.05, 0.10];
-  viewer.camera.eye = [10, 10, 10];
-  viewer.camera.look = [0, 0, 0];
-  viewer.camera.up = [0, 1, 0];
-
-  // Nav cube
-  new NavCubePlugin(viewer, {
-    canvasId: "xeokit-canvas",
-    visible: true,
-    size: 100,
-    alignment: "bottomRight",
-    bottomMargin: 30,
-    rightMargin: 10,
-  });
-
-  // Initialize WebIFC API
-  const IfcAPI = new WebIFC.IfcAPI();
-  IfcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/");
-  await IfcAPI.Init();
-
-  // Create IFC loader with the initialized API
-  ifcLoader = new WebIFCLoaderPlugin(viewer, {
-    WebIFC,
-    IfcAPI
-  });
-
-  // Click to select
-  viewer.scene.input.on("mouseclicked", coords => {
-    const hit = viewer.scene.pick({ canvasPos: coords });
-    if (hit?.entity) {
-      viewer.scene.setObjectsHighlighted(viewer.scene.highlightedObjectIds, false);
-      hit.entity.highlighted = true;
-      const meta = viewer.metaScene.metaObjects[hit.entity.id];
-      if (meta) showProps(meta);
-    }
-  });
-
-  setStatus('g', 'Viewer ready — Open an IFC file');
+  try {
+    setStatus('y', 'Initializing viewer...');
+    
+    components = new OBC.Components();
+    
+    const worlds = components.get(OBC.Worlds);
+    world = worlds.create();
+    
+    world.scene = new OBC.SimpleScene(components);
+    world.renderer = new OBC.SimpleRenderer(components, container);
+    world.camera = new OBC.SimpleCamera(components);
+    
+    components.init();
+    
+    world.scene.setup();
+    world.scene.three.background = new THREE.Color(0x0a0e1a);
+    
+    // Grid
+    const grids = components.get(OBC.Grids);
+    grids.create(world);
+    
+    // Camera position
+    world.camera.controls.setLookAt(15, 15, 15, 0, 0, 0);
+    
+    // IFC Loader
+    fragmentIfcLoader = components.get(OBC.IfcLoader);
+    await fragmentIfcLoader.setup();
+    
+    // Configure web-ifc
+    fragmentIfcLoader.settings.wasm = {
+      path: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.53/",
+      absolute: true,
+    };
+    
+    // Highlighter for clicking
+    const highlighter = components.get(OBC.Highlighter);
+    highlighter.setup({ world });
+    
+    highlighter.events.select.onHighlight.add((data) => {
+      const keys = Object.keys(data);
+      if (keys.length > 0) {
+        showElementProps(keys[0], data[keys[0]]);
+      }
+    });
+    
+    setStatus('g', 'Viewer ready — Open an IFC file');
+  } catch(err) {
+    console.error('Viewer init error:', err);
+    setStatus('r', `❌ Init failed: ${err.message}`);
+    throw err;
+  }
 }
 
 // ── Load IFC ─────────────────────────────────
 async function loadIFC(file) {
-  if (!viewer) await initViewer();
-  if (model) { model.destroy(); model = null; }
-
-  showLoad(true, 'Parsing IFC...');
+  if (!components) await initViewer();
+  
+  if (currentModel) {
+    world.scene.three.remove(currentModel);
+    currentModel = null;
+  }
+  
+  showLoad(true, 'Parsing IFC file...');
   emptyEl.classList.add('hide');
   setStatus('y', `Loading ${file.name}...`);
-
-  try {
-    const url = URL.createObjectURL(file);
-
-    model = ifcLoader.load({
-      id: "ifcModel",
-      src: url,
-      excludeUnclassifiedObjects: false,
-      objectDefaults: {
-  IfcSpace: { visible: true, pickable: true, opacity: 0.3 }
-}
-    });
-
-    model.on("loaded", () => {
-  URL.revokeObjectURL(url);
-  showLoad(false);
   
-  // Safer camera fit
   try {
-    const aabb = viewer.scene.getAABB(viewer.scene.visibleObjectIds);
-    if (aabb && aabb.length === 6) {
-      viewer.cameraFlight.jumpTo({ aabb });
-    }
-  } catch(e) {
-    console.warn('Camera fit failed:', e);
-  }
-
-      fName.textContent = file.name;
-      fSize.textContent = fmt(file.size);
-      filePill.classList.add('show');
-      uploadZone.style.display = 'none';
-      topTitle.textContent = file.name;
-
-      extractData();
-      renderSidebar();
-      importBtn.classList.add('show');
-
-      setStatus('g', `✅ ${file.name} loaded`);
-    });
-
-    model.on("error", err => {
-      URL.revokeObjectURL(url);
-      showLoad(false);
-      setStatus('r', `❌ ${err}`);
-      console.error('Model error:', err);
-    });
-
+    const buffer = await file.arrayBuffer();
+    const data = new Uint8Array(buffer);
+    
+    showLoad(true, 'Building geometry...');
+    
+    currentModel = await fragmentIfcLoader.load(data);
+    currentModel.name = file.name;
+    world.scene.three.add(currentModel);
+    
+    showLoad(true, 'Extracting properties...');
+    await extractData();
+    
+    showLoad(false);
+    
+    // Fit camera
+    const box = new THREE.Box3().setFromObject(currentModel);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    
+    world.camera.controls.setLookAt(
+      center.x + maxDim * 1.2,
+      center.y + maxDim * 0.8,
+      center.z + maxDim * 1.2,
+      center.x, center.y, center.z
+    );
+    
+    fName.textContent = file.name;
+    fSize.textContent = fmt(file.size);
+    filePill.classList.add('show');
+    uploadZone.style.display = 'none';
+    topTitle.textContent = file.name;
+    
+    renderSidebar();
+    importBtn.classList.add('show');
+    
+    setStatus('g', `✅ ${file.name} loaded — ${ifcData.spaces.length} rooms found`);
+    
   } catch(err) {
     showLoad(false);
     setStatus('r', `❌ ${err.message}`);
-    console.error(err);
+    console.error('Load error:', err);
   }
 }
 
-// ── Extract Data from MetaScene ──────────────
-function extractData() {
+// ── Extract IFC Data ─────────────────────────
+async function extractData() {
   ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
   
-  if (!viewer.metaScene || !viewer.metaScene.metaObjects) {
-    console.warn('No metaScene available');
-    return;
-  }
+  if (!currentModel) return;
   
-  const metaObjects = viewer.metaScene.metaObjects;
-  console.log('Total meta objects:', Object.keys(metaObjects).length);
-
-  for (const id in metaObjects) {
-    const obj = metaObjects[id];
-    const type = obj.type || '';
-
-    if (type.includes('BuildingStorey') || type === 'IfcBuildingStorey') {
-      ifcData.floors.push({ id, name: obj.name || 'Floor' });
-    }
-    if (type.includes('Space') || type === 'IfcSpace') {
-      ifcData.spaces.push({
-        id,
-        name: obj.name || 'Space',
-        parent: obj.parent?.name || ''
-      });
-    }
-    if (type.includes('Wall')) {
-      ifcData.walls.push({ id, name: obj.name || 'Wall' });
-    }
-    if (type === 'IfcSlab') {
-      ifcData.slabs.push({ id, name: obj.name || 'Slab' });
+  // Get fragment properties
+  const props = currentModel.properties || {};
+  
+  for (const id in props) {
+    const item = props[id];
+    if (!item || !item.type) continue;
+    
+    const type = item.type;
+    const name = item.Name?.value || item.LongName?.value || `Item ${id}`;
+    
+    // IFC type constants
+    if (type === 3124254112) { // IFCBUILDINGSTOREY
+      ifcData.floors.push({ id, name });
+    } else if (type === 3856911033) { // IFCSPACE
+      ifcData.spaces.push({ id, name, parent: '' });
+    } else if (type === 2391406946 || type === 477021311) { // IFCWALL / WALLSTANDARDCASE
+      ifcData.walls.push({ id, name });
+    } else if (type === 1529196076) { // IFCSLAB
+      ifcData.slabs.push({ id, name });
     }
   }
   
   console.log('Extracted:', ifcData);
 }
 
-// ── Show Properties ──────────────────────────
-function showProps(meta) {
-  let html = `<div class="sec-head">📦 ${meta.name || 'Element'}</div>`;
-  html += row('Type', meta.type || '—');
-  html += row('ID', meta.id || '—');
-  if (meta.parent) html += row('Parent', meta.parent.name || '—');
-
-  if (meta.propertySets?.length) {
-    for (const pset of meta.propertySets) {
-      if (pset.properties?.length) {
-        html += `<div class="sec-head" style="margin-top:10px;">${pset.name || 'Properties'}</div>`;
-        for (const p of pset.properties) {
-          html += row(p.name, p.value ?? '—');
-        }
-      }
+// ── Show Element Properties ──────────────────
+function showElementProps(fragmentID, ids) {
+  if (!currentModel || !currentModel.properties) return;
+  
+  const expressID = Array.isArray(ids) ? ids[0] : [...ids][0];
+  const props = currentModel.properties[expressID];
+  
+  if (!props) return;
+  
+  let html = `<div class="sec-head">📦 ${props.Name?.value || 'Element'}</div>`;
+  html += row('Type', getTypeName(props.type));
+  html += row('ID', expressID);
+  
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'type' || k === 'expressID') continue;
+    if (v?.value !== undefined) {
+      html += row(k, String(v.value));
     }
   }
+  
   sbScroll.innerHTML = html;
+}
+
+function getTypeName(type) {
+  const types = {
+    3124254112: 'IfcBuildingStorey',
+    3856911033: 'IfcSpace',
+    2391406946: 'IfcWall',
+    477021311:  'IfcWallStandardCase',
+    1529196076: 'IfcSlab',
+  };
+  return types[type] || `Type ${type}`;
 }
 
 // ── Render Sidebar ───────────────────────────
 function renderSidebar() {
   const { floors, spaces, walls, slabs } = ifcData;
   let html = '';
-
+  
   html += `<div class="sec-head">🏢 Model Summary</div>`;
   html += row('Floors', floors.length);
   html += row('Spaces', spaces.length);
   html += row('Walls', walls.length);
   html += row('Slabs', slabs.length);
-
+  
   if (floors.length > 0 || spaces.length > 0) {
     html += `<div class="sec-head" style="margin-top:14px;">🏬 Floors & Spaces</div>`;
     html += `<div style="font-size:0.7rem;color:#aab3c6;margin-bottom:8px;">Select rooms to import</div>`;
-
+    
     if (floors.length > 0) {
       for (const floor of floors) {
         html += `<div class="floor-label">📐 ${floor.name}</div>`;
-        const floorSpaces = spaces.filter(s => s.parent === floor.name);
-        const list = floorSpaces.length > 0 ? floorSpaces : (floors.length === 1 ? spaces : []);
-        for (const sp of list) {
+        for (const sp of spaces) {
           const sel = selectedRooms.has(sp.id);
           html += `
             <div class="room-item ${sel?'sel':''}" onclick="window.toggleRoom('${sp.id}')">
               <span>${sel?'✅':'⬜'}</span>
               <div>
                 <div class="room-name">${sp.name}</div>
-                <div class="room-meta">IfcSpace</div>
+                <div class="room-meta">IfcSpace #${sp.id}</div>
               </div>
             </div>`;
         }
+        break;
       }
-    } else {
+    } else if (spaces.length > 0) {
       html += `<div class="floor-label">📐 Ground Floor</div>`;
       for (const sp of spaces) {
         const sel = selectedRooms.has(sp.id);
@@ -488,13 +507,13 @@ function renderSidebar() {
             <span>${sel?'✅':'⬜'}</span>
             <div>
               <div class="room-name">${sp.name}</div>
-              <div class="room-meta">IfcSpace</div>
+              <div class="room-meta">IfcSpace #${sp.id}</div>
             </div>
           </div>`;
       }
     }
   }
-
+  
   sbScroll.innerHTML = html;
   updateImportBtn();
 }
@@ -516,16 +535,16 @@ importBtn.addEventListener('click', () => {
   const spaces = selectedRooms.size > 0
     ? ifcData.spaces.filter(s => selectedRooms.has(s.id))
     : ifcData.spaces;
-
+  
   if (spaces.length === 0) {
     showToast('⚠️ No rooms to import');
     return;
   }
-
+  
   const floors = ifcData.floors.length > 0
     ? ifcData.floors
     : [{ id:'f0', name:'Ground Floor' }];
-
+  
   const payload = {
     type: 'IFC_IMPORT',
     building: {
@@ -545,7 +564,7 @@ importBtn.addEventListener('click', () => {
       }))
     }
   };
-
+  
   localStorage.setItem('lindner-ifc-import', JSON.stringify(payload));
   showToast(`✅ Importing ${spaces.length} rooms...`);
   setTimeout(() => { window.location.href = './index.html?from=ifc'; }, 1200);
@@ -553,14 +572,24 @@ importBtn.addEventListener('click', () => {
 
 // ── Toolbar ──────────────────────────────────
 document.getElementById('btnFit').onclick = () => {
-  if (model) viewer.cameraFlight.flyTo(model);
+  if (!currentModel || !world) return;
+  const box = new THREE.Box3().setFromObject(currentModel);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z);
+  world.camera.controls.setLookAt(
+    center.x + maxDim * 1.2,
+    center.y + maxDim * 0.8,
+    center.z + maxDim * 1.2,
+    center.x, center.y, center.z
+  );
 };
 
-document.getElementById('btnXray').onclick = function() {
-  if (!model) return;
-  isXray = !isXray;
-  viewer.scene.setObjectsXRayed(viewer.scene.objectIds, isXray);
-  this.classList.toggle('active', isXray);
+document.getElementById('btnClip').onclick = () => {
+  if (!components || !world) return;
+  const clipper = components.get(OBC.Clipper);
+  clipper.enabled = !clipper.enabled;
+  if (clipper.enabled) showToast('✂️ Click on model to add clip plane');
 };
 
 // ── File Input ───────────────────────────────
