@@ -117,10 +117,10 @@ let selectedRooms = new Set();
 let buildingName = 'Demo Building';
 
 const COLORS = {
-  default: 0x6a8caf,
-  hover: 0x5ea7ff,
-  selected: 0x79f5dc,
-  floor: 0x4a5a6f,
+  default: 0x7090b8,    // Nicer blue
+  hover: 0x5ea7ff,      // Bright blue on hover
+  selected: 0x79f5dc,   // Mint when selected
+  floor: 0x3a4a5f,      // Darker slabs
   wall: 0x8a9aaf
 };
 
@@ -295,43 +295,54 @@ async function loadGLB(file) {
       let meshCount = 0;
       
       inner.traverse(o => {
-        if (o.isMesh) {
-          meshCount++;
-          o.castShadow = true;
-          o.receiveShadow = true;
-          
-          // Fix materials
-          if (o.material) {
-            const mats = Array.isArray(o.material) ? o.material : [o.material];
-            mats.forEach(m => {
-              m.side = THREE.DoubleSide;
-              m.transparent = false;
-              m.opacity = 1;
-              m.needsUpdate = true;
-            });
-          } else {
-            o.material = new THREE.MeshStandardMaterial({ 
-              color: COLORS.default, 
-              side: THREE.DoubleSide 
-            });
-          }
-          
-          const roomName = o.name || `Element_${meshCount}`;
-          const mat = Array.isArray(o.material) ? o.material[0] : o.material;
-          const roomData = {
-            id: `room-${rooms.length}`,
-            name: roomName,
-            floor: 'Floor 1',
-            floorIdx: 0,
-            mesh: o,
-            material: mat,
-            originalColor: mat.color?.clone(),
-            dims: { length: 5, width: 5, height: 2.7 }
-          };
-          o.userData.roomData = roomData;
-          rooms.push(roomData);
-        }
+  if (o.isMesh) {
+    meshCount++;
+    o.castShadow = true;
+    o.receiveShadow = true;
+    
+    // Fix materials
+    if (o.material) {
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        m.side = THREE.DoubleSide;
+        m.transparent = false;
+        m.opacity = 1;
+        m.needsUpdate = true;
       });
+    } else {
+      o.material = new THREE.MeshStandardMaterial({ 
+        color: COLORS.default, 
+        side: THREE.DoubleSide 
+      });
+    }
+    
+    // Skip slabs from room list (they're floor plates, not rooms)
+    const roomName = o.name || `Element_${meshCount}`;
+    const isSlab = /slab|floor.*plate|ground|ceiling/i.test(roomName);
+    
+    if (!isSlab) {
+      const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+      
+      // Detect floor from Y position (will refine after scaling)
+      const worldPos = new THREE.Vector3();
+      o.getWorldPosition(worldPos);
+      
+      const roomData = {
+        id: `room-${rooms.length}`,
+        name: roomName.replace(/_/g, ' '), // Pretty names
+        floor: 'temp', // Will assign after scaling
+        floorIdx: 0,
+        worldY: worldPos.y, // Store for later floor grouping
+        mesh: o,
+        material: mat,
+        originalColor: mat.color?.clone(),
+        dims: { length: 5, width: 5, height: 2.7 }
+      };
+      o.userData.roomData = roomData;
+      rooms.push(roomData);
+    }
+  }
+});
       
       console.log(`📊 Found ${meshCount} meshes`);
       
@@ -370,6 +381,38 @@ async function loadGLB(file) {
       building.position.y -= min2.y; // bottom touches grid
       
       console.log('✅ Final position:', building.position);
+// === AUTO-DETECT FLOORS BY Y POSITION ===
+// Get final world positions after scaling
+rooms.forEach(r => {
+  const worldPos = new THREE.Vector3();
+  r.mesh.getWorldPosition(worldPos);
+  r.worldY = worldPos.y;
+});
+
+// Sort unique Y positions to find floor levels
+const yPositions = [...new Set(rooms.map(r => Math.round(r.worldY * 10) / 10))].sort((a, b) => a - b);
+
+// Group Y positions that are within 2 units of each other (same floor)
+const floorLevels = [];
+yPositions.forEach(y => {
+  const existing = floorLevels.find(f => Math.abs(f.y - y) < 2);
+  if (existing) {
+    existing.ys.push(y);
+  } else {
+    floorLevels.push({ y, ys: [y] });
+  }
+});
+
+// Assign floor names
+const floorNames = ['Ground Floor', '1st Floor', '2nd Floor', '3rd Floor', '4th Floor', '5th Floor', '6th Floor', '7th Floor', '8th Floor', '9th Floor', '10th Floor'];
+
+rooms.forEach(r => {
+  const floorIdx = floorLevels.findIndex(f => Math.abs(f.y - r.worldY) < 2);
+  r.floorIdx = floorIdx >= 0 ? floorIdx : 0;
+  r.floor = floorNames[r.floorIdx] || `Floor ${r.floorIdx + 1}`;
+});
+
+console.log(`🏢 Detected ${floorLevels.length} floors:`, floorLevels.map(f => f.y.toFixed(1)));
       
       fitCamera();
       renderSidebar();
