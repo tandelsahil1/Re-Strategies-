@@ -276,43 +276,110 @@ async function loadGLB(file) {
   infoTitle.textContent = buildingName;
   infoOverlay.style.display = 'block';
   
+  showToast('⏳ Loading GLB...');
+  console.log('📦 Loading file:', file.name, 'Size:', (file.size/1024).toFixed(1), 'KB');
+  
   const url = URL.createObjectURL(file);
   const loader = new GLTFLoader();
   
-  loader.load(url, (gltf) => {
-    building = gltf.scene;
-    building.traverse(o => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        o.receiveShadow = true;
-        
-        // Treat each named mesh as a "room"
-        if (o.name) {
+  loader.load(
+    url,
+    (gltf) => {
+      console.log('✅ GLTF loaded:', gltf);
+      console.log('Scene children:', gltf.scene.children.length);
+      
+      building = gltf.scene;
+      
+      let meshCount = 0;
+      let totalVertices = 0;
+      
+      building.traverse(o => {
+        if (o.isMesh) {
+          meshCount++;
+          if (o.geometry?.attributes?.position) {
+            totalVertices += o.geometry.attributes.position.count;
+          }
+          
+          o.castShadow = true;
+          o.receiveShadow = true;
+          
+          // Ensure material is visible
+          if (o.material) {
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach(m => {
+              m.side = THREE.DoubleSide; // Show both sides
+              m.transparent = false;
+              m.opacity = 1;
+              m.needsUpdate = true;
+            });
+          } else {
+            // No material? Give it one
+            o.material = new THREE.MeshStandardMaterial({ 
+              color: COLORS.default, 
+              side: THREE.DoubleSide 
+            });
+          }
+          
+          // Treat each named mesh as a "room"
+          const roomName = o.name || `Element_${meshCount}`;
           const roomData = {
             id: `room-${rooms.length}`,
-            name: o.name,
+            name: roomName,
             floor: 'Floor 1',
             floorIdx: 0,
             mesh: o,
-            material: o.material,
-            originalColor: o.material.color?.clone(),
+            material: Array.isArray(o.material) ? o.material[0] : o.material,
+            originalColor: (Array.isArray(o.material) ? o.material[0] : o.material).color?.clone(),
             dims: { length: 5, width: 5, height: 2.7 }
           };
           o.userData.roomData = roomData;
           rooms.push(roomData);
         }
+      });
+      
+      console.log(`📊 Found ${meshCount} meshes, ${totalVertices} vertices`);
+      
+      if (meshCount === 0) {
+        showToast('❌ GLB has no geometry!');
+        URL.revokeObjectURL(url);
+        return;
       }
-    });
-    
-    scene.add(building);
-    fitCamera();
-    renderSidebar();
-    URL.revokeObjectURL(url);
-    showToast(`✅ Loaded ${rooms.length} elements`);
-  }, undefined, (err) => {
-    showToast('❌ Failed to load GLB file');
-    console.error(err);
-  });
+      
+      // Check bounding box
+      const box = new THREE.Box3().setFromObject(building);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      console.log('📐 Bounding box size:', size, 'Center:', center);
+      
+      // Auto-scale if model is very small or huge
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (maxDim < 0.1) {
+        building.scale.setScalar(100);
+        console.log('🔍 Model too small, scaled up 100x');
+      } else if (maxDim > 1000) {
+        building.scale.setScalar(0.01);
+        console.log('🔍 Model too large, scaled down 100x');
+      }
+      
+      // Center the model at origin
+      building.position.sub(center.multiplyScalar(building.scale.x));
+      
+      scene.add(building);
+      fitCamera();
+      renderSidebar();
+      URL.revokeObjectURL(url);
+      showToast(`✅ Loaded ${meshCount} elements`);
+    },
+    (progress) => {
+      const pct = progress.total ? ((progress.loaded / progress.total) * 100).toFixed(0) : 0;
+      console.log(`Loading: ${pct}%`);
+    },
+    (err) => {
+      console.error('❌ GLB load error:', err);
+      showToast('❌ Failed: ' + (err.message || 'Invalid GLB'));
+      URL.revokeObjectURL(url);
+    }
+  );
 }
 
 function clearBuilding() {
