@@ -133,11 +133,11 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js",
-    "three/": "https://cdn.jsdelivr.net/npm/three@0.152.2/",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/",
-    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/",
-    "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.44/web-ifc-api.js"
+    "three": "https://esm.sh/three@0.152.2",
+    "three/": "https://esm.sh/three@0.152.2/",
+    "three/addons/": "https://esm.sh/three@0.152.2/examples/jsm/",
+    "three/examples/jsm/": "https://esm.sh/three@0.152.2/examples/jsm/",
+    "web-ifc": "https://esm.sh/web-ifc@0.0.44"
   }
 }
 </script>
@@ -145,7 +145,7 @@
 <script type="module">
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { IFCLoader } from "https://cdn.jsdelivr.net/npm/web-ifc-three@0.0.125/IFCLoader.js";
+import { IFCLoader } from "https://esm.sh/web-ifc-three@0.0.125";
 
 const topTitle=document.getElementById('topTitle'),uploadZone=document.getElementById('uploadZone'),filePill=document.getElementById('filePill'),fName=document.getElementById('fName'),fSize=document.getElementById('fSize'),sbScroll=document.getElementById('sbScroll'),emptyEl=document.getElementById('emptyEl'),loadEl=document.getElementById('loadEl'),loadSub=document.getElementById('loadSub'),importBtn=document.getElementById('importBtn'),sDot=document.getElementById('sDot'),sTxt=document.getElementById('sTxt'),toast=document.getElementById('toast'),canvas=document.getElementById('three-canvas');
 
