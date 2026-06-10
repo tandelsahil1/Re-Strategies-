@@ -345,15 +345,23 @@ async function loadIFC(file) {
       src: url,
       excludeUnclassifiedObjects: false,
       objectDefaults: {
-        IfcSpace: { visible: false, pickable: false }
-      }
+  IfcSpace: { visible: true, pickable: true, opacity: 0.3 }
+}
     });
 
     model.on("loaded", () => {
-      URL.revokeObjectURL(url);
-      showLoad(false);
-
-      viewer.cameraFlight.flyTo(model, { duration: 1 });
+  URL.revokeObjectURL(url);
+  showLoad(false);
+  
+  // Safer camera fit
+  try {
+    const aabb = viewer.scene.getAABB(viewer.scene.visibleObjectIds);
+    if (aabb && aabb.length === 6) {
+      viewer.cameraFlight.jumpTo({ aabb });
+    }
+  } catch(e) {
+    console.warn('Camera fit failed:', e);
+  }
 
       fName.textContent = file.name;
       fSize.textContent = fmt(file.size);
@@ -385,29 +393,38 @@ async function loadIFC(file) {
 // ── Extract Data from MetaScene ──────────────
 function extractData() {
   ifcData = { floors:[], spaces:[], walls:[], slabs:[] };
+  
+  if (!viewer.metaScene || !viewer.metaScene.metaObjects) {
+    console.warn('No metaScene available');
+    return;
+  }
+  
   const metaObjects = viewer.metaScene.metaObjects;
+  console.log('Total meta objects:', Object.keys(metaObjects).length);
 
   for (const id in metaObjects) {
     const obj = metaObjects[id];
-    const type = obj.type;
+    const type = obj.type || '';
 
-    if (type === 'IfcBuildingStorey') {
+    if (type.includes('BuildingStorey') || type === 'IfcBuildingStorey') {
       ifcData.floors.push({ id, name: obj.name || 'Floor' });
     }
-    if (type === 'IfcSpace') {
+    if (type.includes('Space') || type === 'IfcSpace') {
       ifcData.spaces.push({
         id,
         name: obj.name || 'Space',
         parent: obj.parent?.name || ''
       });
     }
-    if (type === 'IfcWall' || type === 'IfcWallStandardCase') {
+    if (type.includes('Wall')) {
       ifcData.walls.push({ id, name: obj.name || 'Wall' });
     }
     if (type === 'IfcSlab') {
       ifcData.slabs.push({ id, name: obj.name || 'Slab' });
     }
   }
+  
+  console.log('Extracted:', ifcData);
 }
 
 // ── Show Properties ──────────────────────────
