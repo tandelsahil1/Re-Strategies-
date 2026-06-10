@@ -343,7 +343,6 @@
 <!-- Find your viewer-topbar div and add this inside it -->
 
   <!-- ════════════════════════════════════════ -->
-<!-- ════════════════════════════════════════ -->
 <!-- BIM VIEWER → LCA TOOL IMPORT BRIDGE     -->
 <!-- ════════════════════════════════════════ -->
 <script>
@@ -351,25 +350,26 @@
   const urlParams = new URLSearchParams(window.location.search);
   const fromBIM = urlParams.get('from') === 'bim' || urlParams.get('from') === 'ifc';
   const bimData = localStorage.getItem('lindner-ifc-import');
-
+  
   if (!bimData) {
     console.log('ℹ️ No BIM import data');
     return;
   }
-
+  
   try {
     const payload = JSON.parse(bimData);
     console.log('🏗️ BIM Import detected:', payload);
-
+    
     if (!payload?.building?.floors?.length) {
       console.warn('⚠️ Invalid BIM data structure');
       localStorage.removeItem('lindner-ifc-import');
       return;
     }
-
+    
     const totalRooms = payload.building.floors.reduce((s, f) => s + (f.rooms?.length || 0), 0);
     const floorCount = payload.building.floors.length;
-
+    
+    // Ask user (skip prompt if from=bim URL parameter)
     let proceed = fromBIM;
     if (!proceed) {
       proceed = confirm(
@@ -380,13 +380,14 @@
         `Click OK to load this building (replaces current).`
       );
     }
-
+    
     if (!proceed) {
       console.log('User declined import');
       localStorage.removeItem('lindner-ifc-import');
       return;
     }
-
+    
+    // Transform BIM data into app's expected format
     const buildingData = {
       name: payload.building.name || 'BIM Import',
       location: payload.building.location || '',
@@ -402,28 +403,35 @@
             width: r.dims?.width || 5,
             height: r.dims?.height || 2.7
           },
-          components: {},
+          components: {}, // Empty - user will configure
           fromBIM: true
         }))
       }))
     };
-
+    
     console.log('✅ Transformed building data:', buildingData);
-
+    
+    // Use the existing project loading pipeline!
     localStorage.setItem('lindner-load-project', JSON.stringify(buildingData));
+    
+    // Clear BIM import marker
     localStorage.removeItem('lindner-ifc-import');
+    
+    // Clear the current project ID so we don't overwrite an existing saved project
     localStorage.removeItem('lindner-current-project-id');
-
+    
+    // Clean URL
     if (fromBIM) {
       window.history.replaceState({}, '', window.location.pathname);
     }
-
+    
     console.log(`🚀 Queued BIM building "${buildingData.name}" with ${totalRooms} rooms for loading`);
-
+    
+    // Show banner notification (since alerts can be jarring)
     setTimeout(() => {
       showBIMNotification(buildingData.name, totalRooms, floorCount);
     }, 2000);
-
+    
   } catch(err) {
     console.error('❌ BIM import error:', err);
     localStorage.removeItem('lindner-ifc-import');
@@ -466,9 +474,10 @@ function showBIMNotification(buildingName, roomCount, floorCount) {
   setTimeout(() => banner.remove(), 8000);
 }
 
-const _bimStyle = document.createElement('style');
-_bimStyle.textContent = `@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
-document.head.appendChild(_bimStyle);
+// Add slide-in animation
+const style = document.createElement('style');
+style.textContent = `@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+document.head.appendChild(style);
 </script>
 
   
