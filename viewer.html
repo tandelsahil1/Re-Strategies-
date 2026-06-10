@@ -304,11 +304,13 @@ async function loadGLB(file) {
     if (o.material) {
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach(m => {
-        m.side = THREE.DoubleSide;
-        m.transparent = false;
-        m.opacity = 1;
-        m.needsUpdate = true;
-      });
+  m.side = THREE.FrontSide; // Better for solid buildings
+  m.transparent = false;
+  m.opacity = 1;
+  m.roughness = 0.7;
+  m.metalness = 0.1;
+  m.needsUpdate = true;
+});
     } else {
       o.material = new THREE.MeshStandardMaterial({ 
         color: COLORS.default, 
@@ -538,6 +540,12 @@ function toggleRoom(id) {
     room.material.color.setHex(COLORS.selected);
   }
   renderSidebar();
+  
+  // NEW: Scroll to room in sidebar
+  setTimeout(() => {
+    const el = document.querySelector(`[onclick*="${id}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
 }
 window.toggleRoom = toggleRoom;
 
