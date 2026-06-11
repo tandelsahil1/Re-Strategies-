@@ -1903,6 +1903,21 @@ function setupEnvironment() {
 
 function buildRoom() {
   state.metrics = {};
+ // ✅ ADD THIS: Sync selected from room data
+  const room = getCurrentRoom();
+  if (room && room.selected) {
+    state.selected.clear();
+    if (room.selected instanceof Set) {
+      room.selected.forEach(k => state.selected.add(k));
+    } else if (typeof room.selected === 'object') {
+      Object.keys(room.selected).forEach(k => {
+        if (room.selected[k] === true || room.selected[k]) {
+          state.selected.add(k);
+        }
+      });
+    }
+  }
+  
   state.roomName = roomNameInput.value.trim() || "Untitled Room";
   roomNameReadout.textContent = state.roomName;
   viewerRoomTitle.textContent = state.roomName;
